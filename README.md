@@ -12,6 +12,12 @@ More components will be added over time.
 pip install ikn-library
 ```
 
+Already installed? Upgrade to the latest release with:
+
+```bash
+pip install --upgrade ikn-library
+```
+
 Or from source (development mode):
 
 ```bash

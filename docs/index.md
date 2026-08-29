@@ -18,6 +18,15 @@ With scikit-learn support for feature selection:
 pip install "ikn-library[ml]"
 ```
 
+Already installed? Upgrade to the latest release with:
+
+```bash
+pip install --upgrade ikn-library
+```
+
+Check the installed version with
+`python -c "import ikn_library; print(ikn_library.__version__)"`.
+
 ## Quick example
 
 ```python
