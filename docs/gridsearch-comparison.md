@@ -40,16 +40,49 @@ grid = GridSearchCV(SVC(kernel="rbf"), param_grid, cv=5)
 grid.fit(X, y)
 ```
 
-## Reading the comparison from `cv_results_`
+## What `cv_results_` looks like
 
 `cv_results_` is a dict of arrays with one entry per combination; as a
-DataFrame each row holds the combination (`params`) and its
-cross-validated performance (`mean_test_score`, `std_test_score`).
-No model is retrained below — everything is a lookup:
+DataFrame each row holds the combination (`params`, plus one
+`param_<name>` column per parameter) and its cross-validated
+performance (`mean_test_score`, `std_test_score`, `rank_test_score`).
+With a 4x4 grid there are 16 rows — one per combination:
 
 ```python
 results = pd.DataFrame(grid.cv_results_)
+cols = ["param_C", "param_gamma", "mean_test_score",
+        "std_test_score", "rank_test_score"]
+print(results[cols].sort_values("rank_test_score").head(6).to_string(index=False))
+```
 
+Output:
+
+```text
+ param_C param_gamma  mean_test_score  std_test_score  rank_test_score
+    10.0        0.01         0.978932        0.006990                1
+    10.0       scale         0.977177        0.008921                2
+     1.0       scale         0.973638        0.014679                3
+   100.0        0.01         0.968374        0.008919                4
+     1.0        0.01         0.966636        0.010182                5
+     1.0         0.1         0.959587        0.008910                6
+```
+
+How to read it:
+
+- **`mean_test_score`** — the score averaged over the 5 CV folds; this
+  is the number we compare.
+- **`std_test_score`** — the spread across folds; larger values mean
+  the score is less certain.
+- **`rank_test_score`** — 1 is the winner (`grid.best_params_`). Note
+  where the default combination (`C=1.0, gamma="scale"`) sits: **rank 3
+  of 16** — decent, but not the best. That is the whole comparison,
+  already visible in the table.
+
+## Reading the comparison from `cv_results_`
+
+No model is retrained below — everything is a lookup:
+
+```python
 default_params = {"C": 1.0, "gamma": "scale"}
 default_row = results.loc[
     results["params"].apply(lambda p: p == default_params)
@@ -58,6 +91,13 @@ best_row = results.iloc[grid.best_index_]
 
 print("default:", default_params, "->", default_row["mean_test_score"])
 print("best   :", grid.best_params_, "->", best_row["mean_test_score"])
+```
+
+Output:
+
+```text
+default: {'C': 1.0, 'gamma': 'scale'} -> 0.9736376339077782
+best   : {'C': 10.0, 'gamma': 0.01} -> 0.9789318428815401
 ```
 
 Two details worth pointing out to students:
@@ -89,9 +129,13 @@ fig.tight_layout()
 plt.show()
 ```
 
-On the breast-cancer dataset this yields roughly **0.9736** for the
-defaults versus **0.9789** for the best combination (`C=10.0,
-gamma=0.01`) — a real but modest gain, which is itself a useful lesson:
+The result:
+
+![Bar chart: default vs tuned parameters](img/gridsearch_comparison.png)
+
+On the breast-cancer dataset this yields **0.9736** for the defaults
+versus **0.9789** for the best combination (`C=10.0, gamma=0.01`) — a
+real but modest gain, which is itself a useful lesson:
 tuning helps, and the error bars (`std_test_score`) show how much of
 the difference could be fold-to-fold noise.
 
