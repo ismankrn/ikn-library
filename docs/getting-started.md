@@ -72,6 +72,7 @@ Pass a `seed` for reproducible runs.
 |---|---|---|
 | Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets |
+| Simulated Annealing | `SimulatedAnnealing` | continuous |
 
 **ACO-R** (Socha & Dorigo, 2008) keeps an archive of the best solutions;
 each ant samples a new solution from a Gaussian centered on an archive
@@ -80,3 +81,9 @@ member, with the Gaussian width shrinking as the archive converges.
 **Binary ACO** maintains a pheromone value per (feature, bit) pair and
 builds bit strings by sampling each bit proportionally to its pheromone,
 with a hyper-cube pheromone update toward the best solution found.
+
+**Simulated Annealing** (Kirkpatrick et al., 1983) is a single-solution
+method: each iteration proposes one Gaussian neighbor, accepting worse
+moves with probability ``exp(-delta / T)`` while the temperature — and
+with it the step size — cools geometrically. Cheap per iteration and a
+useful baseline against the population-based methods.

@@ -49,3 +49,5 @@
 ::: ikn_library.algorithms.AntColonyOptimization
 
 ::: ikn_library.algorithms.BinaryAntColonyOptimization
+
+::: ikn_library.algorithms.SimulatedAnnealing
