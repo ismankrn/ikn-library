@@ -142,6 +142,101 @@ kernel was part of the search, not an assumption.
     this works well in practice; for many unordered categories a
     discrete algorithm is the better tool.
 
+## Example: MLP architecture search
+
+The same recipe extends to neural-network architecture: search the
+**number of hidden layers** and the **nodes per layer** of an
+`MLPClassifier`, with the **validation loss** as the fitness. Unlike the
+SVM examples, this fitness is *minimized*, so the task needs no
+`optimization_type` (minimization is the default):
+
+```python
+from sklearn.metrics import log_loss
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+
+
+class MLPTuning(Problem):
+    """Search: number of hidden layers (1-3) and nodes per layer (8-128)."""
+
+    def __init__(self, X_train, y_train, X_val, y_val):
+        super().__init__(dimension=2, lower=[0.0, 3.0], upper=[1.0, 7.0])
+        self.X_train, self.y_train = X_train, y_train
+        self.X_val, self.y_val = X_val, y_val
+
+    def decode(self, x):
+        n_layers = min(int(x[0] * 3), 2) + 1        # 1, 2, or 3 layers
+        n_nodes = int(round(2.0 ** x[1]))           # 8..128 nodes (log2 scale)
+        return {"hidden_layer_sizes": (n_nodes,) * n_layers}
+
+    def _evaluate(self, x):
+        model = MLPClassifier(**self.decode(x), max_iter=300, random_state=0)
+        model.fit(self.X_train, self.y_train)
+        return log_loss(self.y_val, model.predict_proba(self.X_val))
+
+
+X_train, X_val, y_train, y_val = train_test_split(
+    X, y, test_size=0.25, stratify=y, random_state=42)
+
+problem = MLPTuning(X_train, y_train, X_val, y_val)
+task = Task(problem=problem, max_evals=60)   # minimization by default
+algo = AntColonyOptimization(population_size=8, archive_size=12, seed=42)
+best_x, best_loss = algo.run(task)
+
+print("Best architecture:", problem.decode(best_x))
+print("Validation log-loss:", best_loss)
+```
+
+Decoding details:
+
+- **Number of layers** uses the categorical mapping from the previous
+  section: `min(int(x[0] * 3), 2) + 1` gives 1, 2, or 3 layers with
+  equal shares of the search space.
+- **Nodes per layer** is searched on a **log2 scale**: `x[1]` in
+  `[3, 7]` maps to `2^x` = 8..128 nodes, so doubling the width is one
+  unit of search distance — the same reasoning as searching `C` and
+  `gamma` in log10.
+- Each fitness evaluation trains a full network, so the budget is small
+  (`max_evals=60`); a fixed `random_state` keeps the fitness
+  deterministic (see below).
+
+Output:
+
+```text
+Best architecture: {'hidden_layer_sizes': (23,)}
+Validation log-loss: 0.062
+```
+
+For comparison, the default `MLPClassifier` architecture `(100,)`
+reaches a validation log-loss of 0.0721 on the same split — the search
+found that a *smaller* single-layer network fits this dataset better.
+
+!!! warning "Is validation loss a valid fitness? Yes — with care"
+    Using the validation loss as the fitness is standard practice, and
+    the *loss* is actually a better search signal than accuracy (it is
+    smooth: it distinguishes a confident correct prediction from a
+    barely-correct one). But four caveats keep it honest:
+
+    1. **The validation set must be disjoint from the training set** —
+       here the split does that; the loss on training data would just
+       reward memorization.
+    2. **Report final results on a third, untouched test set.** The
+       search consumed the validation set, so the best validation loss
+       is optimistically biased — the same three-split discipline as in
+       [Ensemble Weights](ensemble.md#the-protocol-three-splits).
+    3. **Fix the training seed** (`random_state=0` above). Network
+       training is stochastic; without a fixed seed the same
+       architecture returns different losses and the optimizer partly
+       chases noise. (The remaining caveat: results are then tied to
+       one initialization — averaging a few seeds is more robust but
+       proportionally more expensive.)
+    4. **"Final" loss deserves early stopping.** The loss at the last
+       epoch can be worse than the model's best point if the network
+       overfits late in training. Passing `early_stopping=True` to
+       `MLPClassifier` (or restoring the best epoch in other
+       frameworks) makes the fitness reflect the best achievable
+       model rather than an arbitrary stopping point.
+
 To visualize how the best score improves over the iterations, see the
 teaching note [Plotting Convergence](convergence-plot.md).
 
