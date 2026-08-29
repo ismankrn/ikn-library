@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "ikn-library"
 version = "0.1.0"
-description = "Nature-inspired metaheuristic algorithms for feature selection and parameter optimization"
+description = "Python library of research and data-science tools, including nature-inspired metaheuristic algorithms for feature selection and parameter optimization"
 readme = "README.md"
 authors = [{ name = "Isman Kurniawan", email = "isman.krn@gmail.com" }]
 requires-python = ">=3.9"

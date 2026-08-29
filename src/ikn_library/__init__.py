@@ -1,7 +1,8 @@
-"""ikn_library: nature-inspired metaheuristic algorithms.
+"""ikn_library: research and data-science tools.
 
-Metaheuristic algorithms for continuous optimization, feature selection,
-and parameter optimization, following a NiaPy-like workflow:
+The first module provides nature-inspired metaheuristic algorithms for
+continuous optimization, feature selection, and parameter optimization,
+following a NiaPy-like workflow:
 
     >>> from ikn_library import Task
     >>> from ikn_library.problems import Sphere

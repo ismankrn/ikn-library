@@ -1,9 +1,10 @@
 # ikn-library
 
-Nature-inspired metaheuristic algorithms for continuous optimization,
-feature selection, and parameter optimization — focusing on algorithms not
-yet available in [NiaPy](https://github.com/NiaOrg/NiaPy), starting with
-**Ant Colony Optimization** in both continuous (ACO-R) and binary variants.
+A growing Python library of research and data-science tools. Its first
+module provides nature-inspired metaheuristic algorithms for continuous
+optimization, feature selection, and parameter optimization — focusing on
+algorithms not yet available in [NiaPy](https://github.com/NiaOrg/NiaPy).
+More components will be added over time.
 
 ## Installation
 
@@ -44,5 +45,5 @@ The library follows a NiaPy-like workflow built from three pieces:
    `algorithm.run(task)` and returns `(best_x, best_fitness)`.
 
 Continue with [Getting Started](getting-started.md) for a full tour, or
-jump to [Feature Selection](feature-selection.md) for the wrapper-based
-feature-selection workflow.
+jump straight to the tutorials: [Feature Selection](feature-selection.md)
+and [Parameter Optimization](parameter-optimization.md).

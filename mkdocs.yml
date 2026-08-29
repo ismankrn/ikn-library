@@ -1,5 +1,5 @@
 site_name: ikn-library
-site_description: Nature-inspired metaheuristic algorithms for feature selection and parameter optimization
+site_description: Python library of research and data-science tools, including nature-inspired metaheuristic algorithms for feature selection and parameter optimization
 site_url: https://ikn-library.readthedocs.io/
 repo_url: https://github.com/ismankrn/ikn-library
 repo_name: ismankrn/ikn-library
@@ -42,4 +42,5 @@ nav:
   - Home: index.md
   - Getting Started: getting-started.md
   - Feature Selection: feature-selection.md
+  - Parameter Optimization: parameter-optimization.md
   - API Reference: api.md
