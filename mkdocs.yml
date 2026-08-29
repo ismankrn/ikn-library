@@ -48,4 +48,5 @@ nav:
   - Teaching Notes:
       - Comparing Tuning Results: gridsearch-comparison.md
       - Plotting Convergence: convergence-plot.md
+      - Ensemble Weights Concept: ensemble-concept.md
   - API Reference: api.md
