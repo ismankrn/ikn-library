@@ -44,4 +44,6 @@ nav:
   - Feature Selection: feature-selection.md
   - Parameter Optimization: parameter-optimization.md
   - Microarray Data: microarray.md
+  - Teaching Notes:
+      - Comparing Tuning Results: gridsearch-comparison.md
   - API Reference: api.md
