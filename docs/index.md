@@ -70,3 +70,15 @@ The library follows a NiaPy-like workflow built from three pieces:
   Binary ACO).
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
+
+## Acknowledgments
+
+The `Problem` / `Task` / `Algorithm` workflow is inspired by the API
+design of [NiaPy](https://github.com/NiaOrg/NiaPy) — G. Vrbančič,
+L. Brezočnik, U. Mlakar, D. Fister, and I. Fister Jr., "NiaPy: Python
+microframework for building nature-inspired algorithms," *Journal of
+Open Source Software*, 3(23), 613, 2018
+([doi:10.21105/joss.00613](https://doi.org/10.21105/joss.00613)). All
+algorithms and implementations in this library are written
+independently; see the feature-selection and algorithm pages for the
+literature each component is based on.

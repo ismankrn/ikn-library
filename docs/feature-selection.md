@@ -51,6 +51,13 @@ alpha * (1 - cv_score) + (1 - alpha) * n_selected / n_features
 - Lower `alpha` presses harder for smaller subsets.
 - An empty subset receives the worst possible fitness (1.0).
 
+This weighted formulation is standard in the wrapper feature-selection
+literature — see E. Emary, H. M. Zawbaa, and A. E. Hassanien, "Binary
+grey wolf optimization approaches for feature selection,"
+*Neurocomputing*, 172, 371–381, 2016; the same form is used in J. Too's
+[Wrapper-Feature-Selection-Toolbox](https://github.com/JingweiToo/Wrapper-Feature-Selection-Toolbox)
+and in NiaPy's feature-selection tutorial.
+
 ## Notes
 
 - Solutions are vectors in `[0, 1]`; entries above `threshold` (default

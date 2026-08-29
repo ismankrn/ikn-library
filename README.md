@@ -179,3 +179,25 @@ Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs
 pip install -e ".[dev]"
 pytest
 ```
+
+## Acknowledgments
+
+- The `Problem` / `Task` / `Algorithm` workflow of this library is
+  inspired by the API design of
+  [NiaPy](https://github.com/NiaOrg/NiaPy): G. Vrbančič, L. Brezočnik,
+  U. Mlakar, D. Fister, and I. Fister Jr., "NiaPy: Python microframework
+  for building nature-inspired algorithms," *Journal of Open Source
+  Software*, 3(23), 613, 2018.
+  [doi:10.21105/joss.00613](https://doi.org/10.21105/joss.00613).
+  All algorithms and implementations in this library are written
+  independently.
+- The weighted feature-selection fitness
+  (`alpha * (1 - score) + (1 - alpha) * n_selected / n_features`) follows
+  the standard wrapper formulation used, among others, in E. Emary,
+  H. M. Zawbaa, and A. E. Hassanien, "Binary grey wolf optimization
+  approaches for feature selection," *Neurocomputing*, 172, 371–381,
+  2016, and in J. Too's
+  [Wrapper-Feature-Selection-Toolbox](https://github.com/JingweiToo/Wrapper-Feature-Selection-Toolbox).
+- Algorithm references: ACO-R — K. Socha and M. Dorigo, *EJOR* 185(3),
+  2008; Simulated Annealing — S. Kirkpatrick, C. D. Gelatt, and
+  M. P. Vecchi, *Science* 220(4598), 1983.

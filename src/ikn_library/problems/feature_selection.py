@@ -17,6 +17,11 @@ class FeatureSelectionProblem(Problem):
 
         alpha * (1 - cv_score) + (1 - alpha) * n_selected / n_features
 
+    This weighted formulation is standard in the wrapper feature-selection
+    literature; see E. Emary, H. M. Zawbaa, and A. E. Hassanien, "Binary
+    grey wolf optimization approaches for feature selection,"
+    Neurocomputing, 172, 371-381, 2016.
+
     Requires scikit-learn (``pip install ikn-library[ml]``).
 
     Args:
