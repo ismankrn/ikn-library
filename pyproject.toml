@@ -7,7 +7,6 @@ name = "ikn-library"
 version = "0.1.0"
 description = "Nature-inspired metaheuristic algorithms for feature selection and parameter optimization"
 readme = "README.md"
-license = "MIT"
 authors = [{ name = "Isman Kurniawan", email = "isman.krn@gmail.com" }]
 requires-python = ">=3.9"
 keywords = [
@@ -36,9 +35,14 @@ dev = [
     "ruff",
     "scikit-learn>=1.3",
 ]
+docs = [
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.24",
+]
 
 [project.urls]
 Homepage = "https://github.com/ismankrn/ikn-library"
+Documentation = "https://ikn-library.readthedocs.io"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/ikn_library"]

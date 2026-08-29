@@ -85,13 +85,13 @@ The fitness balances the cross-validated score against the subset size:
 
 More algorithms are planned.
 
+## Documentation
+
+Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)
+
 ## Development
 
 ```bash
 pip install -e ".[dev]"
 pytest
 ```
-
-## License
-
-MIT

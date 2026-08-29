@@ -1,0 +1,29 @@
+# API Reference
+
+## Task
+
+::: ikn_library.task.Task
+
+::: ikn_library.task.OptimizationType
+
+## Problems
+
+::: ikn_library.problems.Problem
+
+::: ikn_library.problems.FeatureSelectionProblem
+
+### Benchmarks
+
+::: ikn_library.problems.Sphere
+
+::: ikn_library.problems.Rastrigin
+
+::: ikn_library.problems.Ackley
+
+## Algorithms
+
+::: ikn_library.algorithms.Algorithm
+
+::: ikn_library.algorithms.AntColonyOptimization
+
+::: ikn_library.algorithms.BinaryAntColonyOptimization

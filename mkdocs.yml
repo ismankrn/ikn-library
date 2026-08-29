@@ -1,0 +1,45 @@
+site_name: ikn-library
+site_description: Nature-inspired metaheuristic algorithms for feature selection and parameter optimization
+site_url: https://ikn-library.readthedocs.io/
+repo_url: https://github.com/ismankrn/ikn-library
+repo_name: ismankrn/ikn-library
+
+theme:
+  name: material
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: teal
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: teal
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - content.code.copy
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
+            members_order: source
+
+markdown_extensions:
+  - admonition
+  - pymdownx.highlight
+  - pymdownx.superfences
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - Feature Selection: feature-selection.md
+  - API Reference: api.md
