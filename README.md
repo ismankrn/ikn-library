@@ -197,6 +197,3 @@ pytest
   approaches for feature selection," *Neurocomputing*, 172, 371–381,
   2016, and in J. Too's
   [Wrapper-Feature-Selection-Toolbox](https://github.com/JingweiToo/Wrapper-Feature-Selection-Toolbox).
-- Algorithm references: ACO-R — K. Socha and M. Dorigo, *EJOR* 185(3),
-  2008; Simulated Annealing — S. Kirkpatrick, C. D. Gelatt, and
-  M. P. Vecchi, *Science* 220(4598), 1983.
