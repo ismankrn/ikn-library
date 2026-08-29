@@ -46,4 +46,5 @@ nav:
   - Microarray Data: microarray.md
   - Teaching Notes:
       - Comparing Tuning Results: gridsearch-comparison.md
+      - Plotting Convergence: convergence-plot.md
   - API Reference: api.md

@@ -91,19 +91,8 @@ dataset.
     `n_estimators=int(round(x[0]))`) and categorical ones by mapping
     ranges of a dimension onto choices.
 
-## Plotting convergence
-
-`Task` records the best score after each iteration:
-
-```python
-iters, scores = task.convergence_data()
-
-import matplotlib.pyplot as plt
-plt.plot(iters, scores)
-plt.xlabel("Iteration")
-plt.ylabel("Best CV accuracy")
-plt.show()
-```
+To visualize how the best score improves over the iterations, see the
+teaching note [Plotting Convergence](convergence-plot.md).
 
 A complete runnable script is available at
 [`examples/parameter_optimization.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/parameter_optimization.py).
