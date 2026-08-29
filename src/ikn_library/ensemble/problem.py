@@ -16,7 +16,24 @@ def _f1(y_true, y_pred):
     denominator = 2 * tp + fp + fn
     return float(2 * tp / denominator) if denominator > 0 else 0.0
 
+
+def _average_ranks(a):
+    _, inverse, counts = np.unique(a, return_inverse=True, return_counts=True)
+    cumulative = np.cumsum(counts)
+    return (cumulative - (counts - 1) / 2.0)[inverse]
+
+
+def _auc(y_true, scores):
+    n_pos = int(np.sum(y_true == 1))
+    n_neg = len(y_true) - n_pos
+    if n_pos == 0 or n_neg == 0:
+        return 0.5
+    ranks = _average_ranks(np.asarray(scores, dtype=float))
+    rank_sum = float(np.sum(ranks[y_true == 1]))
+    return (rank_sum - n_pos * (n_pos + 1) / 2.0) / (n_pos * n_neg)
+
 _METRICS = {"accuracy": _accuracy, "f1": _f1}
+_SCORE_METRICS = {"auc": _auc}
 
 
 class EnsembleWeightProblem(Problem):
@@ -38,15 +55,27 @@ class EnsembleWeightProblem(Problem):
 
     To avoid overfitting the weights, build ``P`` and ``y`` from data the
     ensemble was **not** trained on (a validation split), and report
-    final performance on a third, untouched test set.
+    final performance on a third, untouched test set. This
+    train/validation/test protocol — and the weighted-ensemble scheme
+    itself — follows D. Li, L. Luo, W. Zhang, F. Liu, and F. Luo, "A
+    genetic algorithm-based weighted ensemble method for predicting
+    transposon-derived piRNAs," BMC Bioinformatics, 17:329, 2016
+    (doi:10.1186/s12859-016-1206-3), where the weights of per-feature
+    classifiers are optimized by a metaheuristic against the validation
+    AUC.
 
     Args:
         P: Probability matrix ``(n_samples, n_members)`` — see
             :func:`~ikn_library.ensemble.tree_proba_matrix`.
         y: Binary labels (0/1) of the same samples.
-        metric: ``"accuracy"``, ``"f1"``, or a callable
+        metric: ``"accuracy"``, ``"f1"``, ``"auc"``, or a callable
             ``f(y_true, y_pred) -> float`` where higher is better.
-        threshold: Cut-off on the combined score for predicting class 1.
+            ``"auc"`` is threshold-free: it is computed on the combined
+            scores directly (before the cut-off), making it a smoother
+            fitness and a better fit for imbalanced data. Callables
+            receive thresholded 0/1 predictions.
+        threshold: Cut-off on the combined score for predicting class 1
+            (not used by the ``"auc"`` metric).
 
     The fitness (minimized) is ``1 - metric``.
     """
@@ -62,12 +91,17 @@ class EnsembleWeightProblem(Problem):
             raise ValueError("y must contain binary labels 0/1")
         if not 0.0 < threshold < 1.0:
             raise ValueError("threshold must be in (0, 1)")
+        self._score_metric = None
         if callable(metric):
             self._metric = metric
         elif metric in _METRICS:
             self._metric = _METRICS[metric]
+        elif metric in _SCORE_METRICS:
+            self._metric = None
+            self._score_metric = _SCORE_METRICS[metric]
         else:
-            raise ValueError(f'metric must be callable or one of {sorted(_METRICS)}')
+            valid = sorted(_METRICS) + sorted(_SCORE_METRICS)
+            raise ValueError(f"metric must be callable or one of {valid}")
         self.threshold = float(threshold)
         super().__init__(dimension=self.P.shape[1], lower=0.0, upper=1.0)
 
@@ -93,4 +127,6 @@ class EnsembleWeightProblem(Problem):
         return (self.scores(x, P) > self.threshold).astype(int)
 
     def _evaluate(self, x):
+        if self._score_metric is not None:
+            return 1.0 - self._score_metric(self.y, self.scores(x))
         return 1.0 - self._metric(self.y, self.predict(x))

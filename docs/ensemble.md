@@ -96,16 +96,60 @@ best_bits, _ = algo.run(Task(problem=problem, max_evals=2000))
 kept = int(best_bits.sum())   # members kept out of 30
 ```
 
+## Multi-feature ensembles (GA-WE style)
+
+The weighted-ensemble scheme is not limited to the trees of one forest.
+A powerful variant from the bioinformatics literature — the **GA-WE**
+method of Li et al. (2016), which this module's design follows — trains
+**one classifier per feature representation** of the same data and lets
+the metaheuristic weigh the representations. In their piRNA-prediction
+study, 23 Random Forests (one per sequence feature: k-mer spectrum,
+mismatch profiles, pseudo-nucleotide compositions, PSSM, ...) were
+combined with weights optimized by a genetic algorithm against the
+**validation AUC**, outperforming every individual representation.
+
+When every member reads the **same** feature matrix (a heterogeneous
+SVM + KNN + RF ensemble, say), pass the list of fitted classifiers to
+`tree_proba_matrix` as usual. When each member has its **own** feature
+representation — the GA-WE setting — build the probability matrix
+explicitly, one column per representation-specific classifier (each
+fitted on the train split, predicting on the validation split):
+
+```python
+import numpy as np
+
+P_val = np.column_stack([
+    clf_kmers.predict_proba(X_val_kmers)[:, 1],
+    clf_pssm.predict_proba(X_val_pssm)[:, 1],
+    clf_composition.predict_proba(X_val_composition)[:, 1],
+])
+problem = EnsembleWeightProblem(P_val, y_val, metric="auc")
+```
+
+Following the paper, use `metric="auc"`: it is **threshold-free**
+(computed on the combined scores before the 0.5 cut-off), a smoother
+search signal than accuracy, and the safer choice on imbalanced data.
+
 ## Notes
 
 - `tree_proba_matrix` accepts any fitted scikit-learn ensemble exposing
   `estimators_`, or a plain list of fitted classifiers — heterogeneous
   ensembles (SVM + KNN + RF) work the same way.
-- `metric` accepts `"accuracy"`, `"f1"`, or any callable
+- `metric` accepts `"accuracy"`, `"f1"`, `"auc"`, or any callable
   `f(y_true, y_pred)` where higher is better; the fitness minimized is
-  `1 - metric`.
+  `1 - metric`. The `"auc"` metric is computed on the continuous
+  combined scores and ignores `threshold`; callables receive
+  thresholded 0/1 predictions.
 - Currently binary classification (labels 0/1); the positive class is
   each member's `classes_[1]`.
+
+## Reference
+
+The weighted-ensemble scheme and its train/validation/test protocol
+follow: D. Li, L. Luo, W. Zhang, F. Liu, and F. Luo, "A genetic
+algorithm-based weighted ensemble method for predicting
+transposon-derived piRNAs," *BMC Bioinformatics*, 17:329, 2016.
+[doi:10.1186/s12859-016-1206-3](https://doi.org/10.1186/s12859-016-1206-3).
 
 A complete runnable script is available at
 [`examples/ensemble_weight_optimization.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/ensemble_weight_optimization.py).

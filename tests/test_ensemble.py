@@ -99,6 +99,36 @@ def test_f1_metric(known_optimum):
     assert fitness == pytest.approx(0.0)  # perfect member -> F1 = 1
 
 
+def test_auc_metric_matches_sklearn(known_optimum):
+    sklearn_metrics = pytest.importorskip("sklearn.metrics")
+    P, y = known_optimum
+    problem = EnsembleWeightProblem(P, y, metric="auc")
+    x = np.array([0.4, 0.2, 0.1, 0.2, 0.1])
+    expected = sklearn_metrics.roc_auc_score(y, problem.scores(x))
+    assert problem.evaluate(x) == pytest.approx(1.0 - expected)
+
+
+def test_auc_metric_perfect_member(known_optimum):
+    P, y = known_optimum
+    problem = EnsembleWeightProblem(P, y, metric="auc")
+    fitness = problem.evaluate(np.array([1.0, 0.0, 0.0, 0.0, 0.0]))
+    assert fitness == pytest.approx(0.0)  # perfect ranking -> AUC = 1
+
+
+def test_auc_metric_is_threshold_free(known_optimum):
+    P, y = known_optimum
+    x = np.full(5, 0.2)
+    low = EnsembleWeightProblem(P, y, metric="auc", threshold=0.1).evaluate(x)
+    high = EnsembleWeightProblem(P, y, metric="auc", threshold=0.9).evaluate(x)
+    assert low == pytest.approx(high)
+
+
+def test_auc_metric_constant_scores(known_optimum):
+    P, y = known_optimum
+    problem = EnsembleWeightProblem(np.full_like(P, 0.5), y, metric="auc")
+    assert problem.evaluate(np.full(5, 0.2)) == pytest.approx(0.5)  # AUC = 0.5
+
+
 def test_input_validation(known_optimum):
     P, y = known_optimum
     with pytest.raises(ValueError):

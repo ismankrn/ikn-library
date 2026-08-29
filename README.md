@@ -197,3 +197,8 @@ pytest
   approaches for feature selection," *Neurocomputing*, 172, 371–381,
   2016, and in J. Too's
   [Wrapper-Feature-Selection-Toolbox](https://github.com/JingweiToo/Wrapper-Feature-Selection-Toolbox).
+- The ensemble weight-optimization scheme and its train/validation/test
+  protocol follow D. Li, L. Luo, W. Zhang, F. Liu, and F. Luo, "A
+  genetic algorithm-based weighted ensemble method for predicting
+  transposon-derived piRNAs," *BMC Bioinformatics*, 17:329, 2016.
+  [doi:10.1186/s12859-016-1206-3](https://doi.org/10.1186/s12859-016-1206-3).
