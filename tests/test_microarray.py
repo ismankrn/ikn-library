@@ -4,7 +4,14 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from ikn_library.microarray import load_geo, top_variance
+from ikn_library.microarray import (
+    load_geo,
+    log2_transform,
+    median_center,
+    quantile_normalize,
+    top_variance,
+    zscore,
+)
 from ikn_library.microarray.geo import matrix_url
 
 CONTENT = (
@@ -81,6 +88,62 @@ def test_matrix_url():
     assert "GSEnnn/GSE123/" in matrix_url("gse123")
     with pytest.raises(ValueError):
         matrix_url("GPL1708")
+
+
+def test_log2_transform():
+    X = pd.DataFrame({"a": [0.0, 1.0], "b": [3.0, 7.0]})
+    result = log2_transform(X)  # log2(x + 1)
+    np.testing.assert_allclose(result.values, [[0.0, 2.0], [1.0, 3.0]])
+    with pytest.raises(ValueError):
+        log2_transform(pd.DataFrame({"a": [-2.0]}))
+
+
+def test_quantile_normalize_makes_distributions_identical():
+    X = pd.DataFrame({
+        "p1": [5.0, 4.0, 3.0],
+        "p2": [2.0, 1.0, 4.0],
+        "p3": [3.0, 2.0, 6.0],
+        "p4": [4.0, 3.0, 8.0],
+    }, index=["s1", "s2", "s3"])  # no ties within any sample
+    result = quantile_normalize(X)
+    sorted_rows = np.sort(result.values, axis=1)
+    for row in sorted_rows[1:]:
+        np.testing.assert_allclose(row, sorted_rows[0])
+    # Within each sample the ordering of probes is preserved.
+    assert (result.rank(axis=1).values == X.rank(axis=1).values).all()
+
+
+def test_quantile_normalize_ties_share_a_value():
+    X = pd.DataFrame({
+        "p1": [4.0, 1.0],
+        "p2": [4.0, 2.0],
+        "p3": [1.0, 3.0],
+    })
+    result = quantile_normalize(X)
+    # Tied inputs map to the same (average-rank) normalized value.
+    assert result.loc[0, "p1"] == result.loc[0, "p2"]
+    assert result.loc[0, "p1"] > result.loc[0, "p3"]
+
+
+def test_quantile_normalize_rejects_missing():
+    X = pd.DataFrame({"a": [1.0, np.nan], "b": [2.0, 3.0]})
+    with pytest.raises(ValueError):
+        quantile_normalize(X)
+
+
+def test_zscore():
+    X = pd.DataFrame({"a": [1.0, 2.0, 3.0], "b": [5.0, 5.0, 5.0]})
+    result = zscore(X)
+    np.testing.assert_allclose(result["a"].mean(), 0.0, atol=1e-12)
+    np.testing.assert_allclose(result["a"].std(ddof=0), 1.0)
+    np.testing.assert_allclose(result["b"].values, 0.0)  # constant probe
+
+
+def test_median_center():
+    X = pd.DataFrame({"a": [1.0, 10.0], "b": [2.0, 20.0], "c": [3.0, 30.0]})
+    result = median_center(X)
+    np.testing.assert_allclose(result.median(axis=1).values, 0.0)
+    np.testing.assert_allclose(result.loc[1].values, [-10.0, 0.0, 10.0])
 
 
 def test_top_variance():

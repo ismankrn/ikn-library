@@ -125,12 +125,17 @@ Load NCBI GEO microarray series into ML-ready tables — downloaded once,
 cached locally, with missing-value handling built in:
 
 ```python
-from ikn_library.microarray import load_geo, top_variance
+from ikn_library.microarray import load_geo, quantile_normalize, top_variance, zscore
 
 data = load_geo("GSE11223", dropna_threshold=0.1, impute="mean")
-X = top_variance(data.X, 500)   # (202 samples, 500 most variable probes)
+X = quantile_normalize(data.X)  # identical distribution for every sample
+X = top_variance(X, 500)        # (202 samples, 500 most variable probes)
+X = zscore(X)                   # standardize per probe
 y = data.y("disease")           # UC vs Normal labels from sample metadata
 ```
+
+Normalization helpers: `log2_transform`, `quantile_normalize`,
+`median_center`, and `zscore`.
 
 The result plugs directly into `FeatureSelectionProblem` — see
 [examples/microarray_pipeline.py](examples/microarray_pipeline.py) for the

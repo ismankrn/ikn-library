@@ -34,6 +34,41 @@ applied in this order:
 - `impute="mean"` (or `"median"`) — fill the remaining gaps per probe;
   entirely-missing probes are dropped.
 
+## Normalization
+
+Four standard normalizations for expression tables, all taking and
+returning a samples x probes DataFrame:
+
+```python
+from ikn_library.microarray import (
+    log2_transform, quantile_normalize, zscore, median_center,
+)
+
+X = log2_transform(X)       # raw linear intensities -> log2(x + 1)
+X = quantile_normalize(X)   # identical distribution for every sample
+X = median_center(X)        # remove per-sample intensity shifts
+X = zscore(X)               # zero mean / unit variance per probe
+```
+
+Which to use when:
+
+- **`log2_transform`** — only for raw, linear-scale intensities. Many
+  GEO series matrices are already log-transformed (values roughly in
+  [-15, 15], often negative — like GSE11223's log ratios); the function
+  raises an error on negative input as a guard.
+- **`quantile_normalize`** — the de-facto microarray standard (Bolstad
+  et al., 2003) for making arrays comparable before analysis. Requires
+  complete data, so apply `impute=` in `load_geo` first. Tied values
+  (including imputed ones) share their average-rank value.
+- **`median_center`** — a lighter alternative that only removes global
+  per-sample shifts.
+- **`zscore`** — per-probe standardization; the usual last step before
+  distance-based models such as KNN or SVM.
+
+A sensible pipeline for classification:
+`load_geo(..., dropna_threshold=0.1, impute="mean")` ->
+`quantile_normalize` -> `top_variance` -> `zscore`.
+
 ## Dimensionality: variance filtering
 
 Expression sets are extremely wide (GSE11223: 202 samples x ~39,000

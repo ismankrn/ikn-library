@@ -26,6 +26,14 @@
 
 ::: ikn_library.microarray.GEODataset
 
+::: ikn_library.microarray.log2_transform
+
+::: ikn_library.microarray.quantile_normalize
+
+::: ikn_library.microarray.zscore
+
+::: ikn_library.microarray.median_center
+
 ::: ikn_library.microarray.top_variance
 
 ## Algorithms
