@@ -157,17 +157,24 @@ from sklearn.neural_network import MLPClassifier
 
 
 class MLPTuning(Problem):
-    """Search: number of hidden layers (1-3) and nodes per layer (8-128)."""
+    """Search: number of hidden layers (1-3), each with its own width (16-128)."""
+
+    MAX_LAYERS = 3
+    MIN_NODES, MAX_NODES = 16, 128
 
     def __init__(self, X_train, y_train, X_val, y_val):
-        super().__init__(dimension=2, lower=[0.0, 3.0], upper=[1.0, 7.0])
+        super().__init__(dimension=1 + self.MAX_LAYERS, lower=0.0, upper=1.0)
         self.X_train, self.y_train = X_train, y_train
         self.X_val, self.y_val = X_val, y_val
 
     def decode(self, x):
-        n_layers = min(int(x[0] * 3), 2) + 1        # 1, 2, or 3 layers
-        n_nodes = int(round(2.0 ** x[1]))           # 8..128 nodes (log2 scale)
-        return {"hidden_layer_sizes": (n_nodes,) * n_layers}
+        n_layers = min(int(x[0] * self.MAX_LAYERS), self.MAX_LAYERS - 1) + 1
+        span = self.MAX_NODES - self.MIN_NODES
+        sizes = tuple(
+            self.MIN_NODES + min(int(x[i + 1] * (span + 1)), span)
+            for i in range(n_layers)
+        )
+        return {"hidden_layer_sizes": sizes}
 
     def _evaluate(self, x):
         model = MLPClassifier(**self.decode(x), max_iter=300, random_state=0)
@@ -189,13 +196,21 @@ print("Validation log-loss:", best_loss)
 
 Decoding details:
 
+- The search space has **4 dimensions**: `x[0]` chooses the number of
+  layers, and `x[1..3]` each control the width of one layer — so a
+  two-layer network can be wide-then-narrow, narrow-then-wide, or
+  anything in between.
 - **Number of layers** uses the categorical mapping from the previous
-  section: `min(int(x[0] * 3), 2) + 1` gives 1, 2, or 3 layers with
-  equal shares of the search space.
-- **Nodes per layer** is searched on a **log2 scale**: `x[1]` in
-  `[3, 7]` maps to `2^x` = 8..128 nodes, so doubling the width is one
-  unit of search distance — the same reasoning as searching `C` and
-  `gamma` in log10.
+  section: `min(int(x[0] * MAX_LAYERS), MAX_LAYERS - 1) + 1` gives 1,
+  2, or 3 layers with equal shares of the search space.
+- **Width of each layer** maps `x[i+1]` in `[0, 1]` onto the integer
+  range 16..128 with the same fair-partition-plus-edge-guard pattern:
+  `MIN_NODES + min(int(x * (span + 1)), span)`, where
+  `span = MAX_NODES - MIN_NODES`.
+- When `decode` selects fewer than `MAX_LAYERS` layers, the leftover
+  width dimensions are simply **ignored** — inactive dimensions are a
+  normal feature of variable-length architecture search and do no harm
+  beyond mildly enlarging the space.
 - Each fitness evaluation trains a full network, so the budget is small
   (`max_evals=60`); a fixed `random_state` keeps the fitness
   deterministic (see below).
@@ -203,13 +218,32 @@ Decoding details:
 Output:
 
 ```text
-Best architecture: {'hidden_layer_sizes': (23,)}
-Validation log-loss: 0.062
+Best architecture: {'hidden_layer_sizes': (75,)}
+Validation log-loss: 0.065
 ```
 
 For comparison, the default `MLPClassifier` architecture `(100,)`
-reaches a validation log-loss of 0.0721 on the same split — the search
-found that a *smaller* single-layer network fits this dataset better.
+reaches a validation log-loss of 0.0721 on the same split — even with
+per-layer widths available, the search settled on a single hidden
+layer for this dataset.
+
+!!! note "scikit-learn vs Keras: where the validation loss lives"
+    In **scikit-learn**, `model.fit()` returns the estimator itself —
+    there is no training history object, so the final validation loss
+    is computed explicitly, as above:
+    `log_loss(y_val, model.predict_proba(X_val))`. In **Keras**, the
+    same fitness would come from the history that `fit` returns:
+
+    ```python
+    history = model.fit(X_train, y_train,
+                        validation_data=(X_val, y_val), epochs=100)
+    return history.history["val_loss"][-1]
+    ```
+
+    Both express the same idea — the model's loss on held-out data at
+    the end of training. Writing `history.history["val_loss"]` against
+    a scikit-learn estimator raises an `AttributeError`, because its
+    `fit` returns the estimator, not a history.
 
 !!! warning "Is validation loss a valid fitness? Yes — with care"
     Using the validation loss as the fitness is standard practice, and
