@@ -176,6 +176,10 @@ pip install -e ".[dev]"
 pytest
 ```
 
+## License
+
+[MIT](LICENSE)
+
 ## Acknowledgments
 
 - The `Problem` / `Task` / `Algorithm` workflow of this library is
