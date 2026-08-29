@@ -44,6 +44,14 @@ The library follows a NiaPy-like workflow built from three pieces:
 3. **`Algorithm`** — a metaheuristic that consumes a task via
    `algorithm.run(task)` and returns `(best_x, best_fitness)`.
 
-Continue with [Getting Started](getting-started.md) for a full tour, or
-jump straight to the tutorials: [Feature Selection](feature-selection.md)
-and [Parameter Optimization](parameter-optimization.md).
+## Tutorials
+
+- **[Getting Started](getting-started.md)** — tasks, custom problems,
+  maximization, and the available algorithms.
+- **[Feature Selection](feature-selection.md)** — wrapper-based feature
+  selection with Binary ACO and a scikit-learn estimator.
+- **[Parameter Optimization](parameter-optimization.md)** — tuning model
+  hyperparameters (e.g. SVM `C` and `gamma`) with continuous ACO-R,
+  including log-scale search spaces and convergence plotting.
+- **[API Reference](api.md)** — full reference generated from the
+  docstrings.

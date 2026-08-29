@@ -77,6 +77,39 @@ print("Selected features:", problem.selected_features(best_x))
 The fitness balances the cross-validated score against the subset size:
 `alpha * (1 - cv_score) + (1 - alpha) * n_selected / n_features`.
 
+## Parameter optimization
+
+Tune model hyperparameters by subclassing `Problem`: each dimension is
+one hyperparameter, and `_evaluate` returns the cross-validated score
+(searched in log scale where appropriate):
+
+```python
+import numpy as np
+from sklearn.model_selection import cross_val_score
+from sklearn.svm import SVC
+
+from ikn_library import OptimizationType, Task
+from ikn_library.problems import Problem
+from ikn_library.algorithms import AntColonyOptimization
+
+class SVMTuning(Problem):
+    def __init__(self, X, y):
+        super().__init__(dimension=2, lower=[-2.0, -4.0], upper=[3.0, 1.0])
+        self.X, self.y = X, y
+
+    def _evaluate(self, x):
+        model = SVC(kernel="rbf", C=10.0 ** x[0], gamma=10.0 ** x[1])
+        return cross_val_score(model, self.X, self.y, cv=5).mean()
+
+task = Task(problem=SVMTuning(X, y), max_evals=150,
+            optimization_type=OptimizationType.MAXIMIZATION)
+best_x, best_score = AntColonyOptimization(population_size=10, seed=42).run(task)
+```
+
+See the full tutorial:
+[Parameter Optimization](https://ikn-library.readthedocs.io/en/latest/parameter-optimization/)
+and the runnable script [examples/parameter_optimization.py](examples/parameter_optimization.py).
+
 ## Algorithms
 
 | Algorithm | Class | Domain | Reference |
