@@ -39,6 +39,51 @@ print("Selected features:", problem.selected_features(best_x))
 On the breast-cancer dataset this typically selects a handful of features
 while *improving* the cross-validated accuracy over using all 30.
 
+## Before vs after: comparing with `cross_val_score`
+
+To quantify what the selection achieved, evaluate the **same model**
+with the **same cross-validation** twice — once on all features, once on
+the selected subset — and compare the mean scores. Continuing from the
+example above:
+
+```python
+from sklearn.model_selection import cross_val_score
+
+model = KNeighborsClassifier(n_neighbors=5)
+selected = problem.selected_features(best_x)
+
+score_all = cross_val_score(model, X, y, cv=5).mean()
+score_selected = cross_val_score(model, X[:, selected], y, cv=5).mean()
+
+print(f"Before (all {X.shape[1]} features)   : cross_val_score = {score_all:.4f}")
+print(f"After  ({len(selected)} selected features) : cross_val_score = {score_selected:.4f}")
+```
+
+Output:
+
+```text
+Before (all 30 features)   : cross_val_score = 0.9279
+After  (3 selected features) : cross_val_score = 0.9508
+```
+
+The selected subset wins on both axes: higher accuracy (+2.3 points)
+with 10x fewer features. Two things make this a fair comparison:
+
+- **Same estimator, same folds**: both scores come from an identical
+  5-fold cross-validation of an identical model — the only difference
+  is the feature set.
+- **Fewer features can genuinely help**: distance-based models like KNN
+  suffer from irrelevant dimensions, so removing noisy features often
+  improves the score rather than merely matching it.
+
+!!! note "For a fully unbiased estimate"
+    The optimizer used these same CV scores as its fitness, so the
+    "after" number is slightly optimistic (selection bias). For a
+    publication-grade comparison, hold out a test set before running
+    the selection and report both models on it — the same three-split
+    discipline described in
+    [Ensemble Weights](ensemble.md#the-protocol-three-splits).
+
 ## The fitness function
 
 The fitness (minimized) balances score quality against subset size:
