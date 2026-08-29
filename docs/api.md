@@ -36,6 +36,12 @@
 
 ::: ikn_library.microarray.top_variance
 
+## Ensemble
+
+::: ikn_library.ensemble.EnsembleWeightProblem
+
+::: ikn_library.ensemble.tree_proba_matrix
+
 ## Algorithms
 
 ::: ikn_library.algorithms.Algorithm

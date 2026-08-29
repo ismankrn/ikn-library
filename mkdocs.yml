@@ -44,6 +44,7 @@ nav:
   - Feature Selection: feature-selection.md
   - Parameter Optimization: parameter-optimization.md
   - Microarray Data: microarray.md
+  - Ensemble Weights: ensemble.md
   - Teaching Notes:
       - Comparing Tuning Results: gridsearch-comparison.md
       - Plotting Convergence: convergence-plot.md

@@ -56,5 +56,8 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Microarray Data](microarray.md)** — loading NCBI GEO series into
   ML-ready tables (auto-download + cache, missing-value handling,
   variance filtering) and feeding them into feature selection.
+- **[Ensemble Weights](ensemble.md)** — replacing majority voting with
+  metaheuristic-optimized voting weights (and ensemble pruning with
+  Binary ACO).
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.

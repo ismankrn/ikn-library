@@ -141,6 +141,27 @@ The result plugs directly into `FeatureSelectionProblem` — see
 [examples/microarray_pipeline.py](examples/microarray_pipeline.py) for the
 full GEO-to-feature-selection pipeline.
 
+## Ensemble weight optimization
+
+Replace a Random Forest's majority voting with metaheuristic-optimized
+voting weights — train on one split, optimize weights on a validation
+split, report on a test split:
+
+```python
+from ikn_library.ensemble import EnsembleWeightProblem, tree_proba_matrix
+
+P_val = tree_proba_matrix(forest, X_val)     # (n_samples, n_trees) probabilities
+problem = EnsembleWeightProblem(P_val, y_val)
+task = Task(problem=problem, max_evals=4000)
+best_x, _ = AntColonyOptimization(seed=42).run(task)
+
+y_pred = problem.predict(best_x, tree_proba_matrix(forest, X_test))
+```
+
+Running the same problem with `BinaryAntColonyOptimization` performs
+ensemble pruning (0/1 weights = drop/keep members). See
+[examples/ensemble_weight_optimization.py](examples/ensemble_weight_optimization.py).
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)
