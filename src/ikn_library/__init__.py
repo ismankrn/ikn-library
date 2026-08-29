@@ -14,6 +14,6 @@ following a NiaPy-like workflow:
 
 from ikn_library.task import OptimizationType, Task
 
-__version__ = "0.3.0"
+__version__ = "0.4.0"
 
 __all__ = ["OptimizationType", "Task", "__version__"]
