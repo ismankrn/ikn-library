@@ -117,13 +117,10 @@ and the runnable script [examples/parameter_optimization.py](examples/parameter_
 
 ## Algorithms
 
-| Algorithm | Class | Domain | Reference |
-|---|---|---|---|
-| Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous | Socha & Dorigo, EJOR 185(3), 2008 |
-| Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
-| Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
-
-More algorithms are planned.
+Currently available: `AntColonyOptimization` (ACO-R, continuous),
+`BinaryAntColonyOptimization` (binary/subsets), and
+`SimulatedAnnealing` (continuous). See **[ALGORITHMS.md](ALGORITHMS.md)**
+for the full list with descriptions, key parameters, and references.
 
 ## Microarray data
 
