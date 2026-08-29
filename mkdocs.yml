@@ -37,10 +37,13 @@ markdown_extensions:
   - admonition
   - pymdownx.highlight
   - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: ["."]
 
 nav:
   - Home: index.md
   - Getting Started: getting-started.md
+  - Algorithms: algorithms.md
   - Feature Selection: feature-selection.md
   - Parameter Optimization: parameter-optimization.md
   - Microarray Data: microarray.md
