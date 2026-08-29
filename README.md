@@ -2,9 +2,8 @@
 
 A growing Python library of research and data-science tools. Its first
 module provides nature-inspired metaheuristic algorithms for continuous
-optimization, feature selection, and parameter optimization — focusing on
-algorithms not yet available in [NiaPy](https://github.com/NiaOrg/NiaPy).
-More components will be added over time.
+optimization, feature selection, and parameter optimization. More
+components will be added over time.
 
 ## Installation
 
