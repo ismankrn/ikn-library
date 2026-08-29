@@ -20,6 +20,14 @@
 
 ::: ikn_library.problems.Ackley
 
+## Microarray
+
+::: ikn_library.microarray.load_geo
+
+::: ikn_library.microarray.GEODataset
+
+::: ikn_library.microarray.top_variance
+
 ## Algorithms
 
 ::: ikn_library.algorithms.Algorithm

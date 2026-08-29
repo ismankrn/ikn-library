@@ -119,6 +119,23 @@ and the runnable script [examples/parameter_optimization.py](examples/parameter_
 
 More algorithms are planned.
 
+## Microarray data
+
+Load NCBI GEO microarray series into ML-ready tables — downloaded once,
+cached locally, with missing-value handling built in:
+
+```python
+from ikn_library.microarray import load_geo, top_variance
+
+data = load_geo("GSE11223", dropna_threshold=0.1, impute="mean")
+X = top_variance(data.X, 500)   # (202 samples, 500 most variable probes)
+y = data.y("disease")           # UC vs Normal labels from sample metadata
+```
+
+The result plugs directly into `FeatureSelectionProblem` — see
+[examples/microarray_pipeline.py](examples/microarray_pipeline.py) for the
+full GEO-to-feature-selection pipeline.
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)

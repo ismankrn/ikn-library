@@ -43,4 +43,5 @@ nav:
   - Getting Started: getting-started.md
   - Feature Selection: feature-selection.md
   - Parameter Optimization: parameter-optimization.md
+  - Microarray Data: microarray.md
   - API Reference: api.md

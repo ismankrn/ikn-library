@@ -53,5 +53,8 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Parameter Optimization](parameter-optimization.md)** — tuning model
   hyperparameters (e.g. SVM `C` and `gamma`) with continuous ACO-R,
   including log-scale search spaces and convergence plotting.
+- **[Microarray Data](microarray.md)** — loading NCBI GEO series into
+  ML-ready tables (auto-download + cache, missing-value handling,
+  variance filtering) and feeding them into feature selection.
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
