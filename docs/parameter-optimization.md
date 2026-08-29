@@ -227,23 +227,78 @@ reaches a validation log-loss of 0.0721 on the same split — even with
 per-layer widths available, the search settled on a single hidden
 layer for this dataset.
 
-!!! note "scikit-learn vs Keras: where the validation loss lives"
-    In **scikit-learn**, `model.fit()` returns the estimator itself —
-    there is no training history object, so the final validation loss
-    is computed explicitly, as above:
-    `log_loss(y_val, model.predict_proba(X_val))`. In **Keras**, the
-    same fitness would come from the history that `fit` returns:
+### The same search with Keras / TensorFlow
 
-    ```python
-    history = model.fit(X_train, y_train,
-                        validation_data=(X_val, y_val), epochs=100)
-    return history.history["val_loss"][-1]
-    ```
+With Keras, the fitness comes straight from the training history:
+`fit` accepts `validation_data=` and returns a `History` whose
+`history["val_loss"][-1]` is the final validation loss. (This is a
+Keras idiom — scikit-learn's `fit` returns the estimator itself, so
+there the loss is computed explicitly with `log_loss`, as above.)
+The search space and `decode` are unchanged; only `_evaluate` differs:
 
-    Both express the same idea — the model's loss on held-out data at
-    the end of training. Writing `history.history["val_loss"]` against
-    a scikit-learn estimator raises an `AttributeError`, because its
-    `fit` returns the estimator, not a history.
+```python
+from tensorflow import keras
+
+
+class KerasMLPTuning(Problem):
+    """Same search space as MLPTuning, with a Keras model and
+    history-based fitness."""
+
+    MAX_LAYERS = 3
+    MIN_NODES, MAX_NODES = 16, 128
+
+    def __init__(self, X_train, y_train, X_val, y_val):
+        super().__init__(dimension=1 + self.MAX_LAYERS, lower=0.0, upper=1.0)
+        self.X_train, self.y_train = X_train, y_train
+        self.X_val, self.y_val = X_val, y_val
+
+    def decode(self, x):
+        n_layers = min(int(x[0] * self.MAX_LAYERS), self.MAX_LAYERS - 1) + 1
+        span = self.MAX_NODES - self.MIN_NODES
+        return tuple(
+            self.MIN_NODES + min(int(x[i + 1] * (span + 1)), span)
+            for i in range(n_layers)
+        )
+
+    def _evaluate(self, x):
+        keras.utils.set_random_seed(0)   # deterministic fitness
+        model = keras.Sequential(
+            [keras.layers.Input(shape=(self.X_train.shape[1],))]
+            + [keras.layers.Dense(n, activation="relu") for n in self.decode(x)]
+            + [keras.layers.Dense(1, activation="sigmoid")]
+        )
+        model.compile(optimizer="adam", loss="binary_crossentropy")
+        history = model.fit(self.X_train, self.y_train,
+                            validation_data=(self.X_val, self.y_val),
+                            epochs=50, batch_size=32, verbose=0)
+        return history.history["val_loss"][-1]
+
+
+problem = KerasMLPTuning(X_train, y_train, X_val, y_val)
+task = Task(problem=problem, max_evals=30)
+algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
+best_x, best_loss = algo.run(task)
+
+print("Best architecture:", problem.decode(best_x))
+print("Final val_loss  :", best_loss)
+```
+
+Output:
+
+```text
+Best architecture: (61,)
+Final val_loss  : 0.0652
+```
+
+!!! note "TensorFlow is not a dependency"
+    `ikn-library` does not require TensorFlow — the optimizer only ever
+    sees a `Problem` with an `_evaluate` method, so any framework works
+    inside it. Install TensorFlow yourself (`pip install tensorflow`)
+    to run this variant. Training here is slower per evaluation than
+    the scikit-learn version, hence the smaller budget; with Keras you
+    can also pass an `EarlyStopping` callback and return
+    `min(history.history["val_loss"])` for the caveat-4 variant
+    discussed above.
 
 !!! warning "Is validation loss a valid fitness? Yes — with care"
     Using the validation loss as the fitness is standard practice, and
