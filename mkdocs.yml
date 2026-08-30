@@ -83,6 +83,7 @@ nav:
           - Fireworks Algorithm: algorithm-details/fwa.md
           - Fish School Search: algorithm-details/fss.md
           - Genetic Algorithm: algorithm-details/ga.md
+          - Gravitational Search Algorithm: algorithm-details/gsa.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md

@@ -18,6 +18,7 @@ from ikn_library.algorithms import (
     FireworksAlgorithm,
     FishSchoolSearch,
     GeneticAlgorithm,
+    GravitationalSearchAlgorithm,
     KomodoMlipirAlgorithm,
     NSGA2,
     SimulatedAnnealing,
@@ -39,6 +40,7 @@ from ikn_library.algorithms import (
 | Fireworks Algorithm | `FireworksAlgorithm` | continuous | Tan & Zhu, ICSI 2010 |
 | Fish School Search | `FishSchoolSearch` | continuous | Bastos Filho et al., IEEE SMC 2008 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
+| Gravitational Search Algorithm | `GravitationalSearchAlgorithm` | continuous | Rashedi et al., Inf. Sci. 179(13), 2009 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -224,6 +226,21 @@ module follows.
 Key parameters: `population_size`, `crossover_rate`, `mutation_rate`
 (default `1/dimension`), `mutation_scale`, `tournament_size`,
 `blend_alpha`, `elitism`, `seed`.
+
+## Gravitational Search Algorithm
+
+`GravitationalSearchAlgorithm` — for **continuous** problems, and the
+only algorithm here based on physics rather than biology (Rashedi
+et al., 2009). Solutions are masses obeying Newton's law of
+gravitation, with mass growing with fitness. Because mass acts twice —
+as gravitational mass (attracting others) and as inertia (resisting
+movement) — good solutions both pull the swarm in and hold their
+ground, while light poor agents are flung about and explore. The
+gravitational constant decays over the run and the set of attracting
+agents (**Kbest**) shrinks to the elite.
+
+Key parameters: `population_size`, `g0`, `alpha` (decay rate),
+`final_kbest`, `max_velocity`, `seed`.
 
 ## Komodo Mlipir Algorithm
 

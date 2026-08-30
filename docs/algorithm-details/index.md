@@ -20,6 +20,7 @@ the literature it comes from.
 | Fireworks Algorithm | continuous | population + quality-coupled explosions | [FWA](fwa.md) |
 | Fish School Search | continuous | population + weights + school contraction | [FSS](fss.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
+| Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
@@ -43,7 +44,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All fifteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All sixteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -51,6 +52,7 @@ mean over 3 seeds — lower is better):
 | Fireworks Algorithm | **3e-88** | **2e-15** | **0** |
 | Firefly Algorithm | 7e-57 | 2e-15 | 6.0 |
 | Differential Evolution | 2e-41 | 5e-15 | 2.0 |
+| Gravitational Search | 7e-24 | 2e-11 | 3.8 |
 | ACO-R | 9e-25 | 1e-12 | 31.0 |
 | Artificial Bee Colony | 6e-15 | 5e-06 | 2e-08 |
 | Cat Swarm Optimization | 1e-05 | 0.031 | 2.3 |
