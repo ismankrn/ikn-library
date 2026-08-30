@@ -137,7 +137,8 @@ Currently available: `AntColonyOptimization` (ACO-R, continuous),
 `BeesAlgorithm` (continuous),
 `BinaryAntColonyOptimization` (binary/subsets), `CamelAlgorithm`
 (continuous), `CatSwarmOptimization` (continuous),
-`CuckooSearch` (continuous), `GeneticAlgorithm`
+`CuckooSearch` (continuous),
+`DifferentialEvolution` (continuous), `GeneticAlgorithm`
 (real-coded, continuous), `KomodoMlipirAlgorithm` (continuous), and
 `SimulatedAnnealing` (continuous). See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,

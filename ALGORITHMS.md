@@ -13,6 +13,7 @@ from ikn_library.algorithms import (
     CamelAlgorithm,
     CatSwarmOptimization,
     CuckooSearch,
+    DifferentialEvolution,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
     NSGA2,
@@ -30,6 +31,7 @@ from ikn_library.algorithms import (
 | Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
 | Cat Swarm Optimization | `CatSwarmOptimization` | continuous | Chu, Tsai & Pan, PRICAI 2006 |
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
+| Differential Evolution | `DifferentialEvolution` | continuous | Storn & Price, JOGO 11(4), 1997 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
@@ -145,6 +147,20 @@ feature: it escapes local optima without giving up local refinement.
 
 Key parameters: `population_size` (nests), `discovery_rate` (pa),
 `step_size` (alpha), `levy_exponent` (beta), `seed`.
+
+## Differential Evolution
+
+`DifferentialEvolution` — for **continuous** problems, and the
+strongest all-round algorithm in this library (Storn & Price, 1997).
+Its mutant is built by adding the **scaled difference between two
+population members** to a third, which makes the step size adapt to the
+population spread automatically — no schedule needed. Binomial
+crossover mixes the mutant with its target, and greedy selection keeps
+the better of the two. Four mutation strategies are available
+(`best/1`, `rand/1`, `rand/2`, `current-to-best/1`).
+
+Key parameters: `population_size` (NP), `differential_weight` (F),
+`crossover_rate` (CR), `strategy`, `seed`.
 
 ## Genetic Algorithm
 

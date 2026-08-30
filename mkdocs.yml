@@ -78,6 +78,7 @@ nav:
           - Camel Algorithm: algorithm-details/camel.md
           - Cat Swarm Optimization: algorithm-details/cso.md
           - Cuckoo Search: algorithm-details/cuckoo.md
+          - Differential Evolution: algorithm-details/de.md
           - Genetic Algorithm: algorithm-details/ga.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Simulated Annealing: algorithm-details/sa.md

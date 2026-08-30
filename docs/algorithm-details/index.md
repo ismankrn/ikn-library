@@ -15,6 +15,7 @@ the literature it comes from.
 | Camel Algorithm | continuous | population + endurance/supply + restarts | [Camel](camel.md) |
 | Cat Swarm Optimization | continuous | population + two behaviour modes | [CSO](cso.md) |
 | Cuckoo Search | continuous | population + Levy flights | [Cuckoo](cuckoo.md) |
+| Differential Evolution | continuous | population + difference vectors | [DE](de.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
@@ -39,13 +40,14 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All eleven on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twelve on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
 |---|---|---|---|
-| ACO-R | **9e-25** | 1e-12 | 31.0 |
-| Artificial Bee Colony | 6e-15 | **5e-06** | **2e-08** |
+| Differential Evolution | **2e-41** | **5e-15** | 2.0 |
+| ACO-R | 9e-25 | 1e-12 | 31.0 |
+| Artificial Bee Colony | 6e-15 | 5e-06 | **2e-08** |
 | Cat Swarm Optimization | 1e-05 | 0.031 | 2.3 |
 | Simulated Annealing | 8e-13 | 8e-06 | 26.9 |
 | Komodo Mlipir Algorithm | 1e-21 | 1e-06 | 16.9 |
@@ -56,9 +58,9 @@ mean over 3 seeds — lower is better):
 | Cuckoo Search | 4e-10 | 3e-04 | 6.8 |
 
 Two lessons for students in this table. First, **no algorithm wins
-everywhere** (the "no free lunch" theorem in miniature): ACO-R is
-unmatched at polishing a smooth unimodal landscape, while ABC and GA
-dominate the highly multimodal Rastrigin, with the Camel Algorithm
-close behind. Second, the ranking depends
+everywhere** (the "no free lunch" theorem in miniature): Differential
+Evolution dominates the smooth landscapes, while ABC is untouchable on
+the highly multimodal Rastrigin, with CSO, DE, and GA close behind.
+Second, the ranking depends
 on the *landscape*, not on how fashionable the metaphor is — always
 benchmark on a problem resembling yours.

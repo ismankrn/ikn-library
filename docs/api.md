@@ -130,6 +130,8 @@
 
 ::: ikn_library.algorithms.CuckooSearch
 
+::: ikn_library.algorithms.DifferentialEvolution
+
 ::: ikn_library.algorithms.GeneticAlgorithm
 
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
