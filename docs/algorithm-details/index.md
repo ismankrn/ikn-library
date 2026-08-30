@@ -11,6 +11,7 @@ the literature it comes from.
 | Binary Ant Colony Optimization | binary / subsets | population + pheromone per bit | [Binary ACO](binary-aco.md) |
 | Artificial Bee Colony | continuous | population + abandonment | [ABC](abc.md) |
 | Bat Algorithm | continuous | population + echolocation | [Bat](bat.md) |
+| Bees Algorithm | continuous | population + site recruitment | [Bees](bees.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
@@ -34,7 +35,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All six on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All seven on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -42,12 +43,14 @@ mean over 3 seeds — lower is better):
 | ACO-R | **9e-25** | 1e-12 | 31.0 |
 | Artificial Bee Colony | 6e-15 | **5e-06** | **2e-08** |
 | Simulated Annealing | 8e-13 | 8e-06 | 26.9 |
+| Bees Algorithm | 5e-14 | 5e-06 | 22.9 |
 | Bat Algorithm | 4e-05 | 0.045 | 31.5 |
 | Genetic Algorithm | 1.7e-04 | 0.124 | 3.0 |
 
 Two lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): ACO-R is
 unmatched at polishing a smooth unimodal landscape, while ABC and GA
-dominate the highly multimodal Rastrigin. Second, the ranking depends
+dominate the highly multimodal Rastrigin while the Bees Algorithm
+places second there. Second, the ranking depends
 on the *landscape*, not on how fashionable the metaphor is — always
 benchmark on a problem resembling yours.

@@ -73,6 +73,7 @@ nav:
           - Binary Ant Colony Optimization: algorithm-details/binary-aco.md
           - Artificial Bee Colony: algorithm-details/abc.md
           - Bat Algorithm: algorithm-details/bat.md
+          - Bees Algorithm: algorithm-details/bees.md
           - Genetic Algorithm: algorithm-details/ga.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md

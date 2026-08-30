@@ -104,6 +104,8 @@
 
 ::: ikn_library.algorithms.BatAlgorithm
 
+::: ikn_library.algorithms.BeesAlgorithm
+
 ::: ikn_library.algorithms.BinaryAntColonyOptimization
 
 ::: ikn_library.algorithms.GeneticAlgorithm

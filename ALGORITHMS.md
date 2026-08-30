@@ -8,6 +8,7 @@ from ikn_library.algorithms import (
     AntColonyOptimization,
     ArtificialBeeColony,
     BatAlgorithm,
+    BeesAlgorithm,
     BinaryAntColonyOptimization,
     GeneticAlgorithm,
     SimulatedAnnealing,
@@ -19,6 +20,7 @@ from ikn_library.algorithms import (
 | Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous | Socha & Dorigo, EJOR 185(3), 2008 |
 | Artificial Bee Colony | `ArtificialBeeColony` | continuous | Karaboga, TR06, 2005; Karaboga & Basturk, JOGO 39(3), 2007 |
 | Bat Algorithm | `BatAlgorithm` | continuous | Yang, NICSO 2010 |
+| Bees Algorithm | `BeesAlgorithm` | continuous | Pham et al., 2005; Pham & Castellani, 2009 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -64,6 +66,22 @@ is scaled to the bound range and decays with the evaluation budget.
 Key parameters: `population_size`, `loudness` (A0), `pulse_rate` (r0),
 `alpha` (loudness decay), `gamma` (pulse-rate growth),
 `min_frequency` / `max_frequency`, `local_scale`, `seed`.
+
+## Bees Algorithm
+
+`BeesAlgorithm` — for **continuous** problems, based on the foraging of
+honey bees but organized differently from ABC. Scout bees sample the
+space at random; the best **sites** are then searched more closely,
+with **elite** sites receiving more recruits than the other selected
+ones. Each site's neighborhood shrinks after every unsuccessful search
+(progressive neighborhood shrinking), and a site that stagnates is
+abandoned for a fresh scout. Effort allocation is thus *explicit* —
+fixed recruit counts per site class — where ABC leaves it to
+probability.
+
+Key parameters: `population_size` (scouts), `selected_sites`,
+`elite_sites`, `elite_bees`, `selected_bees`, `neighborhood`,
+`shrink`, `stagnation_limit`, `seed`.
 
 ## Binary Ant Colony Optimization
 
