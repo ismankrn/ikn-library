@@ -134,6 +134,8 @@
 
 ::: ikn_library.algorithms.ClonalSelectionAlgorithm
 
+::: ikn_library.algorithms.CoralReefsOptimization
+
 ::: ikn_library.algorithms.CuckooSearch
 
 ::: ikn_library.algorithms.DifferentialEvolution

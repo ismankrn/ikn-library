@@ -14,6 +14,7 @@ from ikn_library.algorithms import (
     CamelAlgorithm,
     CatSwarmOptimization,
     ClonalSelectionAlgorithm,
+    CoralReefsOptimization,
     CuckooSearch,
     DifferentialEvolution,
     FireflyAlgorithm,
@@ -38,6 +39,7 @@ from ikn_library.algorithms import (
 | Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
 | Cat Swarm Optimization | `CatSwarmOptimization` | continuous | Chu, Tsai & Pan, PRICAI 2006 |
 | Clonal Selection Algorithm | `ClonalSelectionAlgorithm` | continuous | de Castro & Von Zuben, IEEE TEC 6(3), 2002 |
+| Coral Reefs Optimization | `CoralReefsOptimization` | continuous | Salcedo-Sanz et al., Sci. World J. 2014 |
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Differential Evolution | `DifferentialEvolution` | continuous | Storn & Price, JOGO 11(4), 1997 |
 | Firefly Algorithm | `FireflyAlgorithm` | continuous | Yang, SAGA 2009 |
@@ -180,6 +182,25 @@ recombination of any kind.
 
 Key parameters: `population_size`, `n_select`, `clone_factor`,
 `n_replace`, `rho`, `seed`.
+
+## Coral Reefs Optimization
+
+`CoralReefsOptimization` — for **continuous** problems, modelling a reef
+colonising a rocky bed (Salcedo-Sanz et al., 2014). It is the only
+algorithm here whose population lives on an explicit **substrate**: a
+fixed number of squares, each holding one coral or lying empty, so the
+number of live solutions changes over the run. Corals reproduce by
+crossover (broadcast spawning) or mutation (brooding), and the resulting
+larvae must then **compete for space** — a larva takes an empty square
+freely but displaces an occupant only by beating it, and is lost
+entirely if it never lands well. Depredation eats the worst corals to
+keep the reef from saturating. Selection is therefore local and
+stochastic rather than a global ranking, which makes it one of the
+library's stronger performers on the multimodal Rastrigin function.
+
+Key parameters: `population_size` (reef capacity), `initial_occupation`,
+`broadcast_fraction`, `asexual_fraction`, `depredation_fraction`,
+`depredation_prob`, `settlement_attempts`, `mutation_scale`, `seed`.
 
 ## Cuckoo Search
 
