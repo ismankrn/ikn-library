@@ -20,6 +20,7 @@ from ikn_library.algorithms import (
     FireflyAlgorithm,
     FireworksAlgorithm,
     FishSchoolSearch,
+    FlowerPollinationAlgorithm,
     ForestOptimizationAlgorithm,
     GeneticAlgorithm,
     GravitationalSearchAlgorithm,
@@ -270,6 +271,23 @@ school's own recent success rather than a preset schedule.
 
 Key parameters: `population_size`, `step_individual` (and its final
 value), `step_volitive_factor`, `weight_scale`, `seed`.
+
+## Flower Pollination Algorithm
+
+`FlowerPollinationAlgorithm` — for **continuous** problems, and the
+simplest algorithm in the library (Yang, 2012). Each flower flips a coin
+each iteration: with probability `switch_probability` it does **global
+pollination**, a Lévy flight aimed at the current best flower; otherwise
+**local pollination**, drifting along the difference between two random
+flowers. A new flower is kept only if it is better. The two operators
+are borrowed rather than new — the first is Cuckoo Search's move, the
+second is a Differential Evolution difference vector without crossover —
+but switching between them per flower per iteration turns out to be
+enough. It reaches near-machine precision on smooth functions and gives
+the best Rosenbrock result measured in this library.
+
+Key parameters: `population_size`, `switch_probability`, `gamma`,
+`levy_exponent`, `seed`.
 
 ## Forest Optimization Algorithm
 

@@ -85,6 +85,7 @@ nav:
           - Firefly Algorithm: algorithm-details/firefly.md
           - Fireworks Algorithm: algorithm-details/fwa.md
           - Fish School Search: algorithm-details/fss.md
+          - Flower Pollination Algorithm: algorithm-details/fpa.md
           - Forest Optimization Algorithm: algorithm-details/foa.md
           - Genetic Algorithm: algorithm-details/ga.md
           - Gravitational Search Algorithm: algorithm-details/gsa.md

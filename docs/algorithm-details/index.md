@@ -21,6 +21,7 @@ the actual source, its parameters, and the literature it comes from.
 | Firefly Algorithm | continuous | population + distance-faded attraction | [Firefly](firefly.md) |
 | Fireworks Algorithm | continuous | population + quality-coupled explosions | [FWA](fwa.md) |
 | Fish School Search | continuous | population + weights + school contraction | [FSS](fss.md) |
+| Flower Pollination Algorithm | continuous | two rules switched per flower | [FPA](fpa.md) |
 | Forest Optimization Algorithm | continuous | age-gated seeding + recycled discards | [FOA](foa.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
@@ -47,7 +48,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-one on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -71,6 +72,7 @@ mean over 3 seeds — lower is better):
 | Clonal Selection | 4e-08 | 1e-03 | 8.6 |
 | Coral Reefs Optimization | 3e-07 | 3e-03 | 3.0 |
 | Forest Optimization* | 2e-08 | 1e-03 | 9e-06 |
+| Flower Pollination | 3e-30 | 2e-13 | 7.3 |
 
 \* Forest Optimization's Rastrigin score is **largely an artefact of
 this benchmark suite** — see the caveat below and the

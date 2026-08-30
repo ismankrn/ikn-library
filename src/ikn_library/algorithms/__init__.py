@@ -15,6 +15,7 @@ from ikn_library.algorithms.cuckoo import CuckooSearch
 from ikn_library.algorithms.de import DifferentialEvolution
 from ikn_library.algorithms.firefly import FireflyAlgorithm
 from ikn_library.algorithms.foa import ForestOptimizationAlgorithm
+from ikn_library.algorithms.fpa import FlowerPollinationAlgorithm
 from ikn_library.algorithms.fss import FishSchoolSearch
 from ikn_library.algorithms.fwa import FireworksAlgorithm
 from ikn_library.algorithms.ga import GeneticAlgorithm
@@ -41,6 +42,7 @@ __all__ = [
     "FireflyAlgorithm",
     "FireworksAlgorithm",
     "FishSchoolSearch",
+    "FlowerPollinationAlgorithm",
     "ForestOptimizationAlgorithm",
     "GeneticAlgorithm",
     "GravitationalSearchAlgorithm",
