@@ -42,28 +42,54 @@ Output:
 The full label matrix and raw table remain available as `data.labels`
 (DataFrame, 27 columns) and `data.frame`.
 
-## From SMILES to features
+## The 27 side-effect tasks
 
-The loader deliberately returns raw SMILES: featurization is a modeling
-choice. A common route is Morgan/ECFP fingerprints via RDKit
-(`pip install rdkit`):
+The table below lists every task name — the keyword you pass to
+`task()` (any unique case-insensitive substring of it also works) —
+together with its class counts and **imbalance ratio**
+(majority count / minority count; 1.0 means perfectly balanced):
 
-```python
-import numpy as np
-from rdkit import Chem
-from rdkit.Chem import rdFingerprintGenerator
+| Task (keyword for `task()`) | 1 (positive) | 0 (negative) | Imbalance ratio |
+|---|---|---|---|
+| `Hepatobiliary disorders` | 743 | 684 | 1.1 |
+| `Metabolism and nutrition disorders` | 996 | 431 | 2.3 |
+| `Product issues` | 22 | 1405 | 63.9 |
+| `Eye disorders` | 876 | 551 | 1.6 |
+| `Investigations` | 1151 | 276 | 4.2 |
+| `Musculoskeletal and connective tissue disorders` | 997 | 430 | 2.3 |
+| `Gastrointestinal disorders` | 1298 | 129 | 10.1 |
+| `Social circumstances` | 251 | 1176 | 4.7 |
+| `Immune system disorders` | 1024 | 403 | 2.5 |
+| `Reproductive system and breast disorders` | 727 | 700 | 1.0 |
+| `Neoplasms benign, malignant and unspecified (incl cysts and polyps)` | 376 | 1051 | 2.8 |
+| `General disorders and administration site conditions` | 1292 | 135 | 9.6 |
+| `Endocrine disorders` | 323 | 1104 | 3.4 |
+| `Surgical and medical procedures` | 213 | 1214 | 5.7 |
+| `Vascular disorders` | 1108 | 319 | 3.5 |
+| `Blood and lymphatic system disorders` | 885 | 542 | 1.6 |
+| `Skin and subcutaneous tissue disorders` | 1318 | 109 | 12.1 |
+| `Congenital, familial and genetic disorders` | 253 | 1174 | 4.6 |
+| `Infections and infestations` | 1006 | 421 | 2.4 |
+| `Respiratory, thoracic and mediastinal disorders` | 1060 | 367 | 2.9 |
+| `Psychiatric disorders` | 1016 | 411 | 2.5 |
+| `Renal and urinary disorders` | 911 | 516 | 1.8 |
+| `Pregnancy, puerperium and perinatal conditions` | 125 | 1302 | 10.4 |
+| `Ear and labyrinth disorders` | 659 | 768 | 1.2 |
+| `Cardiac disorders` | 988 | 439 | 2.3 |
+| `Nervous system disorders` | 1304 | 123 | 10.6 |
+| `Injury, poisoning and procedural complications` | 946 | 481 | 2.0 |
 
-generator = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=1024)
-mols = [Chem.MolFromSmiles(s) for s in smiles]
-X = np.array([generator.GetFingerprint(m) for m in mols])   # (1427, 1024) bits
-```
+Reading the table:
 
-That produces exactly the kind of high-dimensional binary feature
-matrix the rest of this library is built for:
-[feature selection](feature-selection.md) over fingerprint bits,
-[undersampling](undersampling.md) for the imbalanced side-effect
-classes, and [parameter optimization](parameter-optimization.md) or
-[ensemble weights](ensemble.md) for the classifier on top.
+- **Most balanced**: `Reproductive system and breast disorders`
+  (727 vs 700, ratio 1.0) — a comfortable binary task.
+- **Most imbalanced**: `Product issues` (22 vs 1,405, ratio 63.9) —
+  with so few positives, plain accuracy is meaningless and specialized
+  handling such as [undersampling](undersampling.md) or class-weighted
+  metrics is essential.
+- Note that for many tasks the **positive class is the majority**
+  (most drugs *do* have, e.g., gastrointestinal side effects recorded)
+  — check which side is the minority before choosing metrics.
 
 ## References
 
