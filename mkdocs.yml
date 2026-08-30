@@ -78,6 +78,7 @@ nav:
           - Bees Algorithm: algorithm-details/bees.md
           - Camel Algorithm: algorithm-details/camel.md
           - Cat Swarm Optimization: algorithm-details/cso.md
+          - Clonal Selection Algorithm: algorithm-details/clonalg.md
           - Cuckoo Search: algorithm-details/cuckoo.md
           - Differential Evolution: algorithm-details/de.md
           - Firefly Algorithm: algorithm-details/firefly.md

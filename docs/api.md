@@ -132,6 +132,8 @@
 
 ::: ikn_library.algorithms.CatSwarmOptimization
 
+::: ikn_library.algorithms.ClonalSelectionAlgorithm
+
 ::: ikn_library.algorithms.CuckooSearch
 
 ::: ikn_library.algorithms.DifferentialEvolution

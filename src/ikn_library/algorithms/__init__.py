@@ -8,6 +8,7 @@ from ikn_library.algorithms.bees import BeesAlgorithm
 from ikn_library.algorithms.bfo import BacterialForagingOptimization
 from ikn_library.algorithms.binary_aco import BinaryAntColonyOptimization
 from ikn_library.algorithms.camel import CamelAlgorithm
+from ikn_library.algorithms.clonalg import ClonalSelectionAlgorithm
 from ikn_library.algorithms.cso import CatSwarmOptimization
 from ikn_library.algorithms.cuckoo import CuckooSearch
 from ikn_library.algorithms.de import DifferentialEvolution
@@ -31,6 +32,7 @@ __all__ = [
     "BinaryAntColonyOptimization",
     "CamelAlgorithm",
     "CatSwarmOptimization",
+    "ClonalSelectionAlgorithm",
     "CuckooSearch",
     "DifferentialEvolution",
     "FireflyAlgorithm",

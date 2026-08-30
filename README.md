@@ -138,7 +138,7 @@ Currently available: `AntColonyOptimization` (ACO-R, continuous),
 `BeesAlgorithm` (continuous),
 `BinaryAntColonyOptimization` (binary/subsets), `CamelAlgorithm`
 (continuous), `CatSwarmOptimization` (continuous),
-`CuckooSearch` (continuous),
+`ClonalSelectionAlgorithm` (continuous), `CuckooSearch` (continuous),
 `DifferentialEvolution` (continuous), `FireflyAlgorithm`
 (continuous), `FireworksAlgorithm` (continuous),
 `FishSchoolSearch` (continuous), `GeneticAlgorithm`

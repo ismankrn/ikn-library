@@ -15,6 +15,7 @@ the literature it comes from.
 | Bees Algorithm | continuous | population + site recruitment | [Bees](bees.md) |
 | Camel Algorithm | continuous | population + endurance/supply + restarts | [Camel](camel.md) |
 | Cat Swarm Optimization | continuous | population + two behaviour modes | [CSO](cso.md) |
+| Clonal Selection Algorithm | continuous | population + affinity-proportional cloning | [CLONALG](clonalg.md) |
 | Cuckoo Search | continuous | population + Levy flights | [Cuckoo](cuckoo.md) |
 | Differential Evolution | continuous | population + difference vectors | [DE](de.md) |
 | Firefly Algorithm | continuous | population + distance-faded attraction | [Firefly](firefly.md) |
@@ -45,7 +46,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All seventeen on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All eighteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -66,6 +67,7 @@ mean over 3 seeds — lower is better):
 | Bacterial Foraging | 4e-06 | 0.017 | 18.9 |
 | Camel Algorithm | 1e-09 | 4e-04 | 4.4 |
 | Cuckoo Search | 4e-10 | 3e-04 | 6.8 |
+| Clonal Selection | 4e-08 | 1e-03 | 8.6 |
 
 Two lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): the Firefly

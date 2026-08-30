@@ -13,6 +13,7 @@ from ikn_library.algorithms import (
     BinaryAntColonyOptimization,
     CamelAlgorithm,
     CatSwarmOptimization,
+    ClonalSelectionAlgorithm,
     CuckooSearch,
     DifferentialEvolution,
     FireflyAlgorithm,
@@ -36,6 +37,7 @@ from ikn_library.algorithms import (
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
 | Cat Swarm Optimization | `CatSwarmOptimization` | continuous | Chu, Tsai & Pan, PRICAI 2006 |
+| Clonal Selection Algorithm | `ClonalSelectionAlgorithm` | continuous | de Castro & Von Zuben, IEEE TEC 6(3), 2002 |
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Differential Evolution | `DifferentialEvolution` | continuous | Storn & Price, JOGO 11(4), 1997 |
 | Firefly Algorithm | `FireflyAlgorithm` | continuous | Yang, SAGA 2009 |
@@ -161,6 +163,23 @@ on the multimodal Rastrigin function.
 
 Key parameters: `population_size`, `mixture_ratio` (MR), `smp`, `srd`,
 `cdc`, `spc`, `velocity_factor`, `max_velocity`, `seed`.
+
+## Clonal Selection Algorithm
+
+`ClonalSelectionAlgorithm` — for **continuous** problems, drawn from
+the adaptive immune system (de Castro & Von Zuben, 2002). Solutions are
+antibodies ranked by *affinity*, and two rules follow from that single
+quantity: better antibodies are **cloned more** (concentrating the
+budget on what works) and their clones **mutate less** (refining rather
+than wandering). A poor antibody thus gets one clone flung far away
+while a good one gets many small perturbations, so exploration and
+exploitation are balanced by biology rather than by a schedule. The
+worst few antibodies are replaced at random each generation, which is
+the algorithm's only source of new material — it has no crossover or
+recombination of any kind.
+
+Key parameters: `population_size`, `n_select`, `clone_factor`,
+`n_replace`, `rho`, `seed`.
 
 ## Cuckoo Search
 
