@@ -107,12 +107,57 @@ selection](feature-selection.md) over the combined descriptor block,
 for the Yamanishi classification setting also
 [undersampling](undersampling.md).
 
-!!! note "Splitting paired data honestly"
-    A random split lets the *same* drug appear in both train and test,
-    which inflates scores. Publication-grade DTI work reports
-    **cold-drug** and **cold-target** splits (unseen drugs / unseen
-    proteins in the test set) as well. Decide the split before tuning
-    anything.
+## Splitting paired data honestly
+
+In paired data each drug appears in many rows (Davis: 68 drugs across
+25,772 pairs, ~379 rows per drug). A **random** split therefore puts
+the *same* drug in both train and test — the model can memorize
+per-drug tendencies instead of learning the interaction, and the score
+comes out inflated. `cold_split` holds out whole entities instead:
+
+```python
+from ikn_library.interactions import cold_split
+
+train, test = cold_split(drug_ids, target_ids, test_size=0.2,
+                         mode="drug", seed=42)
+X_train, X_test = X[train], X[test]
+```
+
+| `mode=` | Held out | The question it answers |
+|---|---|---|
+| `"random"` | random pairs | "Fill in the blanks of an interaction matrix I already know" |
+| `"drug"` (default) | whole drugs | "What does this **new drug** bind?" |
+| `"target"` | whole proteins | "What binds this **new protein**?" |
+| `"both"` | both | Hardest: neither entity seen in training |
+
+### How much does it matter?
+
+Same data, same features, same model (Random Forest on 4,000 Davis
+pairs; Morgan-256 + amino-acid composition), only the split differs:
+
+```text
+ random: train= 3200 test= 800 | R2 = 0.288
+   drug: train= 3204 test= 796 | R2 = -0.386
+ target: train= 3185 test= 815 | R2 = 0.182
+   both: train= 2582 test= 154 | R2 = -0.467
+```
+
+The random split looks like a working model; the cold-drug split
+reveals that this feature set generalizes to unseen drugs *worse than
+predicting the mean* (negative R²). Both numbers are "correct" — they
+answer different questions, and only the cold ones speak to drug
+discovery.
+
+!!! warning "Decide the split before tuning anything"
+    If hyperparameters, feature subsets, or ensemble weights are tuned
+    under a random split and results are reported under a cold split,
+    every one of those choices was optimized for the leaky setting.
+    Fix the split scheme first, then use it consistently — including
+    inside the fitness function of any metaheuristic.
+
+    Note also that `mode="both"` keeps only pairs whose drug *and*
+    target are held out, so its test set is much smaller (154 pairs
+    above) — expect noisier estimates.
 
 ## References
 

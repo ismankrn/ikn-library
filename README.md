@@ -231,6 +231,16 @@ yam = load_yamanishi("nuclear_receptor")  # classification, negatives sampled
 drug_ids, target_ids, y = yam.pairs(negative_ratio=1.0, seed=42)
 ```
 
+Split paired data without entity leakage — `cold_split` holds out whole
+drugs or proteins instead of individual pairs:
+
+```python
+from ikn_library.interactions import cold_split
+
+train, test = cold_split(drug_ids, target_ids, mode="drug", seed=42)
+# modes: "drug" (unseen drugs), "target", "both", "random"
+```
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)

@@ -70,6 +70,8 @@
 
 ::: ikn_library.interactions.load_yamanishi
 
+::: ikn_library.interactions.cold_split
+
 ::: ikn_library.interactions.DTIDataset
 
 ::: ikn_library.interactions.YamanishiDataset
