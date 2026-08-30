@@ -105,6 +105,85 @@ assay would stop at 8 or 9.
     objectives separately exposed a solution the scalarized version
     never surfaced.
 
+## Using the selected features to train a model
+
+A Pareto front is a menu, not an answer. Three steps turn it into a
+working model.
+
+!!! warning "Run the selection on training data only"
+    Feature selection is part of model building, so it must not see the
+    test set. Split first, optimize on the training split, and keep the
+    test split untouched for the final number — otherwise the reported
+    accuracy is optimistic.
+
+```python
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, stratify=y, random_state=42)
+
+# 1. Build the front from the TRAINING data
+problem = MultiObjectiveFeatureSelection(X_train, y_train, cv=5)
+solutions, objectives = NSGA2(population_size=40, seed=42).run(
+    MultiObjectiveTask(problem=problem, max_evals=3000))
+```
+
+**Step 2 — pick a point on the front.** Three common criteria:
+
+```python
+import numpy as np
+
+n_features = np.array([len(problem.selected_features(s)) for s in solutions])
+cv_accuracy = 1 - objectives[:, 0]
+
+most_accurate = int(np.argmax(cv_accuracy))     # best score, size ignored
+smallest = int(np.argmin(n_features))           # fewest features
+# or: the smallest subset meeting a required accuracy
+budget = np.flatnonzero(cv_accuracy >= 0.85)
+cheapest_good_enough = budget[np.argmin(n_features[budget])]
+```
+
+**Step 3 — extract the features and fit the final model.** The solution
+vector is a mask, so `selected_features` gives the column indices:
+
+```python
+features = problem.selected_features(solutions[most_accurate])
+
+model = KNeighborsClassifier(n_neighbors=5)
+model.fit(X_train[:, features], y_train)
+accuracy = accuracy_score(y_test, model.predict(X_test[:, features]))
+```
+
+Note that **the same column indices must be applied to any future
+data** — store `features` alongside the model.
+
+### What it gives you
+
+Running exactly that on the synthetic dataset above:
+
+```text
+all 30 features            : test accuracy = 0.8333
+most accurate  (11 features): test accuracy = 0.8583
+knee point      (5 features): test accuracy = 0.6667
+smallest        (2 features): test accuracy = 0.6333
+```
+
+The 11-feature subset **beats using all 30** — higher accuracy from a
+third of the inputs, which is the payoff feature selection promises.
+
+!!! warning "The knee point is a heuristic, not a rule"
+    A popular shortcut is to take the *knee* — the point of maximum
+    curvature, where accuracy stops climbing steeply. Here that picked
+    5 features and scored **0.6667 on the test set**, far below both the
+    11-feature subset and using everything.
+
+    The knee is a property of the *shape* of the training-CV curve, and
+    that shape does not have to reflect generalization. Treat the front
+    as a shortlist: check the candidates you care about on held-out
+    data before committing.
+
 ## Writing your own multi-objective problem
 
 Subclass `MultiObjectiveProblem` and return a vector; **every objective
