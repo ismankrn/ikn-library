@@ -42,6 +42,10 @@
 
 ::: ikn_library.ensemble.tree_proba_matrix
 
+## Sampling
+
+::: ikn_library.sampling.UndersamplingProblem
+
 ## Algorithms
 
 ::: ikn_library.algorithms.Algorithm

@@ -167,6 +167,25 @@ Running the same problem with `BinaryAntColonyOptimization` performs
 ensemble pruning (0/1 weights = drop/keep members). See
 [examples/ensemble_weight_optimization.py](examples/ensemble_weight_optimization.py).
 
+## Undersampling for imbalanced data
+
+Balance an imbalanced dataset by optimizing *which* majority-class
+samples to keep (evolutionary undersampling) — the minority class is
+kept in full, and every candidate is repaired to an exact class ratio:
+
+```python
+from ikn_library.sampling import UndersamplingProblem
+
+problem = UndersamplingProblem(X_train, y_train, X_val, y_val,
+                               target_ratio=1.0, metric="f1")
+task = Task(problem=problem, max_evals=3000)
+best_x, _ = BinaryAntColonyOptimization(seed=42).run(task)
+
+X_reduced, y_reduced = problem.resampled_data(best_x)
+```
+
+See [examples/undersampling.py](examples/undersampling.py).
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)

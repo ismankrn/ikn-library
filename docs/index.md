@@ -67,6 +67,9 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Ensemble Weights](ensemble.md)** — replacing majority voting with
   metaheuristic-optimized voting weights (and ensemble pruning with
   Binary ACO).
+- **[Undersampling](undersampling.md)** — balancing imbalanced datasets
+  by optimizing *which* majority samples to keep, with an exact-ratio
+  constraint.
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
 
