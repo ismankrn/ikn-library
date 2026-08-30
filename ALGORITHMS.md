@@ -6,6 +6,7 @@ parameters, then call `run(task)` to get `(best_x, best_fitness)`.
 ```python
 from ikn_library.algorithms import (
     AntColonyOptimization,
+    ArtificialBeeColony,
     BatAlgorithm,
     BinaryAntColonyOptimization,
     GeneticAlgorithm,
@@ -16,6 +17,7 @@ from ikn_library.algorithms import (
 | Algorithm | Class | Domain | Reference |
 |---|---|---|---|
 | Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous | Socha & Dorigo, EJOR 185(3), 2008 |
+| Artificial Bee Colony | `ArtificialBeeColony` | continuous | Karaboga, TR06, 2005; Karaboga & Basturk, JOGO 39(3), 2007 |
 | Bat Algorithm | `BatAlgorithm` | continuous | Yang, NICSO 2010 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
@@ -32,6 +34,22 @@ converges — the archive plays the role of the pheromone trail.
 Key parameters: `population_size` (ants per iteration), `archive_size`
 (k), `intensification` (q, locality of search), `evaporation` (xi,
 convergence speed), `seed`.
+
+## Artificial Bee Colony
+
+`ArtificialBeeColony` — for **continuous** problems, modeled on honey-bee
+foraging. Each iteration runs three roles: **employed bees** probe their
+own food source by stepping toward a random partner in one random
+dimension (greedy selection keeps the better one); **onlooker bees**
+re-probe sources with probability proportional to quality; and a
+**scout bee** abandons any source that has not improved for `limit`
+trials, replacing it with a fresh random solution. That abandonment
+mechanism gives ABC unusually strong escape from local optima —
+in this library's benchmarks it is by far the best on the highly
+multimodal Rastrigin function.
+
+Key parameters: `population_size` (food sources), `limit` (trials
+before abandonment; defaults to `population_size * dimension`), `seed`.
 
 ## Bat Algorithm
 

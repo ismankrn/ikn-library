@@ -118,9 +118,9 @@ and the runnable script [examples/parameter_optimization.py](examples/parameter_
 ## Algorithms
 
 Currently available: `AntColonyOptimization` (ACO-R, continuous),
-`BatAlgorithm` (continuous), `BinaryAntColonyOptimization`
-(binary/subsets), `GeneticAlgorithm` (real-coded, continuous), and
-`SimulatedAnnealing` (continuous). See
+`ArtificialBeeColony` (continuous), `BatAlgorithm` (continuous),
+`BinaryAntColonyOptimization` (binary/subsets), `GeneticAlgorithm`
+(real-coded, continuous), and `SimulatedAnnealing` (continuous). See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,
 key parameters, and references.
 

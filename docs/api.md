@@ -100,6 +100,8 @@
 
 ::: ikn_library.algorithms.AntColonyOptimization
 
+::: ikn_library.algorithms.ArtificialBeeColony
+
 ::: ikn_library.algorithms.BatAlgorithm
 
 ::: ikn_library.algorithms.BinaryAntColonyOptimization
