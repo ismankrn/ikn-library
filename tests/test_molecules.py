@@ -108,3 +108,36 @@ def test_tox21_task_errors(tox21_file):
         data.task("NR-ER")       # not in this synthetic file
     with pytest.raises(KeyError):
         data.task("r")           # ambiguous
+
+
+def test_bbbp_excludes_metadata_columns(tmp_path):
+    from ikn_library.molecules import load_bbbp
+    path = tmp_path / "BBBP.csv"
+    path.write_text("num,name,p_np,smiles\n1,ethanol,1,CCO\n2,benzene,0,c1ccccc1\n")
+    data = load_bbbp(path)
+    assert data.tasks == ["p_np"]
+    smiles, y = data.task("p_np")
+    np.testing.assert_array_equal(smiles, ["CCO", "c1ccccc1"])
+    np.testing.assert_array_equal(y, [1, 0])
+    assert "name" in data.frame.columns
+
+
+def test_clintox_two_tasks(tmp_path):
+    from ikn_library.molecules import load_clintox
+    path = tmp_path / "clintox.csv"
+    path.write_text("smiles,FDA_APPROVED,CT_TOX\nCCO,1,0\nc1ccccc1,0,1\n")
+    data = load_clintox(path)
+    assert data.tasks == ["FDA_APPROVED", "CT_TOX"]
+    _, y = data.task("CT_TOX")
+    np.testing.assert_array_equal(y, [0, 1])
+
+
+def test_hiv_excludes_activity_column(tmp_path):
+    from ikn_library.molecules import load_hiv
+    path = tmp_path / "HIV.csv"
+    path.write_text("smiles,activity,HIV_active\nCCO,CI,0\nc1ccccc1,CA,1\n")
+    data = load_hiv(path)
+    assert data.tasks == ["HIV_active"]
+    _, y = data.task("HIV_active")
+    np.testing.assert_array_equal(y, [0, 1])
+    assert "activity" in data.frame.columns

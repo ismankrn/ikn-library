@@ -48,6 +48,12 @@
 
 ::: ikn_library.molecules.load_tox21
 
+::: ikn_library.molecules.load_bbbp
+
+::: ikn_library.molecules.load_clintox
+
+::: ikn_library.molecules.load_hiv
+
 ::: ikn_library.molecules.featurize
 
 ::: ikn_library.molecules.MoleculeDataset

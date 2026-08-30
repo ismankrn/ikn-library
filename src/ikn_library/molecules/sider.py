@@ -7,12 +7,9 @@ References:
     learning," Chemical Science, 9(2), 513-530, 2018.
 """
 
-import urllib.request
-from pathlib import Path
-
 import pandas as pd
 
-from ikn_library.molecules.base import MoleculeDataset
+from ikn_library.molecules.base import MoleculeDataset, fetch
 
 SIDER_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/sider.csv.gz"
 
@@ -33,18 +30,6 @@ class SIDERDataset(MoleculeDataset):
                 f"{len(self.tasks)} side-effect tasks>")
 
 
-def _download(cache_dir):
-    cache_dir = Path(cache_dir) if cache_dir else Path.home() / ".ikn_library" / "molecules"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    path = cache_dir / "sider.csv.gz"
-    if path.exists():
-        return path
-    tmp = path.with_suffix(".part")
-    urllib.request.urlretrieve(SIDER_URL, tmp)
-    tmp.replace(path)
-    return path
-
-
 def load_sider(source=None, cache_dir=None):
     """Load the SIDER dataset into a :class:`SIDERDataset`.
 
@@ -59,7 +44,5 @@ def load_sider(source=None, cache_dir=None):
         >>> data = load_sider()
         >>> smiles, y = data.task("Hepatobiliary disorders")
     """
-    path = Path(source) if source is not None else _download(cache_dir)
-    if not path.exists():
-        raise ValueError(f"{source!r} is not an existing file")
+    path = fetch(SIDER_URL, "sider.csv.gz", source, cache_dir)
     return SIDERDataset(pd.read_csv(path))

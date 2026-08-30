@@ -74,6 +74,9 @@ The library follows a NiaPy-like workflow built from three pieces:
   side-effect dataset as SMILES plus per-side-effect binary labels.
 - **[Molecule Data (Tox21)](tox21.md)** — loading the Tox21 toxicity
   dataset (12 assays, missing labels handled per task).
+- **[Molecule Data (BBBP, ClinTox, HIV)](moleculenet.md)** — three more
+  MoleculeNet case-study datasets, from friendly (BBBP) to severely
+  imbalanced (HIV).
 - **[Molecular Descriptors](featurize.md)** — SMILES to features in one
   call: five fingerprints, physicochemical descriptors, and a Mordred
   backend.

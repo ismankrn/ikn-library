@@ -201,6 +201,10 @@ tox21 = load_tox21()                   # 7,831 compounds x 12 toxicity assays
 smiles, y = tox21.task("NR-AhR")       # unlabeled compounds dropped per task
 ```
 
+Also available: `load_bbbp` (blood-brain barrier), `load_clintox`
+(clinical-trial toxicity), and `load_hiv` (41k compounds, 3.5% active —
+a prime undersampling case study).
+
 Turn SMILES into features in one call (`pip install ikn-library[chem]`):
 
 ```python

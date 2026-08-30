@@ -1,5 +1,30 @@
 """Shared base for molecular datasets (SMILES + binary label columns)."""
 
+import urllib.request
+from pathlib import Path
+
+
+def fetch(url, filename, source=None, cache_dir=None):
+    """Return a local path for a dataset file, downloading it once if needed.
+
+    ``source`` (a local path) short-circuits the download; otherwise the
+    file is cached under ``cache_dir`` (default
+    ``~/.ikn_library/molecules/``).
+    """
+    if source is not None:
+        path = Path(source)
+        if not path.exists():
+            raise ValueError(f"{source!r} is not an existing file")
+        return path
+    cache_dir = Path(cache_dir) if cache_dir else Path.home() / ".ikn_library" / "molecules"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    path = cache_dir / filename
+    if not path.exists():
+        tmp = path.with_suffix(".part")
+        urllib.request.urlretrieve(url, tmp)
+        tmp.replace(path)
+    return path
+
 
 class MoleculeDataset:
     """A table of molecules: a ``smiles`` column plus binary label columns.

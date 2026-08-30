@@ -51,6 +51,7 @@ nav:
   - Undersampling: undersampling.md
   - Molecule Data (SIDER): sider.md
   - Molecule Data (Tox21): tox21.md
+  - Molecule Data (BBBP, ClinTox, HIV): moleculenet.md
   - Molecular Descriptors: featurize.md
   - Teaching Notes:
       - Comparing Tuning Results: gridsearch-comparison.md

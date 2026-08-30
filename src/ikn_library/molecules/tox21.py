@@ -9,12 +9,9 @@ References:
     learning," Chemical Science, 9(2), 513-530, 2018.
 """
 
-import urllib.request
-from pathlib import Path
-
 import pandas as pd
 
-from ikn_library.molecules.base import MoleculeDataset
+from ikn_library.molecules.base import MoleculeDataset, fetch
 
 TOX21_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/tox21.csv.gz"
 
@@ -37,18 +34,6 @@ class Tox21Dataset(MoleculeDataset):
                 f"{len(self.tasks)} assay tasks>")
 
 
-def _download(cache_dir):
-    cache_dir = Path(cache_dir) if cache_dir else Path.home() / ".ikn_library" / "molecules"
-    cache_dir.mkdir(parents=True, exist_ok=True)
-    path = cache_dir / "tox21.csv.gz"
-    if path.exists():
-        return path
-    tmp = path.with_suffix(".part")
-    urllib.request.urlretrieve(TOX21_URL, tmp)
-    tmp.replace(path)
-    return path
-
-
 def load_tox21(source=None, cache_dir=None):
     """Load the Tox21 dataset into a :class:`Tox21Dataset`.
 
@@ -63,7 +48,5 @@ def load_tox21(source=None, cache_dir=None):
         >>> data = load_tox21()
         >>> smiles, y = data.task("NR-AhR")   # unlabeled compounds dropped
     """
-    path = Path(source) if source is not None else _download(cache_dir)
-    if not path.exists():
-        raise ValueError(f"{source!r} is not an existing file")
+    path = fetch(TOX21_URL, "tox21.csv.gz", source, cache_dir)
     return Tox21Dataset(pd.read_csv(path))
