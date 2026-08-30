@@ -74,6 +74,7 @@ nav:
           - Artificial Bee Colony: algorithm-details/abc.md
           - Bat Algorithm: algorithm-details/bat.md
           - Bees Algorithm: algorithm-details/bees.md
+          - Camel Algorithm: algorithm-details/camel.md
           - Genetic Algorithm: algorithm-details/ga.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Simulated Annealing: algorithm-details/sa.md

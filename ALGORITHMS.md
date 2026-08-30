@@ -10,6 +10,7 @@ from ikn_library.algorithms import (
     BatAlgorithm,
     BeesAlgorithm,
     BinaryAntColonyOptimization,
+    CamelAlgorithm,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
     SimulatedAnnealing,
@@ -23,6 +24,7 @@ from ikn_library.algorithms import (
 | Bat Algorithm | `BatAlgorithm` | continuous | Yang, NICSO 2010 |
 | Bees Algorithm | `BeesAlgorithm` | continuous | Pham et al., 2005; Pham & Castellani, 2009 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
+| Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -96,6 +98,20 @@ preserve exploration.
 
 Key parameters: `population_size`, `evaporation` (rho), `alpha`
 (pheromone exponent), `tau_min`, `tau_max`, `seed`.
+
+## Camel Algorithm
+
+`CamelAlgorithm` — for **continuous** problems, modelling a caravan
+crossing the desert (Ali, 2016). Each camel steps toward the best oasis
+found so far, its stride set by **endurance** (which fades with random
+desert heat and with the distance travelled) and stretched by
+**dwindling supplies**. Reaching a better position replenishes the
+camel; exhausting its endurance kills it and it is reborn at random.
+Those restarts make it this library's third-strongest algorithm on
+multimodal landscapes.
+
+Key parameters: `population_size`, `min_temperature` / `max_temperature`,
+`burden_rate`, `death_rate`, `visibility`, `seed`.
 
 ## Genetic Algorithm
 

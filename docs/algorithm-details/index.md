@@ -12,6 +12,7 @@ the literature it comes from.
 | Artificial Bee Colony | continuous | population + abandonment | [ABC](abc.md) |
 | Bat Algorithm | continuous | population + echolocation | [Bat](bat.md) |
 | Bees Algorithm | continuous | population + site recruitment | [Bees](bees.md) |
+| Camel Algorithm | continuous | population + endurance/supply + restarts | [Camel](camel.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
@@ -36,7 +37,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All eight on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All nine on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -48,11 +49,12 @@ mean over 3 seeds — lower is better):
 | Bees Algorithm | 5e-14 | 5e-06 | 22.9 |
 | Bat Algorithm | 4e-05 | 0.045 | 31.5 |
 | Genetic Algorithm | 1.7e-04 | 0.124 | 3.0 |
+| Camel Algorithm | 1e-09 | 4e-04 | 4.4 |
 
 Two lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): ACO-R is
 unmatched at polishing a smooth unimodal landscape, while ABC and GA
-dominate the highly multimodal Rastrigin while the Bees Algorithm
-places second there. Second, the ranking depends
+dominate the highly multimodal Rastrigin, with the Camel Algorithm
+close behind. Second, the ranking depends
 on the *landscape*, not on how fashionable the metaphor is — always
 benchmark on a problem resembling yours.

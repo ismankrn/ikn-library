@@ -108,6 +108,8 @@
 
 ::: ikn_library.algorithms.BinaryAntColonyOptimization
 
+::: ikn_library.algorithms.CamelAlgorithm
+
 ::: ikn_library.algorithms.GeneticAlgorithm
 
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
