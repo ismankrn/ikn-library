@@ -89,6 +89,7 @@ nav:
           - Forest Optimization Algorithm: algorithm-details/foa.md
           - Genetic Algorithm: algorithm-details/ga.md
           - Gravitational Search Algorithm: algorithm-details/gsa.md
+          - Grey Wolf Optimizer: algorithm-details/gwo.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md

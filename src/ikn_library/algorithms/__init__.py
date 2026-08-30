@@ -20,6 +20,7 @@ from ikn_library.algorithms.fss import FishSchoolSearch
 from ikn_library.algorithms.fwa import FireworksAlgorithm
 from ikn_library.algorithms.ga import GeneticAlgorithm
 from ikn_library.algorithms.gsa import GravitationalSearchAlgorithm
+from ikn_library.algorithms.gwo import GreyWolfOptimizer
 from ikn_library.algorithms.kma import KomodoMlipirAlgorithm
 from ikn_library.algorithms.nsga2 import NSGA2
 from ikn_library.algorithms.sa import SimulatedAnnealing
@@ -46,6 +47,7 @@ __all__ = [
     "ForestOptimizationAlgorithm",
     "GeneticAlgorithm",
     "GravitationalSearchAlgorithm",
+    "GreyWolfOptimizer",
     "KomodoMlipirAlgorithm",
     "SimulatedAnnealing",
 ]

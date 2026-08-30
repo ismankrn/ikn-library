@@ -154,6 +154,8 @@
 
 ::: ikn_library.algorithms.GravitationalSearchAlgorithm
 
+::: ikn_library.algorithms.GreyWolfOptimizer
+
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
 
 ::: ikn_library.algorithms.NSGA2

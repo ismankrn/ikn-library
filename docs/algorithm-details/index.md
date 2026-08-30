@@ -25,6 +25,7 @@ the actual source, its parameters, and the literature it comes from.
 | Forest Optimization Algorithm | continuous | age-gated seeding + recycled discards | [FOA](foa.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
+| Grey Wolf Optimizer | continuous | three-leader hierarchy | [GWO](gwo.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
@@ -48,7 +49,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-one on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-two on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -73,10 +74,16 @@ mean over 3 seeds — lower is better):
 | Coral Reefs Optimization | 3e-07 | 3e-03 | 3.0 |
 | Forest Optimization* | 2e-08 | 1e-03 | 9e-06 |
 | Flower Pollination | 3e-30 | 2e-13 | 7.3 |
+| Grey Wolf Optimizer** | 4e-88 | 4e-16 | **0** |
 
 \* Forest Optimization's Rastrigin score is **largely an artefact of
 this benchmark suite** — see the caveat below and the
 [FOA page](foa.md).
+
+\*\* Grey Wolf's whole row is inflated by an **origin bias**: all three
+optima sit at \(x = 0\), and shifting them costs GWO 82 orders of
+magnitude on Sphere. The Fireworks Algorithm shares this bias. See the
+[GWO page](gwo.md).
 
 Three lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): the Firefly

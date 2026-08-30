@@ -24,6 +24,7 @@ from ikn_library.algorithms import (
     ForestOptimizationAlgorithm,
     GeneticAlgorithm,
     GravitationalSearchAlgorithm,
+    GreyWolfOptimizer,
     KomodoMlipirAlgorithm,
     NSGA2,
     SimulatedAnnealing,
@@ -49,6 +50,7 @@ from ikn_library.algorithms import (
 | Fish School Search | `FishSchoolSearch` | continuous | Bastos Filho et al., IEEE SMC 2008 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Gravitational Search Algorithm | `GravitationalSearchAlgorithm` | continuous | Rashedi et al., Inf. Sci. 179(13), 2009 |
+| Grey Wolf Optimizer | `GreyWolfOptimizer` | continuous | Mirjalili et al., Adv. Eng. Software 69, 2014 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -339,6 +341,25 @@ agents (**Kbest**) shrinks to the elite.
 
 Key parameters: `population_size`, `g0`, `alpha` (decay rate),
 `final_kbest`, `max_velocity`, `seed`.
+
+## Grey Wolf Optimizer
+
+`GreyWolfOptimizer` — for **continuous** problems, based on the social
+hierarchy of grey wolves (Mirjalili et al., 2014). The three best
+solutions are named alpha, beta and delta, and every other wolf moves to
+the **average of three proposals**, one from each leader. Following
+three disagreeing attractors rather than one global best keeps the pack
+spread over the region they bracket, giving diversity maintenance with
+no explicit mechanism for it. A single coefficient falling from 2 to 0
+switches the pack from searching to attacking, and unusually for its
+era that schedule was tied to the run's progress in the original paper.
+
+Note that GWO is **biased toward the origin**: its exceptional scores on
+the standard benchmarks depend on their optima sitting at zero, and
+shifting them costs 82 orders of magnitude on Sphere. The detail page
+documents the evidence and the mechanism.
+
+Key parameters: `population_size`, `a_start`, `a_end`, `seed`.
 
 ## Komodo Mlipir Algorithm
 
