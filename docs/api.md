@@ -48,6 +48,8 @@
 
 ::: ikn_library.molecules.load_tox21
 
+::: ikn_library.molecules.featurize
+
 ::: ikn_library.molecules.MoleculeDataset
 
 ::: ikn_library.molecules.SIDERDataset

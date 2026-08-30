@@ -201,6 +201,15 @@ tox21 = load_tox21()                   # 7,831 compounds x 12 toxicity assays
 smiles, y = tox21.task("NR-AhR")       # unlabeled compounds dropped per task
 ```
 
+Turn SMILES into features in one call (`pip install ikn-library[chem]`):
+
+```python
+from ikn_library.molecules import featurize
+
+X, y = featurize(smiles, y, method="morgan", n_bits=1024)
+# methods: morgan, maccs, rdkit, atompair, torsion, descriptors, mordred
+```
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)
