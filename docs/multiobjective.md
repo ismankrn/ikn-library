@@ -130,7 +130,7 @@ solutions, objectives = NSGA2(population_size=40, seed=42).run(
     MultiObjectiveTask(problem=problem, max_evals=3000))
 ```
 
-**Step 2 — pick a point on the front.** Three common criteria:
+**Step 2 — pick a point on the front.** Common criteria:
 
 ```python
 import numpy as np
@@ -144,6 +144,23 @@ smallest = int(np.argmin(n_features))           # fewest features
 budget = np.flatnonzero(cv_accuracy >= 0.85)
 cheapest_good_enough = budget[np.argmin(n_features[budget])]
 ```
+
+A fourth criterion often mentioned is the **knee point** — the front
+position furthest from the straight line joining its two ends, i.e.
+where the curve stops paying off:
+
+```python
+def knee_index(sizes, scores):
+    """The point furthest from the line joining the front's two ends."""
+    points = np.column_stack([sizes / sizes.max(), scores])   # normalize axes
+    start, end = points[0], points[-1]
+    line = (end - start) / np.linalg.norm(end - start)
+    offsets = points - start
+    projections = np.outer(offsets @ line, line)
+    return int(np.argmax(np.linalg.norm(offsets - projections, axis=1)))
+```
+
+(Read the caveat below before trusting it.)
 
 **Step 3 — extract the features and fit the final model.** The solution
 vector is a mask, so `selected_features` gives the column indices:
@@ -161,14 +178,39 @@ data** — store `features` alongside the model.
 
 ### What it gives you
 
-Running exactly that on the synthetic dataset above:
+Comparing the three candidates against using every feature — the front
+is sorted by subset size, so `smallest` is simply index 0:
+
+```python
+model = KNeighborsClassifier(n_neighbors=5)
+candidates = {
+    "most accurate": int(np.argmax(cv_accuracy)),
+    "knee point": knee_index(n_features, cv_accuracy),
+    "smallest": 0,
+}
+
+baseline = accuracy_score(y_test, model.fit(X_train, y_train).predict(X_test))
+print(f"all {X.shape[1]} features            : test accuracy = {baseline:.4f}")
+
+for label, index in candidates.items():
+    features = problem.selected_features(solutions[index])
+    model.fit(X_train[:, features], y_train)
+    accuracy = accuracy_score(y_test, model.predict(X_test[:, features]))
+    print(f"{label:<14} ({len(features):>2} features): "
+          f"test accuracy = {accuracy:.4f}")
+```
+
+Output:
 
 ```text
 all 30 features            : test accuracy = 0.8333
 most accurate  (11 features): test accuracy = 0.8583
-knee point      (5 features): test accuracy = 0.6667
-smallest        (2 features): test accuracy = 0.6333
+knee point     ( 5 features): test accuracy = 0.6667
+smallest       ( 2 features): test accuracy = 0.6333
 ```
+
+The complete runnable script is
+[`examples/multiobjective_feature_selection.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/multiobjective_feature_selection.py).
 
 The 11-feature subset **beats using all 30** — higher accuracy from a
 third of the inputs, which is the payoff feature selection promises.
