@@ -11,6 +11,7 @@ from ikn_library.algorithms import (
     BeesAlgorithm,
     BinaryAntColonyOptimization,
     CamelAlgorithm,
+    CatSwarmOptimization,
     CuckooSearch,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
@@ -27,6 +28,7 @@ from ikn_library.algorithms import (
 | Bees Algorithm | `BeesAlgorithm` | continuous | Pham et al., 2005; Pham & Castellani, 2009 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
+| Cat Swarm Optimization | `CatSwarmOptimization` | continuous | Chu, Tsai & Pan, PRICAI 2006 |
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
@@ -116,6 +118,20 @@ multimodal landscapes.
 
 Key parameters: `population_size`, `min_temperature` / `max_temperature`,
 `burden_rate`, `death_rate`, `visibility`, `seed`.
+
+## Cat Swarm Optimization
+
+`CatSwarmOptimization` — for **continuous** problems, based on the two
+behaviours of cats (Chu, Tsai & Pan, 2006). Each iteration every cat is
+assigned a mode: the resting majority **seeks** — making copies of
+itself, tweaking a few dimensions of each and moving to the best one —
+while a small fraction **traces**, accelerating toward the best
+solution with a velocity update. Running two qualitatively different
+searches side by side makes it the library's second-strongest algorithm
+on the multimodal Rastrigin function.
+
+Key parameters: `population_size`, `mixture_ratio` (MR), `smp`, `srd`,
+`cdc`, `spc`, `velocity_factor`, `max_velocity`, `seed`.
 
 ## Cuckoo Search
 
