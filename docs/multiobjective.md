@@ -249,7 +249,9 @@ class PotencyAndToxicity(MultiObjectiveProblem):
 Non-dominated sorting and crowding distance are not GA-specific — they
 are a *ranking rule*, and any algorithm that ranks its population can
 adopt it. That is how MO-ABC, MO-PSO and friends are built in the
-literature, and the same recipe works here.
+literature, and the same recipe works here. Single-solution methods
+like Simulated Annealing convert too, but through a different
+mechanism — see [below](#single-solution-algorithms-convert-differently).
 
 !!! warning "A single-objective algorithm cannot just be pointed at a MultiObjectiveTask"
     It will fail immediately:
@@ -328,6 +330,68 @@ designed around Pareto ranking, while KMA's were not, so a new
 multi-objective variant normally needs its operators and parameters
 re-tuned for the multi-objective setting. **That gap is exactly where
 the research contribution lies.**
+
+### Single-solution algorithms convert differently
+
+The recipe above works for **rank-based population algorithms** (KMA,
+ABC, Bees, CSO, FSS, …). Simulated Annealing has no population to rank,
+so `pareto_sort_indices` never comes into play. What changes there is
+the **acceptance rule**, and Pareto dominance splits it into *three*
+cases instead of two:
+
+| Case | Single-objective | Multi-objective |
+|---|---|---|
+| Candidate is better | `f(new) < f(cur)` → accept | `dominates(new, cur)` → accept |
+| Candidate is worse | accept with `exp(-Δ/T)` | `dominates(cur, new)` → accept with `exp(-Δ/T)`, Δ = aggregated worsening |
+| **Neither is better** | *does not exist* | accept — the move travels *along* the front |
+
+The third case has no single-objective counterpart, and it is what lets
+a single wandering solution trace out a front at all. The archive is
+already handled for you by `MultiObjectiveTask`.
+
+```python
+class MOSimulatedAnnealing(SimulatedAnnealing):
+    def run_iteration(self, task, state):
+        x, current, temperature = state
+        candidate = task.repair(x + self.rng.normal(0.0, scale))
+        candidate_objectives = task.eval(candidate)
+
+        if dominates(candidate_objectives, current):
+            x, current = candidate, candidate_objectives           # case 1
+        elif dominates(current, candidate_objectives):
+            delta = self._worsening(candidate_objectives, current)
+            if self.rng.random() < np.exp(-delta / temperature):    # case 2
+                x, current = candidate, candidate_objectives
+        else:
+            x, current = candidate, candidate_objectives           # case 3
+
+        return x, current, temperature * self.cooling
+```
+
+The runnable version, including the objective-scaling used for Δ, is in
+[`examples/mo_sa.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/mo_sa.py).
+
+!!! warning "One walker cannot map a whole front"
+    MOSA runs, but on ZDT1 it faces a trade-off that no parameter
+    setting escapes:
+
+    ```text
+    MOSA (slow cooling)   : 231 sol | error = 0.065 | f1 coverage [0.00, 0.05]
+    MOSA (balanced)       :  52 sol | error = 0.113 | f1 coverage [0.00, 0.35]
+    MOSA (fast cooling)   :  11 sol | error = 0.932 | f1 coverage [0.00, 1.00]
+    NSGA-II               : 259 sol | error = 0.001 | f1 coverage [0.00, 1.00]
+    ```
+
+    It is either **accurate on a sliver of the front** or **spread but
+    far from it** — never both. Merging eight shorter independent runs
+    gave full coverage at error 0.79, no better.
+
+    This is a structural limit, not a tuning failure: a population can
+    occupy many points of the front simultaneously, while one solution
+    must walk between them and can only be in one place at a time.
+    Published MOSA variants therefore add machinery — archive-guided
+    restarts, or a set of runs steered by different objective weights.
+    If you need a front, start with a population-based method.
 
 ## Pareto utilities
 
