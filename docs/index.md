@@ -56,6 +56,8 @@ The library follows a NiaPy-like workflow built from three pieces:
 
 - **[Getting Started](getting-started.md)** — tasks, custom problems,
   maximization, and the available algorithms.
+- **[Multi-Objective Optimization](multiobjective.md)** — Pareto fronts
+  with NSGA-II: get the whole accuracy-vs-size trade-off curve in one run.
 - **[Feature Selection](feature-selection.md)** — wrapper-based feature
   selection with Binary ACO and a scikit-learn estimator.
 - **[Parameter Optimization](parameter-optimization.md)** — tuning model

@@ -82,6 +82,21 @@ print("Selected features:", problem.selected_features(best_x))
 The fitness balances the cross-validated score against the subset size:
 `alpha * (1 - cv_score) + (1 - alpha) * n_selected / n_features`.
 
+Or skip the weighting entirely and get the **whole trade-off curve** in
+one run with NSGA-II:
+
+```python
+from ikn_library.multiobjective import (
+    MultiObjectiveFeatureSelection, MultiObjectiveTask,
+)
+from ikn_library.algorithms import NSGA2
+
+problem = MultiObjectiveFeatureSelection(X, y, cv=5)
+solutions, objectives = NSGA2(seed=42).run(
+    MultiObjectiveTask(problem=problem, max_evals=4000))
+# each solution is a different accuracy / subset-size compromise
+```
+
 ## Parameter optimization
 
 Tune model hyperparameters by subclassing `Problem`: each dimension is

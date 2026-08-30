@@ -13,6 +13,7 @@ from ikn_library.algorithms import (
     CamelAlgorithm,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
+    NSGA2,
     SimulatedAnnealing,
 )
 ```
@@ -27,6 +28,7 @@ from ikn_library.algorithms import (
 | Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
+| NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -145,6 +147,20 @@ precision on smooth functions with much better multimodal behavior.
 Key parameters: `population_size`, `big_male_portion` (p),
 `mlipir_rate` (d), `max_big_males`, `adaptation_step`,
 `min_population` / `max_population`, `parthenogenesis_radius`, `seed`.
+
+## NSGA-II
+
+`NSGA2` — the elitist non-dominated sorting genetic algorithm for
+problems with **several conflicting objectives** (Deb et al., 2002).
+Unlike every other algorithm here it returns a **Pareto front** rather
+than one solution: non-dominated sorting ranks the population into
+layers, crowding distance keeps the front spread out, and elitist
+replacement ensures no Pareto solution is lost. Use it with
+`MultiObjectiveTask` and a `MultiObjectiveProblem` — see the
+[multi-objective guide](https://ikn-library.readthedocs.io/en/latest/multiobjective/).
+
+Key parameters: `population_size`, `crossover_rate`, `mutation_rate`,
+`mutation_scale`, `blend_alpha`, `seed`.
 
 ## Simulated Annealing
 

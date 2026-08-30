@@ -94,6 +94,22 @@
 
 ::: ikn_library.sampling.UndersamplingProblem
 
+## Multi-Objective
+
+::: ikn_library.multiobjective.MultiObjectiveProblem
+
+::: ikn_library.multiobjective.MultiObjectiveTask
+
+::: ikn_library.multiobjective.MultiObjectiveFeatureSelection
+
+::: ikn_library.multiobjective.dominates
+
+::: ikn_library.multiobjective.non_dominated_sort
+
+::: ikn_library.multiobjective.crowding_distance
+
+::: ikn_library.multiobjective.pareto_front
+
 ## Algorithms
 
 ::: ikn_library.algorithms.Algorithm
@@ -113,5 +129,7 @@
 ::: ikn_library.algorithms.GeneticAlgorithm
 
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
+
+::: ikn_library.algorithms.NSGA2
 
 ::: ikn_library.algorithms.SimulatedAnnealing
