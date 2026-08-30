@@ -15,6 +15,7 @@ from ikn_library.algorithms import (
     CuckooSearch,
     DifferentialEvolution,
     FireflyAlgorithm,
+    FireworksAlgorithm,
     FishSchoolSearch,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
@@ -35,6 +36,7 @@ from ikn_library.algorithms import (
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Differential Evolution | `DifferentialEvolution` | continuous | Storn & Price, JOGO 11(4), 1997 |
 | Firefly Algorithm | `FireflyAlgorithm` | continuous | Yang, SAGA 2009 |
+| Fireworks Algorithm | `FireworksAlgorithm` | continuous | Tan & Zhu, ICSI 2010 |
 | Fish School Search | `FishSchoolSearch` | continuous | Bastos Filho et al., IEEE SMC 2008 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
@@ -178,6 +180,20 @@ best results on the smooth Sphere and Ackley benchmarks.
 
 Key parameters: `population_size`, `alpha` (randomization),
 `alpha_decay`, `beta0`, `gamma` (light absorption), `seed`.
+
+## Fireworks Algorithm
+
+`FireworksAlgorithm` — for **continuous** problems, and the strongest
+algorithm in this library on the standard benchmarks (Tan & Zhu, 2010).
+Each firework explodes into sparks, with two quantities set by its
+quality in *opposite* directions: good fireworks get **more sparks** but
+a **smaller amplitude** (exploitation), poor ones get few sparks spread
+**wide** (exploration). Exploration and exploitation therefore happen
+simultaneously across the population rather than in phases. A few
+multiplicative Gaussian sparks supply the fine-scale refinement.
+
+Key parameters: `population_size` (fireworks), `n_sparks`,
+`max_amplitude`, `n_gaussian_sparks`, `spark_bounds`, `seed`.
 
 ## Fish School Search
 

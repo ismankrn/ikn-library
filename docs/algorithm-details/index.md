@@ -17,6 +17,7 @@ the literature it comes from.
 | Cuckoo Search | continuous | population + Levy flights | [Cuckoo](cuckoo.md) |
 | Differential Evolution | continuous | population + difference vectors | [DE](de.md) |
 | Firefly Algorithm | continuous | population + distance-faded attraction | [Firefly](firefly.md) |
+| Fireworks Algorithm | continuous | population + quality-coupled explosions | [FWA](fwa.md) |
 | Fish School Search | continuous | population + weights + school contraction | [FSS](fss.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
@@ -42,15 +43,16 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All fourteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All fifteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
 |---|---|---|---|
-| Firefly Algorithm | **7e-57** | **2e-15** | 6.0 |
+| Fireworks Algorithm | **3e-88** | **2e-15** | **0** |
+| Firefly Algorithm | 7e-57 | 2e-15 | 6.0 |
 | Differential Evolution | 2e-41 | 5e-15 | 2.0 |
 | ACO-R | 9e-25 | 1e-12 | 31.0 |
-| Artificial Bee Colony | 6e-15 | 5e-06 | **2e-08** |
+| Artificial Bee Colony | 6e-15 | 5e-06 | 2e-08 |
 | Cat Swarm Optimization | 1e-05 | 0.031 | 2.3 |
 | Fish School Search | 7e-05 | 0.057 | 2.7 |
 | Simulated Annealing | 8e-13 | 8e-06 | 26.9 |

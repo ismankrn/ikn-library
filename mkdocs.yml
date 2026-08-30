@@ -80,6 +80,7 @@ nav:
           - Cuckoo Search: algorithm-details/cuckoo.md
           - Differential Evolution: algorithm-details/de.md
           - Firefly Algorithm: algorithm-details/firefly.md
+          - Fireworks Algorithm: algorithm-details/fwa.md
           - Fish School Search: algorithm-details/fss.md
           - Genetic Algorithm: algorithm-details/ga.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md

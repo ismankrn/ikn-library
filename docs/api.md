@@ -136,6 +136,8 @@
 
 ::: ikn_library.algorithms.FireflyAlgorithm
 
+::: ikn_library.algorithms.FireworksAlgorithm
+
 ::: ikn_library.algorithms.FishSchoolSearch
 
 ::: ikn_library.algorithms.GeneticAlgorithm
