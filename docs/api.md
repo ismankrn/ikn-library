@@ -62,6 +62,22 @@
 
 ::: ikn_library.molecules.Tox21Dataset
 
+## Interactions
+
+::: ikn_library.interactions.load_davis
+
+::: ikn_library.interactions.load_kiba
+
+::: ikn_library.interactions.load_yamanishi
+
+::: ikn_library.interactions.DTIDataset
+
+::: ikn_library.interactions.YamanishiDataset
+
+## Proteins
+
+::: ikn_library.proteins.featurize_protein
+
 ## Sampling
 
 ::: ikn_library.sampling.UndersamplingProblem

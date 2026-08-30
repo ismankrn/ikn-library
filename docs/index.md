@@ -80,6 +80,8 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Molecular Descriptors](featurize.md)** — SMILES to features in one
   call: five fingerprints, physicochemical descriptors, and a Mordred
   backend.
+- **[Drug-Target Interactions](interactions.md)** — Davis, KIBA, and
+  Yamanishi benchmarks plus pure-numpy protein sequence descriptors.
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
 

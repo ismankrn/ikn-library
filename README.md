@@ -214,6 +214,23 @@ X, y = featurize(smiles, y, method="morgan", n_bits=1024)
 # methods: morgan, maccs, rdkit, atompair, torsion, descriptors, mordred
 ```
 
+## Drug-target interactions
+
+Load DTI benchmarks and turn protein sequences into descriptors (pure
+numpy — no extra dependencies):
+
+```python
+from ikn_library.interactions import load_davis, load_yamanishi
+from ikn_library.proteins import featurize_protein
+
+davis = load_davis()                      # 25,772 pairs, 68 drugs x 379 targets
+smiles, sequences, y = davis.arrays()     # y = pKd
+X_protein = featurize_protein(sequences, method="ctd")   # aac / dpc / ctd
+
+yam = load_yamanishi("nuclear_receptor")  # classification, negatives sampled
+drug_ids, target_ids, y = yam.pairs(negative_ratio=1.0, seed=42)
+```
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)
