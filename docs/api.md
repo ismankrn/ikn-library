@@ -42,6 +42,12 @@
 
 ::: ikn_library.ensemble.tree_proba_matrix
 
+## Molecules
+
+::: ikn_library.molecules.load_sider
+
+::: ikn_library.molecules.SIDERDataset
+
 ## Sampling
 
 ::: ikn_library.sampling.UndersamplingProblem

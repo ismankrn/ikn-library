@@ -49,6 +49,7 @@ nav:
   - Microarray Data: microarray.md
   - Ensemble Weights: ensemble.md
   - Undersampling: undersampling.md
+  - Molecule Data (SIDER): sider.md
   - Teaching Notes:
       - Comparing Tuning Results: gridsearch-comparison.md
       - Plotting Convergence: convergence-plot.md

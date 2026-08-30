@@ -186,6 +186,18 @@ X_reduced, y_reduced = problem.resampled_data(best_x)
 
 See [examples/undersampling.py](examples/undersampling.py).
 
+## Molecule data (SIDER)
+
+Load the SIDER drug side-effect dataset (MoleculeNet version) as SMILES
+strings plus binary labels, one side effect at a time:
+
+```python
+from ikn_library.molecules import load_sider
+
+data = load_sider()                    # 1,427 drugs x 27 side-effect tasks
+smiles, y = data.task("Hepatobiliary disorders")   # or a substring: "hepato"
+```
+
 ## Documentation
 
 Full documentation: [ikn-library.readthedocs.io](https://ikn-library.readthedocs.io)

@@ -70,6 +70,8 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Undersampling](undersampling.md)** — balancing imbalanced datasets
   by optimizing *which* majority samples to keep, with an exact-ratio
   constraint.
+- **[Molecule Data (SIDER)](sider.md)** — loading the SIDER drug
+  side-effect dataset as SMILES plus per-side-effect binary labels.
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
 
