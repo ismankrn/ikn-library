@@ -73,6 +73,7 @@ nav:
           - Ant Colony Optimization (ACO-R): algorithm-details/aco.md
           - Binary Ant Colony Optimization: algorithm-details/binary-aco.md
           - Artificial Bee Colony: algorithm-details/abc.md
+          - Bacterial Foraging Optimization: algorithm-details/bfo.md
           - Bat Algorithm: algorithm-details/bat.md
           - Bees Algorithm: algorithm-details/bees.md
           - Camel Algorithm: algorithm-details/camel.md

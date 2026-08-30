@@ -7,6 +7,7 @@ parameters, then call `run(task)` to get `(best_x, best_fitness)`.
 from ikn_library.algorithms import (
     AntColonyOptimization,
     ArtificialBeeColony,
+    BacterialForagingOptimization,
     BatAlgorithm,
     BeesAlgorithm,
     BinaryAntColonyOptimization,
@@ -29,6 +30,7 @@ from ikn_library.algorithms import (
 |---|---|---|---|
 | Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous | Socha & Dorigo, EJOR 185(3), 2008 |
 | Artificial Bee Colony | `ArtificialBeeColony` | continuous | Karaboga, TR06, 2005; Karaboga & Basturk, JOGO 39(3), 2007 |
+| Bacterial Foraging Optimization | `BacterialForagingOptimization` | continuous | Passino, IEEE CSM 22(3), 2002 |
 | Bat Algorithm | `BatAlgorithm` | continuous | Yang, NICSO 2010 |
 | Bees Algorithm | `BeesAlgorithm` | continuous | Pham et al., 2005; Pham & Castellani, 2009 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
@@ -72,6 +74,23 @@ multimodal Rastrigin function.
 
 Key parameters: `population_size` (food sources), `limit` (trials
 before abandonment; defaults to `population_size * dimension`), `seed`.
+
+## Bacterial Foraging Optimization
+
+`BacterialForagingOptimization` — for **continuous** problems, modelling
+how *E. coli* forages (Passino, 2002). Three mechanisms run on three
+timescales: **chemotaxis** every iteration (tumble into a random
+direction, then swim along it while conditions improve — a small
+directional line search), **reproduction** every ~20 iterations (the
+healthiest half, judged by fitness accumulated over a lifetime, splits
+while the rest die), and **elimination-dispersal** every ~100 iterations
+(bacteria are randomly re-placed). It is the weakest performer here on
+the standard benchmarks, but valuable as a study in multi-timescale
+design.
+
+Key parameters: `population_size`, `step_size`, `n_swim`,
+`reproduction_interval`, `elimination_interval`, `elimination_prob`,
+`seed`.
 
 ## Bat Algorithm
 

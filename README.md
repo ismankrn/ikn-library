@@ -133,7 +133,8 @@ and the runnable script [examples/parameter_optimization.py](examples/parameter_
 ## Algorithms
 
 Currently available: `AntColonyOptimization` (ACO-R, continuous),
-`ArtificialBeeColony` (continuous), `BatAlgorithm` (continuous),
+`ArtificialBeeColony` (continuous),
+`BacterialForagingOptimization` (continuous), `BatAlgorithm` (continuous),
 `BeesAlgorithm` (continuous),
 `BinaryAntColonyOptimization` (binary/subsets), `CamelAlgorithm`
 (continuous), `CatSwarmOptimization` (continuous),

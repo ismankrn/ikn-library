@@ -5,6 +5,7 @@ from ikn_library.algorithms.aco import AntColonyOptimization
 from ikn_library.algorithms.algorithm import Algorithm
 from ikn_library.algorithms.bat import BatAlgorithm
 from ikn_library.algorithms.bees import BeesAlgorithm
+from ikn_library.algorithms.bfo import BacterialForagingOptimization
 from ikn_library.algorithms.binary_aco import BinaryAntColonyOptimization
 from ikn_library.algorithms.camel import CamelAlgorithm
 from ikn_library.algorithms.cso import CatSwarmOptimization
@@ -24,6 +25,7 @@ __all__ = [
     "Algorithm",
     "AntColonyOptimization",
     "ArtificialBeeColony",
+    "BacterialForagingOptimization",
     "BatAlgorithm",
     "BeesAlgorithm",
     "BinaryAntColonyOptimization",

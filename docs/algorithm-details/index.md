@@ -10,6 +10,7 @@ the literature it comes from.
 | Ant Colony Optimization (ACO-R) | continuous | population + solution archive | [ACO-R](aco.md) |
 | Binary Ant Colony Optimization | binary / subsets | population + pheromone per bit | [Binary ACO](binary-aco.md) |
 | Artificial Bee Colony | continuous | population + abandonment | [ABC](abc.md) |
+| Bacterial Foraging Optimization | continuous | population + three timescales | [BFO](bfo.md) |
 | Bat Algorithm | continuous | population + echolocation | [Bat](bat.md) |
 | Bees Algorithm | continuous | population + site recruitment | [Bees](bees.md) |
 | Camel Algorithm | continuous | population + endurance/supply + restarts | [Camel](camel.md) |
@@ -44,7 +45,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All sixteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All seventeen on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -62,6 +63,7 @@ mean over 3 seeds — lower is better):
 | Bees Algorithm | 5e-14 | 5e-06 | 22.9 |
 | Bat Algorithm | 4e-05 | 0.045 | 31.5 |
 | Genetic Algorithm | 1.7e-04 | 0.124 | 3.0 |
+| Bacterial Foraging | 4e-06 | 0.017 | 18.9 |
 | Camel Algorithm | 1e-09 | 4e-04 | 4.4 |
 | Cuckoo Search | 4e-10 | 3e-04 | 6.8 |
 
