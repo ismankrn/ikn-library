@@ -36,9 +36,19 @@ plugins:
 markdown_extensions:
   - admonition
   - pymdownx.highlight
-  - pymdownx.superfences
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.snippets:
       base_path: ["."]
+
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
 
 nav:
   - Home: index.md
@@ -61,4 +71,12 @@ nav:
       - Plotting Convergence: convergence-plot.md
       - Ensemble Weights Concept: ensemble-concept.md
       - Microarray Data Concept: microarray-concept.md
+      - Detail of Algorithm:
+          - Overview: algorithm-details/index.md
+          - Ant Colony Optimization (ACO-R): algorithm-details/aco.md
+          - Binary Ant Colony Optimization: algorithm-details/binary-aco.md
+          - Artificial Bee Colony: algorithm-details/abc.md
+          - Bat Algorithm: algorithm-details/bat.md
+          - Genetic Algorithm: algorithm-details/ga.md
+          - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md
