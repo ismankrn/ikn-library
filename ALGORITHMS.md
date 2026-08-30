@@ -20,6 +20,7 @@ from ikn_library.algorithms import (
     FireflyAlgorithm,
     FireworksAlgorithm,
     FishSchoolSearch,
+    ForestOptimizationAlgorithm,
     GeneticAlgorithm,
     GravitationalSearchAlgorithm,
     KomodoMlipirAlgorithm,
@@ -269,6 +270,26 @@ school's own recent success rather than a preset schedule.
 
 Key parameters: `population_size`, `step_individual` (and its final
 value), `step_volitive_factor`, `weight_scale`, `seed`.
+
+## Forest Optimization Algorithm
+
+`ForestOptimizationAlgorithm` — for **continuous** problems, modelling
+how a forest seeds itself (Ghaemi & Feizi-Derakhshi, 2014). Each tree
+carries an **age** that gates reproduction: only age-0 trees drop local
+seeds, and every standing tree grows a year older each iteration, so a
+tree gets exactly one chance to seed before ageing out. Trees that
+exceed the life time, or that fall below the area limit in fitness, are
+cut into a **candidate population** — and that discarded pool is the
+only source of long-range exploration, making this the one algorithm
+here that recycles solutions it has already rejected.
+
+Note that local seeding changes **one coordinate at a time**, which
+suits *separable* problems especially well; its strong Rastrigin score
+is largely an artefact of that, and the detail page documents the
+rotated-function evidence.
+
+Key parameters: `population_size` (area limit), `life_time`, `lsc`,
+`gsc`, `transfer_rate`, `dx`, `seed`.
 
 ## Genetic Algorithm
 

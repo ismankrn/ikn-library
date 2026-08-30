@@ -21,6 +21,7 @@ the actual source, its parameters, and the literature it comes from.
 | Firefly Algorithm | continuous | population + distance-faded attraction | [Firefly](firefly.md) |
 | Fireworks Algorithm | continuous | population + quality-coupled explosions | [FWA](fwa.md) |
 | Fish School Search | continuous | population + weights + school contraction | [FSS](fss.md) |
+| Forest Optimization Algorithm | continuous | age-gated seeding + recycled discards | [FOA](foa.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
@@ -46,7 +47,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All nineteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -69,8 +70,13 @@ mean over 3 seeds — lower is better):
 | Cuckoo Search | 4e-10 | 3e-04 | 6.8 |
 | Clonal Selection | 4e-08 | 1e-03 | 8.6 |
 | Coral Reefs Optimization | 3e-07 | 3e-03 | 3.0 |
+| Forest Optimization* | 2e-08 | 1e-03 | 9e-06 |
 
-Two lessons for students in this table. First, **no algorithm wins
+\* Forest Optimization's Rastrigin score is **largely an artefact of
+this benchmark suite** — see the caveat below and the
+[FOA page](foa.md).
+
+Three lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): the Firefly
 Algorithm and DE dominate the smooth landscapes, while ABC is
 untouchable on
@@ -78,3 +84,14 @@ the highly multimodal Rastrigin, with CSO, DE, and GA close behind.
 Second, the ranking depends
 on the *landscape*, not on how fashionable the metaphor is — always
 benchmark on a problem resembling yours.
+
+Third, and most easily missed: **all three of these benchmarks are
+separable**, meaning each coordinate can be optimized independently.
+Any algorithm that happens to search one coordinate at a time is
+flattered by them. Forest Optimization is exactly that case — it looks
+like the second-best entry in the table, but rotating Rastrigin so the
+coordinates become coupled sends it from 9e-06 to 27, well behind
+Coral Reefs (7.6) and Fireworks (17.7) on the same rotated function.
+A benchmark table is a measurement of the *pairing* of algorithm and
+problem, never of the algorithm alone; before trusting any row here,
+add a non-separable problem such as Rosenbrock or a rotated variant.

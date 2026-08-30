@@ -146,6 +146,8 @@
 
 ::: ikn_library.algorithms.FishSchoolSearch
 
+::: ikn_library.algorithms.ForestOptimizationAlgorithm
+
 ::: ikn_library.algorithms.GeneticAlgorithm
 
 ::: ikn_library.algorithms.GravitationalSearchAlgorithm

@@ -142,7 +142,8 @@ Currently available: `AntColonyOptimization` (ACO-R, continuous),
 `CoralReefsOptimization` (continuous), `CuckooSearch` (continuous),
 `DifferentialEvolution` (continuous), `FireflyAlgorithm`
 (continuous), `FireworksAlgorithm` (continuous),
-`FishSchoolSearch` (continuous), `GeneticAlgorithm`
+`FishSchoolSearch` (continuous),
+`ForestOptimizationAlgorithm` (continuous), `GeneticAlgorithm`
 (real-coded, continuous), `GravitationalSearchAlgorithm` (continuous), `KomodoMlipirAlgorithm` (continuous), and
 `SimulatedAnnealing` (continuous). See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,
