@@ -8,20 +8,6 @@ solutions found so far. Each ant builds a new solution by picking one
 archive member as a guide and sampling around it — the archive *is* the
 pheromone.
 
-## Flowchart
-
-```mermaid
-flowchart TD
-    A[Initialize archive with k random solutions] --> B[Evaluate and sort by fitness]
-    B --> C{Budget left?}
-    C -- no --> H[Return best solution]
-    C -- yes --> D[Compute selection weights from ranks]
-    D --> E[Each ant: choose a guide solution]
-    E --> F[Sample new solution from Gaussian around guide]
-    F --> G[Evaluate ants, merge into archive, keep best k]
-    G --> C
-```
-
 ## Equations
 
 **1. Rank-based selection weight.** Archive solutions are sorted by

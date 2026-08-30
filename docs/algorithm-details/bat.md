@@ -8,26 +8,6 @@ the hunt closes in, increasingly triggering fine local searches, while
 the **loudness** falls each time a bat accepts a catch, making it
 progressively pickier.
 
-## Flowchart
-
-```mermaid
-flowchart TD
-    A[Initialize n bats: positions, zero velocities, loudness A0] --> B[Compute pulse rate r for this iteration]
-    B --> C[Each bat: random frequency, update velocity toward the best]
-    C --> D{Random number > pulse rate?}
-    D -- yes --> E[Local random walk around the best solution]
-    D -- no --> F[Keep the frequency-driven move]
-    E --> G[Evaluate candidate]
-    F --> G
-    G --> H{Better and random < loudness?}
-    H -- yes --> I[Accept: move the bat, decay its loudness]
-    H -- no --> J[Reject: bat stays]
-    I --> K{Budget left?}
-    J --> K
-    K -- yes --> B
-    K -- no --> L[Return best solution]
-```
-
 ## Equations
 
 **1. Frequency and movement.** Each bat \(i\) draws a frequency and

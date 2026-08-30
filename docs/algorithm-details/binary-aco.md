@@ -7,20 +7,6 @@ attractive the values 0 and 1 are. It is the algorithm behind this
 library's [feature selection](../feature-selection.md), ensemble
 pruning, and [undersampling](../undersampling.md).
 
-## Flowchart
-
-```mermaid
-flowchart TD
-    A[Initialize pheromone tau = 0.5 for every bit and value] --> B[Ants sample bit strings from pheromone]
-    B --> C[Repair: an all-zero ant gets one random bit set]
-    C --> D[Evaluate ants; task tracks the best solution]
-    D --> E{Budget left?}
-    E -- no --> H[Return best bit string]
-    E -- yes --> F[Evaporate pheromone toward the best-so-far bits]
-    F --> G[Clamp pheromone to tau_min, tau_max]
-    G --> B
-```
-
 ## Equations
 
 **1. Construction probability.** For variable \(i\), with pheromone

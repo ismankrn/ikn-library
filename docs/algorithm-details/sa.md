@@ -8,24 +8,6 @@ optima, and gradually cools until it only accepts improvements. It is
 the only **single-solution** algorithm in this library, which makes it
 a useful cheap baseline against the population-based ones.
 
-## Flowchart
-
-```mermaid
-flowchart TD
-    A[Start from a random solution, T = T0] --> B{Budget left?}
-    B -- no --> H[Return best solution ever visited]
-    B -- yes --> C[Propose a Gaussian neighbor, step scaled by temperature]
-    C --> D[Evaluate the neighbor]
-    D --> E{Neighbor better?}
-    E -- yes --> F[Accept it]
-    E -- no --> G{Random < exp of minus delta over T?}
-    G -- yes --> F
-    G -- no --> I[Keep the current solution]
-    F --> J[Cool: T = cooling * T]
-    I --> J
-    J --> B
-```
-
 ## Equations
 
 **1. Neighbor proposal.** A candidate is drawn around the current

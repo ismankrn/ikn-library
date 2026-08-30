@@ -9,22 +9,6 @@ mechanism is why ABC escapes local optima so well — on this library's
 benchmarks it is by far the strongest on the highly multimodal
 Rastrigin function.
 
-## Flowchart
-
-```mermaid
-flowchart TD
-    A[Initialize n random food sources] --> B[Employed bees: probe every source]
-    B --> C[Greedy selection: keep the better of source and neighbor]
-    C --> D[Compute selection probabilities from quality]
-    D --> E[Onlooker bees: probe sources proportionally to probability]
-    E --> F{Any source stuck for limit trials?}
-    F -- yes --> G[Scout bee: replace the most stagnant source at random]
-    F -- no --> H{Budget left?}
-    G --> H
-    H -- yes --> B
-    H -- no --> I[Return best solution]
-```
-
 ## Equations
 
 **1. Neighbor generation.** A bee at source \(i\) picks a random

@@ -7,25 +7,6 @@ introduce new variation. This library implements a **real-coded** GA —
 genes are floating-point numbers rather than bits — using tournament
 selection, blend crossover, and Gaussian mutation with elitism.
 
-## Flowchart
-
-```mermaid
-flowchart TD
-    A[Initialize random population, evaluate] --> B{Budget left?}
-    B -- no --> J[Return best solution]
-    B -- yes --> C[Copy the elite individuals unchanged]
-    C --> D[Tournament selection: pick two parents]
-    D --> E{Random < crossover rate?}
-    E -- yes --> F[Blend crossover BLX-alpha]
-    E -- no --> G[Copy the parents]
-    F --> H[Gaussian mutation with decaying step]
-    G --> H
-    H --> I[Repair, evaluate, add to offspring]
-    I --> K{Population full?}
-    K -- no --> D
-    K -- yes --> B
-```
-
 ## Equations
 
 **1. Tournament selection.** Draw \(k\) individuals at random
