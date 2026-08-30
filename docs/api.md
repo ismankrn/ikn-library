@@ -48,6 +48,8 @@
 
 ::: ikn_library.algorithms.AntColonyOptimization
 
+::: ikn_library.algorithms.BatAlgorithm
+
 ::: ikn_library.algorithms.BinaryAntColonyOptimization
 
 ::: ikn_library.algorithms.GeneticAlgorithm

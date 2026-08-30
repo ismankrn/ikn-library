@@ -6,6 +6,7 @@ parameters, then call `run(task)` to get `(best_x, best_fitness)`.
 ```python
 from ikn_library.algorithms import (
     AntColonyOptimization,
+    BatAlgorithm,
     BinaryAntColonyOptimization,
     GeneticAlgorithm,
     SimulatedAnnealing,
@@ -15,6 +16,7 @@ from ikn_library.algorithms import (
 | Algorithm | Class | Domain | Reference |
 |---|---|---|---|
 | Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous | Socha & Dorigo, EJOR 185(3), 2008 |
+| Bat Algorithm | `BatAlgorithm` | continuous | Yang, NICSO 2010 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -30,6 +32,20 @@ converges — the archive plays the role of the pheromone trail.
 Key parameters: `population_size` (ants per iteration), `archive_size`
 (k), `intensification` (q, locality of search), `evaporation` (xi,
 convergence speed), `seed`.
+
+## Bat Algorithm
+
+`BatAlgorithm` — for **continuous** problems, inspired by the
+echolocation of microbats (Yang, 2010). Each bat flies toward the best
+solution with a randomly tuned frequency; a growing **pulse rate**
+increasingly triggers local random walks around the best solution,
+while **loudness** decays on every accepted improvement, making
+acceptance more selective as the search converges. The local-walk step
+is scaled to the bound range and decays with the evaluation budget.
+
+Key parameters: `population_size`, `loudness` (A0), `pulse_rate` (r0),
+`alpha` (loudness decay), `gamma` (pulse-rate growth),
+`min_frequency` / `max_frequency`, `local_scale`, `seed`.
 
 ## Binary Ant Colony Optimization
 
