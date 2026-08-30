@@ -67,6 +67,59 @@ The full pipeline in one picture:
 
 ![Proba matrix times weights, then cut-off, gives final predictions](img/ensemble_weights_concept.png)
 
+## How a plain Random Forest uses the same matrix
+
+Here is the key insight: a standard Random Forest runs **exactly the
+same pipeline** — it just never lets you choose the weights. When you
+call `predict_proba`, scikit-learn averages the trees' probabilities,
+which is the **row-wise mean of `P`**; when you call `predict`, it
+applies the same cut-off. On the toy matrix:
+
+|       | tree 1 | tree 2 | tree 3 | → row mean | > 0.5 ? | ŷ |
+|-------|--------|--------|--------|-----------|---------|---|
+| s1    | 0.90   | 0.40   | 0.30   | 0.533     | yes     | 1 |
+| s2    | 0.60   | 0.20   | 0.10   | 0.300     | no      | 0 |
+| s3    | 0.30   | 0.80   | 0.70   | 0.600     | yes     | 1 |
+| s4    | 0.20   | 0.60   | 0.90   | 0.567     | yes     | 1 |
+
+The row mean is just `P @ w` with the weights **fixed** at uniform
+`w = [1/3, 1/3, 1/3]`. This is not an analogy — it is literally what
+scikit-learn computes, which you can verify against a real forest:
+
+```python
+import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.ensemble import RandomForestClassifier
+
+from ikn_library.ensemble import tree_proba_matrix
+
+X, y = make_classification(n_samples=100, n_features=8, random_state=0)
+forest = RandomForestClassifier(n_estimators=10, random_state=0).fit(X, y)
+
+P = tree_proba_matrix(forest, X)
+print(np.allclose(forest.predict_proba(X)[:, 1], P.mean(axis=1)))
+print(np.array_equal(forest.predict(X), (P.mean(axis=1) > 0.5).astype(int)))
+```
+
+Output:
+
+```text
+True
+True
+```
+
+So the two processes differ in exactly one step:
+
+| Step | Plain Random Forest | Weighted voting |
+|---|---|---|
+| 1. Build the probability matrix `P` | same | same |
+| 2. Choose the weights `w` | **fixed**: uniform `1/n` | **free**: optimized on validation data |
+| 3. Combine: `s = P @ w` | same (reduces to the row mean) | same |
+| 4. Cut-off at 0.5 | same | same |
+
+Everything the metaheuristic adds happens in step 2 — the rest of the
+machinery is untouched Random Forest.
+
 ## Why the weights matter
 
 Compare against the true labels `y = [1, 1, 0, 0]`:
