@@ -244,18 +244,105 @@ class PotencyAndToxicity(MultiObjectiveProblem):
         return np.array([1.0 - potency(x), toxicity(x)])
 ```
 
+## Making another algorithm multi-objective
+
+Non-dominated sorting and crowding distance are not GA-specific — they
+are a *ranking rule*, and any algorithm that ranks its population can
+adopt it. That is how MO-ABC, MO-PSO and friends are built in the
+literature, and the same recipe works here.
+
+!!! warning "A single-objective algorithm cannot just be pointed at a MultiObjectiveTask"
+    It will fail immediately:
+
+    ```python
+    task = MultiObjectiveTask(problem=TwoObjectiveProblem(), max_evals=500)
+    KomodoMlipirAlgorithm(seed=0).run(task)
+    # AttributeError: 'MultiObjectiveTask' object has no attribute 'best_fitness'
+    ```
+
+    Single-objective algorithms rely on things that do not exist when
+    there are several objectives: a single `task.best_fitness`, a single
+    `task.best_x`, and comparisons like `if new < old`. With a vector of
+    objectives, `<` is ambiguous — that is precisely the problem Pareto
+    dominance solves.
+
+### What has to change
+
+Exactly three things, and they are all mechanical:
+
+| Single-objective | Multi-objective replacement |
+|---|---|
+| `np.argsort(fitness)` | `pareto_sort_indices(objectives)` |
+| `if new_fitness < old_fitness` | `if dominates(new_objectives, old_objectives)` |
+| `task.best_x` (the single best) | the top-ranked solution, `population[0]` after sorting |
+
+`pareto_sort_indices` is the drop-in replacement for `argsort`: it
+orders solutions by Pareto front first and, within a front, by
+decreasing crowding distance.
+
+```python
+from ikn_library.multiobjective import pareto_sort_indices, dominates
+
+order = pareto_sort_indices(objectives)   # best-to-worst, like argsort
+population, objectives = population[order], objectives[order]
+```
+
+### Worked example: MO-KMA
+
+The [Komodo Mlipir Algorithm](algorithm-details/kma.md) splits its
+population into big males, one female, and small males **by rank** — so
+swapping the ranking rule is enough to make the whole algorithm
+multi-objective. Its movement operators are untouched:
+
+```python
+class MOKomodoMlipir(KomodoMlipirAlgorithm):
+    def init_population(self, task):
+        population = self.rng.uniform(
+            task.lower, task.upper, (self.population_size, task.dimension))
+        objectives = np.array([task.eval(x) for x in population])
+        order = pareto_sort_indices(objectives)          # <- the only change
+        return population[order], objectives[order], []
+
+    def run_iteration(self, task, state):
+        population, objectives, _ = state
+        n_big, n_small = self._group_sizes(len(population))
+        # ... the same three groups, but "better" now means "dominates"
+        # and the winner is population[0] rather than argmin(fitness)
+        order = pareto_sort_indices(objectives)
+        return population[order], objectives[order], []
+```
+
+The full, runnable class is in
+[`examples/mo_kma.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/mo_kma.py).
+Running it against NSGA-II on ZDT1:
+
+```text
+MO-KMA  : 292 solutions | mean distance to the true front = 0.1424 | f1 coverage [0.00, 1.00]
+NSGA-II : 259 solutions | mean distance to the true front = 0.0012 | f1 coverage [0.00, 1.00]
+```
+
+MO-KMA works — it produces a genuine, fully spread Pareto front — but
+its front sits further from the true one than NSGA-II's. That is the
+honest starting point, not a finished result: NSGA-II's operators were
+designed around Pareto ranking, while KMA's were not, so a new
+multi-objective variant normally needs its operators and parameters
+re-tuned for the multi-objective setting. **That gap is exactly where
+the research contribution lies.**
+
 ## Pareto utilities
 
 The building blocks are public, so you can analyse any set of results:
 
 ```python
 from ikn_library.multiobjective import (
-    dominates, non_dominated_sort, crowding_distance, pareto_front,
+    dominates, non_dominated_sort, crowding_distance,
+    pareto_sort_indices, pareto_front,
 )
 
 dominates([1, 1], [2, 2])            # True
 non_dominated_sort(objectives)       # list of fronts (index arrays)
 crowding_distance(objectives)        # spread measure within one front
+pareto_sort_indices(objectives)      # best-to-worst order (argsort replacement)
 pareto_front(solutions, objectives)  # keep the non-dominated ones
 ```
 

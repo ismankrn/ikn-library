@@ -80,6 +80,36 @@ def crowding_distance(objectives):
     return distance
 
 
+def pareto_sort_indices(objectives):
+    """Rank solutions best-to-worst the way NSGA-II does.
+
+    This is the multi-objective replacement for ``np.argsort(fitness)``:
+    solutions are ordered by Pareto front first, and within a front by
+    decreasing crowding distance (the more isolated, the better). Use it
+    to give any single-objective algorithm a multi-objective ranking —
+    see the guide on
+    :doc:`multi-objective optimization <../multiobjective>`.
+
+    Args:
+        objectives: Array of shape ``(n_solutions, n_objectives)``.
+
+    Returns:
+        numpy.ndarray: Indices sorted from best to worst.
+
+    Example:
+        >>> order = pareto_sort_indices(objectives)
+        >>> best_solution = population[order[0]]
+    """
+    objectives = np.atleast_2d(np.asarray(objectives, dtype=float))
+    if len(objectives) == 0:
+        return np.empty(0, dtype=int)
+    order = []
+    for front in non_dominated_sort(objectives):
+        distances = crowding_distance(objectives[front])
+        order.extend(front[np.argsort(-distances)])
+    return np.array(order, dtype=int)
+
+
 def pareto_front(solutions, objectives, unique=True):
     """Keep only the non-dominated solutions.
 

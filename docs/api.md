@@ -108,6 +108,8 @@
 
 ::: ikn_library.multiobjective.crowding_distance
 
+::: ikn_library.multiobjective.pareto_sort_indices
+
 ::: ikn_library.multiobjective.pareto_front
 
 ## Algorithms

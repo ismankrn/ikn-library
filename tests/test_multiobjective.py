@@ -9,6 +9,7 @@ from ikn_library.multiobjective import (
     dominates,
     non_dominated_sort,
     pareto_front,
+    pareto_sort_indices,
 )
 
 # --- Pareto utilities -------------------------------------------------
@@ -44,6 +45,23 @@ def test_crowding_distance_favours_isolated_points():
     distance = crowding_distance(objectives)
     assert np.isinf(distance[0]) and np.isinf(distance[-1])   # boundaries
     assert distance[2] > distance[1]        # the lonelier interior point wins
+
+
+def test_pareto_sort_indices_orders_by_front_then_crowding():
+    objectives = np.array([[1.0, 4.0], [2.0, 3.0], [3.0, 2.0], [4.0, 1.0],
+                           [3.0, 4.0], [5.0, 5.0]])
+    order = pareto_sort_indices(objectives)
+    assert sorted(order.tolist()) == list(range(6))     # a permutation
+    # front 0 first, then front 1, then front 2
+    assert set(order[:4].tolist()) == {0, 1, 2, 3}
+    assert order[4] == 4 and order[5] == 5
+    # within front 0 the boundary points (infinite crowding) come first
+    assert set(order[:2].tolist()) == {0, 3}
+
+
+def test_pareto_sort_indices_edge_cases():
+    assert len(pareto_sort_indices(np.empty((0, 2)))) == 0
+    assert pareto_sort_indices(np.array([[1.0, 2.0]])).tolist() == [0]
 
 
 def test_pareto_front_deduplicates():

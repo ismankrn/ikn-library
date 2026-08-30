@@ -8,6 +8,7 @@ from ikn_library.multiobjective.pareto import (
     dominates,
     non_dominated_sort,
     pareto_front,
+    pareto_sort_indices,
 )
 from ikn_library.multiobjective.problem import MultiObjectiveProblem
 from ikn_library.multiobjective.task import MultiObjectiveTask
@@ -20,4 +21,5 @@ __all__ = [
     "dominates",
     "non_dominated_sort",
     "pareto_front",
+    "pareto_sort_indices",
 ]
