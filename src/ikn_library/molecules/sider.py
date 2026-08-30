@@ -12,57 +12,21 @@ from pathlib import Path
 
 import pandas as pd
 
+from ikn_library.molecules.base import MoleculeDataset
+
 SIDER_URL = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/sider.csv.gz"
 
 
-class SIDERDataset:
+class SIDERDataset(MoleculeDataset):
     """The SIDER dataset: drugs (SMILES) and their recorded side effects.
 
     1,427 marketed drugs, each labeled with 27 binary side-effect
     classes (MedDRA system-organ classes), as distributed by the
-    MoleculeNet benchmark.
-
-    Attributes:
-        frame: The full ``pandas.DataFrame`` (``smiles`` + 27 label
-            columns).
-        smiles: Array of SMILES strings, one per drug.
-        labels: ``DataFrame`` of the 27 binary label columns.
+    MoleculeNet benchmark. Use
+    :meth:`~ikn_library.molecules.base.MoleculeDataset.task` to get the
+    SMILES and 0/1 labels of one side-effect class (e.g.
+    ``data.task("hepato")`` for ``"Hepatobiliary disorders"``).
     """
-
-    def __init__(self, frame):
-        if "smiles" not in frame.columns:
-            raise ValueError("not a SIDER table: no 'smiles' column")
-        self.frame = frame
-        self.smiles = frame["smiles"].to_numpy()
-        self.labels = frame.drop(columns=["smiles"])
-
-    @property
-    def tasks(self):
-        """Names of the 27 side-effect classes."""
-        return list(self.labels.columns)
-
-    def task(self, name):
-        """SMILES and binary labels for one side-effect class.
-
-        ``name`` may be the exact column name or a case-insensitive
-        substring that matches exactly one task (e.g. ``"hepato"`` for
-        ``"Hepatobiliary disorders"``).
-
-        Returns:
-            tuple: ``(smiles, y)`` — array of SMILES strings and an
-            integer 0/1 array marking drugs with that side effect.
-        """
-        if name not in self.labels.columns:
-            matches = [t for t in self.tasks if name.lower() in t.lower()]
-            if len(matches) == 1:
-                name = matches[0]
-            elif not matches:
-                raise KeyError(
-                    f"no side-effect task matches {name!r}; available: {self.tasks}"
-                )
-            else:
-                raise KeyError(f"{name!r} is ambiguous; matches: {matches}")
-        return self.smiles.copy(), self.labels[name].to_numpy(dtype=int)
 
     def __repr__(self):
         return (f"<SIDERDataset: {len(self.smiles)} drugs x "

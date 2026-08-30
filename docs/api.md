@@ -46,7 +46,13 @@
 
 ::: ikn_library.molecules.load_sider
 
+::: ikn_library.molecules.load_tox21
+
+::: ikn_library.molecules.MoleculeDataset
+
 ::: ikn_library.molecules.SIDERDataset
+
+::: ikn_library.molecules.Tox21Dataset
 
 ## Sampling
 

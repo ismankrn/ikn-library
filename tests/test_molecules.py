@@ -3,7 +3,7 @@ import gzip
 import numpy as np
 import pytest
 
-from ikn_library.molecules import load_sider
+from ikn_library.molecules import load_sider, load_tox21
 
 CONTENT = (
     "smiles,Hepatobiliary disorders,Eye disorders,Cardiac disorders\n"
@@ -65,3 +65,46 @@ def test_invalid_inputs(sider_file, tmp_path):
     bad.write_text("not_smiles,task\nx,1\n")
     with pytest.raises(ValueError):
         load_sider(bad)
+
+
+TOX21_CONTENT = (
+    "NR-AR,SR-p53,mol_id,smiles\n"
+    "1,0,TOX1,CCO\n"
+    ",1,TOX2,c1ccccc1\n"
+    "0,,TOX3,CC(=O)O\n"
+)
+
+
+@pytest.fixture
+def tox21_file(tmp_path):
+    path = tmp_path / "tox21.csv.gz"
+    with gzip.open(path, "wt") as f:
+        f.write(TOX21_CONTENT)
+    return path
+
+
+def test_tox21_load_and_tasks(tox21_file):
+    data = load_tox21(tox21_file)
+    assert data.tasks == ["NR-AR", "SR-p53"]     # mol_id excluded from labels
+    assert len(data.smiles) == 3
+    assert "mol_id" in data.frame.columns
+
+
+def test_tox21_task_drops_missing_labels(tox21_file):
+    data = load_tox21(tox21_file)
+    smiles, y = data.task("NR-AR")
+    np.testing.assert_array_equal(smiles, ["CCO", "CC(=O)O"])   # TOX2 unlabeled
+    np.testing.assert_array_equal(y, [1, 0])
+    assert y.dtype.kind == "i"
+
+    smiles, y = data.task("p53")   # substring match
+    np.testing.assert_array_equal(smiles, ["CCO", "c1ccccc1"])
+    np.testing.assert_array_equal(y, [0, 1])
+
+
+def test_tox21_task_errors(tox21_file):
+    data = load_tox21(tox21_file)
+    with pytest.raises(KeyError):
+        data.task("NR-ER")       # not in this synthetic file
+    with pytest.raises(KeyError):
+        data.task("r")           # ambiguous

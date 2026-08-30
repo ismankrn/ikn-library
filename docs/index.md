@@ -72,6 +72,8 @@ The library follows a NiaPy-like workflow built from three pieces:
   constraint.
 - **[Molecule Data (SIDER)](sider.md)** — loading the SIDER drug
   side-effect dataset as SMILES plus per-side-effect binary labels.
+- **[Molecule Data (Tox21)](tox21.md)** — loading the Tox21 toxicity
+  dataset (12 assays, missing labels handled per task).
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
 
