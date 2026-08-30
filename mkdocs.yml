@@ -90,6 +90,7 @@ nav:
           - Genetic Algorithm: algorithm-details/ga.md
           - Gravitational Search Algorithm: algorithm-details/gsa.md
           - Grey Wolf Optimizer: algorithm-details/gwo.md
+          - Harmony Search: algorithm-details/hs.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md

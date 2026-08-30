@@ -145,7 +145,8 @@ Currently available: `AntColonyOptimization` (ACO-R, continuous),
 `FishSchoolSearch` (continuous), `FlowerPollinationAlgorithm` (continuous),
 `ForestOptimizationAlgorithm` (continuous), `GeneticAlgorithm`
 (real-coded, continuous), `GravitationalSearchAlgorithm` (continuous),
-`GreyWolfOptimizer` (continuous), `KomodoMlipirAlgorithm` (continuous), and
+`GreyWolfOptimizer` (continuous), `HarmonySearch` (continuous),
+`KomodoMlipirAlgorithm` (continuous), and
 `SimulatedAnnealing` (continuous). See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,
 key parameters, and references.

@@ -156,6 +156,8 @@
 
 ::: ikn_library.algorithms.GreyWolfOptimizer
 
+::: ikn_library.algorithms.HarmonySearch
+
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
 
 ::: ikn_library.algorithms.NSGA2

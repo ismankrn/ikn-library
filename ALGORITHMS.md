@@ -25,6 +25,7 @@ from ikn_library.algorithms import (
     GeneticAlgorithm,
     GravitationalSearchAlgorithm,
     GreyWolfOptimizer,
+    HarmonySearch,
     KomodoMlipirAlgorithm,
     NSGA2,
     SimulatedAnnealing,
@@ -51,6 +52,7 @@ from ikn_library.algorithms import (
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Gravitational Search Algorithm | `GravitationalSearchAlgorithm` | continuous | Rashedi et al., Inf. Sci. 179(13), 2009 |
 | Grey Wolf Optimizer | `GreyWolfOptimizer` | continuous | Mirjalili et al., Adv. Eng. Software 69, 2014 |
+| Harmony Search | `HarmonySearch` | continuous | Geem, Kim & Loganathan, Simulation 76(2), 2001 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -360,6 +362,25 @@ shifting them costs 82 orders of magnitude on Sphere. The detail page
 documents the evidence and the mechanism.
 
 Key parameters: `population_size`, `a_start`, `a_end`, `seed`.
+
+## Harmony Search
+
+`HarmonySearch` — for **continuous** problems, modelled on musicians
+improvising (Geem et al., 2001). A **harmony memory** holds the best
+solutions, and one new solution is improvised per iteration, replacing
+the worst if it is better. Its distinctive trait is that each decision
+variable is drawn **independently from a different randomly chosen
+harmony** — every other recombination here mixes exactly two parents,
+while Harmony Search mixes across the whole memory at once.
+
+Two caveats are documented on the detail page: the algorithm was shown
+by Weyland (2010) to be a special case of evolution strategies rather
+than a new method, and its per-coordinate construction flatters
+*separable* benchmarks, so its Rastrigin score does not transfer to
+rotated problems.
+
+Key parameters: `population_size` (HMS), `hmcr`, `par`, `bandwidth`,
+`seed`.
 
 ## Komodo Mlipir Algorithm
 

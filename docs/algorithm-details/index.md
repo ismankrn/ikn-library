@@ -26,6 +26,7 @@ the actual source, its parameters, and the literature it comes from.
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
 | Grey Wolf Optimizer | continuous | three-leader hierarchy | [GWO](gwo.md) |
+| Harmony Search | continuous | memory + whole-memory recombination | [HS](hs.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
@@ -49,7 +50,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-two on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-three on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -75,10 +76,12 @@ mean over 3 seeds — lower is better):
 | Forest Optimization* | 2e-08 | 1e-03 | 9e-06 |
 | Flower Pollination | 3e-30 | 2e-13 | 7.3 |
 | Grey Wolf Optimizer** | 4e-88 | 4e-16 | **0** |
+| Harmony Search* | 5e-08 | 3e-03 | 0.018 |
 
-\* Forest Optimization's Rastrigin score is **largely an artefact of
-this benchmark suite** — see the caveat below and the
-[FOA page](foa.md).
+\* Forest Optimization and Harmony Search both build solutions one
+coordinate at a time, so their Rastrigin scores are **largely artefacts
+of this benchmark suite** — see the caveat below, the
+[FOA page](foa.md), and the [HS page](hs.md).
 
 \*\* Grey Wolf's whole row is inflated by an **origin bias**: all three
 optima sit at \(x = 0\), and shifting them costs GWO 82 orders of
