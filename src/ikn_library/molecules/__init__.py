@@ -12,6 +12,7 @@ from ikn_library.molecules.moleculenet import (
 )
 from ikn_library.molecules.sider import SIDERDataset, load_sider
 from ikn_library.molecules.tox21 import Tox21Dataset, load_tox21
+from ikn_library.molecules.vectorize import SmilesVectorizer, tokenize_smiles
 
 __all__ = [
     "CURATED_DESCRIPTORS",
@@ -20,6 +21,7 @@ __all__ = [
     "HIVDataset",
     "MoleculeDataset",
     "SIDERDataset",
+    "SmilesVectorizer",
     "Tox21Dataset",
     "featurize",
     "load_bbbp",
@@ -27,4 +29,5 @@ __all__ = [
     "load_hiv",
     "load_sider",
     "load_tox21",
+    "tokenize_smiles",
 ]

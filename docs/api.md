@@ -56,6 +56,10 @@
 
 ::: ikn_library.molecules.featurize
 
+::: ikn_library.molecules.SmilesVectorizer
+
+::: ikn_library.molecules.tokenize_smiles
+
 ::: ikn_library.molecules.MoleculeDataset
 
 ::: ikn_library.molecules.SIDERDataset

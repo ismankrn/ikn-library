@@ -53,6 +53,7 @@ nav:
   - Molecule Data (Tox21): tox21.md
   - Molecule Data (BBBP, ClinTox, HIV): moleculenet.md
   - Molecular Descriptors: featurize.md
+  - SMILES to Sequences: smiles2vec.md
   - Drug-Target Interactions: interactions.md
   - Drug-Drug Interactions: ddi.md
   - Teaching Notes:

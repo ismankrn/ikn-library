@@ -80,6 +80,8 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Molecular Descriptors](featurize.md)** — SMILES to features in one
   call: five fingerprints, physicochemical descriptors, and a Mordred
   backend.
+- **[SMILES to Sequences](smiles2vec.md)** — smiles2vec-style
+  vectorization for deep-learning models, with an LSTM example.
 - **[Drug-Target Interactions](interactions.md)** — Davis, KIBA, and
   Yamanishi benchmarks plus pure-numpy protein sequence descriptors,
   with leakage-aware cold splits.

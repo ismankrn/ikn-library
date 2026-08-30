@@ -214,6 +214,17 @@ X, y = featurize(smiles, y, method="morgan", n_bits=1024)
 # methods: morgan, maccs, rdkit, atompair, torsion, descriptors, mordred
 ```
 
+Or vectorize SMILES as sequences for deep learning (smiles2vec style —
+no RDKit needed):
+
+```python
+from ikn_library.molecules import SmilesVectorizer
+
+vectorizer = SmilesVectorizer().fit(smiles)
+X = vectorizer.transform(smiles)          # (n, max_length) token indices
+print(vectorizer.vocabulary_table())      # the symbol -> index dictionary
+```
+
 ## Drug-target interactions
 
 Load DTI benchmarks and turn protein sequences into descriptors (pure
