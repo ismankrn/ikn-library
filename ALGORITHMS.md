@@ -15,6 +15,7 @@ from ikn_library.algorithms import (
     CuckooSearch,
     DifferentialEvolution,
     FireflyAlgorithm,
+    FishSchoolSearch,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
     NSGA2,
@@ -34,6 +35,7 @@ from ikn_library.algorithms import (
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Differential Evolution | `DifferentialEvolution` | continuous | Storn & Price, JOGO 11(4), 1997 |
 | Firefly Algorithm | `FireflyAlgorithm` | continuous | Yang, SAGA 2009 |
+| Fish School Search | `FishSchoolSearch` | continuous | Bastos Filho et al., IEEE SMC 2008 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
@@ -176,6 +178,20 @@ best results on the smooth Sphere and Ackley benchmarks.
 
 Key parameters: `population_size`, `alpha` (randomization),
 `alpha_decay`, `beta0`, `gamma` (light absorption), `seed`.
+
+## Fish School Search
+
+`FishSchoolSearch` — for **continuous** problems, modelling a foraging
+fish school (Bastos Filho et al., 2008). Each fish carries a **weight**
+that grows when it finds food, and four operators run each iteration:
+an individual random step, feeding, a collective drift along the
+improvement-weighted average step, and a volitive move that
+**contracts** the school when it gained weight or **expands** it when
+it did not. Exploration and exploitation are thus switched by the
+school's own recent success rather than a preset schedule.
+
+Key parameters: `population_size`, `step_individual` (and its final
+value), `step_volitive_factor`, `weight_scale`, `seed`.
 
 ## Genetic Algorithm
 
