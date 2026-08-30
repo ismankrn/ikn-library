@@ -89,7 +89,7 @@ class GravitationalSearchAlgorithm(Algorithm):
         """Number of attracting agents, shrinking to ``final_kbest``."""
         span = self.population_size - self.final_kbest
         return max(self.final_kbest,
-                   int(round(self.population_size - progress * span)))
+                   round(self.population_size - progress * span))
 
     def run_iteration(self, task, state):
         agents, fitness, velocities = state
