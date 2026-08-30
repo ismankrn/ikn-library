@@ -16,6 +16,7 @@ the literature it comes from.
 | Cat Swarm Optimization | continuous | population + two behaviour modes | [CSO](cso.md) |
 | Cuckoo Search | continuous | population + Levy flights | [Cuckoo](cuckoo.md) |
 | Differential Evolution | continuous | population + difference vectors | [DE](de.md) |
+| Firefly Algorithm | continuous | population + distance-faded attraction | [Firefly](firefly.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
@@ -40,12 +41,13 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twelve on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirteen on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
 |---|---|---|---|
-| Differential Evolution | **2e-41** | **5e-15** | 2.0 |
+| Firefly Algorithm | **7e-57** | **2e-15** | 6.0 |
+| Differential Evolution | 2e-41 | 5e-15 | 2.0 |
 | ACO-R | 9e-25 | 1e-12 | 31.0 |
 | Artificial Bee Colony | 6e-15 | 5e-06 | **2e-08** |
 | Cat Swarm Optimization | 1e-05 | 0.031 | 2.3 |
@@ -58,8 +60,9 @@ mean over 3 seeds — lower is better):
 | Cuckoo Search | 4e-10 | 3e-04 | 6.8 |
 
 Two lessons for students in this table. First, **no algorithm wins
-everywhere** (the "no free lunch" theorem in miniature): Differential
-Evolution dominates the smooth landscapes, while ABC is untouchable on
+everywhere** (the "no free lunch" theorem in miniature): the Firefly
+Algorithm and DE dominate the smooth landscapes, while ABC is
+untouchable on
 the highly multimodal Rastrigin, with CSO, DE, and GA close behind.
 Second, the ranking depends
 on the *landscape*, not on how fashionable the metaphor is — always

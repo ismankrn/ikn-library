@@ -14,6 +14,7 @@ from ikn_library.algorithms import (
     CatSwarmOptimization,
     CuckooSearch,
     DifferentialEvolution,
+    FireflyAlgorithm,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
     NSGA2,
@@ -32,6 +33,7 @@ from ikn_library.algorithms import (
 | Cat Swarm Optimization | `CatSwarmOptimization` | continuous | Chu, Tsai & Pan, PRICAI 2006 |
 | Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Differential Evolution | `DifferentialEvolution` | continuous | Storn & Price, JOGO 11(4), 1997 |
+| Firefly Algorithm | `FireflyAlgorithm` | continuous | Yang, SAGA 2009 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
@@ -161,6 +163,19 @@ the better of the two. Four mutation strategies are available
 
 Key parameters: `population_size` (NP), `differential_weight` (F),
 `crossover_rate` (CR), `strategy`, `seed`.
+
+## Firefly Algorithm
+
+`FireflyAlgorithm` — for **continuous** problems, based on
+bioluminescent attraction (Yang, 2008). Every firefly is drawn toward
+brighter ones, but the pull **fades exponentially with distance**, so
+each firefly mainly notices its neighbours and the swarm can explore
+several regions at once. A decaying random walk on top of the
+attraction turns exploration into refinement. It holds this library's
+best results on the smooth Sphere and Ackley benchmarks.
+
+Key parameters: `population_size`, `alpha` (randomization),
+`alpha_decay`, `beta0`, `gamma` (light absorption), `seed`.
 
 ## Genetic Algorithm
 

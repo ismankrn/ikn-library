@@ -132,6 +132,8 @@
 
 ::: ikn_library.algorithms.DifferentialEvolution
 
+::: ikn_library.algorithms.FireflyAlgorithm
+
 ::: ikn_library.algorithms.GeneticAlgorithm
 
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
