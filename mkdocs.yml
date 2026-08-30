@@ -75,5 +75,6 @@ nav:
           - Bat Algorithm: algorithm-details/bat.md
           - Bees Algorithm: algorithm-details/bees.md
           - Genetic Algorithm: algorithm-details/ga.md
+          - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md

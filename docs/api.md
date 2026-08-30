@@ -110,4 +110,6 @@
 
 ::: ikn_library.algorithms.GeneticAlgorithm
 
+::: ikn_library.algorithms.KomodoMlipirAlgorithm
+
 ::: ikn_library.algorithms.SimulatedAnnealing

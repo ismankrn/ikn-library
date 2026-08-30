@@ -13,6 +13,7 @@ the literature it comes from.
 | Bat Algorithm | continuous | population + echolocation | [Bat](bat.md) |
 | Bees Algorithm | continuous | population + site recruitment | [Bees](bees.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
+| Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
 ## Shared structure
@@ -35,7 +36,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All seven on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All eight on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -43,6 +44,7 @@ mean over 3 seeds — lower is better):
 | ACO-R | **9e-25** | 1e-12 | 31.0 |
 | Artificial Bee Colony | 6e-15 | **5e-06** | **2e-08** |
 | Simulated Annealing | 8e-13 | 8e-06 | 26.9 |
+| Komodo Mlipir Algorithm | 1e-21 | 1e-06 | 16.9 |
 | Bees Algorithm | 5e-14 | 5e-06 | 22.9 |
 | Bat Algorithm | 4e-05 | 0.045 | 31.5 |
 | Genetic Algorithm | 1.7e-04 | 0.124 | 3.0 |

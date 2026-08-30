@@ -11,6 +11,7 @@ from ikn_library.algorithms import (
     BeesAlgorithm,
     BinaryAntColonyOptimization,
     GeneticAlgorithm,
+    KomodoMlipirAlgorithm,
     SimulatedAnnealing,
 )
 ```
@@ -23,6 +24,7 @@ from ikn_library.algorithms import (
 | Bees Algorithm | `BeesAlgorithm` | continuous | Pham et al., 2005; Pham & Castellani, 2009 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
+| Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -110,6 +112,23 @@ module follows.
 Key parameters: `population_size`, `crossover_rate`, `mutation_rate`
 (default `1/dimension`), `mutation_scale`, `tournament_size`,
 `blend_alpha`, `elitism`, `seed`.
+
+## Komodo Mlipir Algorithm
+
+`KomodoMlipirAlgorithm` — for **continuous** problems, inspired by
+Komodo dragons and the Javanese *mlipir* gait (Suyanto et al., 2022).
+The ranked population is split into three groups with different jobs:
+**big males** exploit by attracting each other (with a 0.5 chance of
+distraction), the single **female** either mates the winning big male
+or reproduces by parthenogenesis, and **small males** move *mlipir* —
+following the big males in only a random subset of dimensions. The
+population size **self-adapts**, shrinking while the search improves
+and growing when it stagnates. A strong all-rounder: near-ACO-R
+precision on smooth functions with much better multimodal behavior.
+
+Key parameters: `population_size`, `big_male_portion` (p),
+`mlipir_rate` (d), `max_big_males`, `adaptation_step`,
+`min_population` / `max_population`, `parthenogenesis_radius`, `seed`.
 
 ## Simulated Annealing
 
