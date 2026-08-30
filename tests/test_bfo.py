@@ -57,13 +57,18 @@ def test_swimming_stops_when_conditions_worsen():
     assert fitness == pytest.approx(0.0)
 
 
-def test_swimming_moves_when_conditions_improve():
+def test_swimming_takes_several_steps_in_one_direction():
+    """From a poor position the bacterium keeps swimming the same way."""
     task = Task(problem=Sphere(dimension=4), max_evals=5000)
     algo = BacterialForagingOptimization(n_swim=10, seed=3)
-    start = np.full(4, 3.0)
-    moved, fitness = algo._chemotaxis(task, start, task.problem.evaluate(start),
-                                      np.full(4, 0.2))
-    assert fitness <= task.problem.evaluate(start)
+    start = np.full(4, 4.0)
+    step = np.full(4, 0.1)
+    moved, fitness = algo._chemotaxis(task, start,
+                                      task.problem.evaluate(start), step)
+    travelled = np.linalg.norm(moved - start)
+    assert fitness < task.problem.evaluate(start)     # it improved
+    # a single step covers at most |step|; several were taken
+    assert travelled > np.linalg.norm(step)
 
 
 def test_chemotaxis_never_worsens_a_bacterium():
