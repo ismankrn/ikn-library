@@ -13,6 +13,7 @@ the literature it comes from.
 | Bat Algorithm | continuous | population + echolocation | [Bat](bat.md) |
 | Bees Algorithm | continuous | population + site recruitment | [Bees](bees.md) |
 | Camel Algorithm | continuous | population + endurance/supply + restarts | [Camel](camel.md) |
+| Cuckoo Search | continuous | population + Levy flights | [Cuckoo](cuckoo.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
@@ -37,7 +38,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All nine on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All ten on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -50,6 +51,7 @@ mean over 3 seeds — lower is better):
 | Bat Algorithm | 4e-05 | 0.045 | 31.5 |
 | Genetic Algorithm | 1.7e-04 | 0.124 | 3.0 |
 | Camel Algorithm | 1e-09 | 4e-04 | 4.4 |
+| Cuckoo Search | 4e-10 | 3e-04 | 6.8 |
 
 Two lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): ACO-R is

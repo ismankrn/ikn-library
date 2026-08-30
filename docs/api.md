@@ -126,6 +126,8 @@
 
 ::: ikn_library.algorithms.CamelAlgorithm
 
+::: ikn_library.algorithms.CuckooSearch
+
 ::: ikn_library.algorithms.GeneticAlgorithm
 
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm

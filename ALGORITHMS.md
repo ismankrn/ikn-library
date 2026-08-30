@@ -11,6 +11,7 @@ from ikn_library.algorithms import (
     BeesAlgorithm,
     BinaryAntColonyOptimization,
     CamelAlgorithm,
+    CuckooSearch,
     GeneticAlgorithm,
     KomodoMlipirAlgorithm,
     NSGA2,
@@ -26,6 +27,7 @@ from ikn_library.algorithms import (
 | Bees Algorithm | `BeesAlgorithm` | continuous | Pham et al., 2005; Pham & Castellani, 2009 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
 | Camel Algorithm | `CamelAlgorithm` | continuous | Ali, IJSBAR, 2016 |
+| Cuckoo Search | `CuckooSearch` | continuous | Yang & Deb, NaBIC 2009 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
@@ -114,6 +116,19 @@ multimodal landscapes.
 
 Key parameters: `population_size`, `min_temperature` / `max_temperature`,
 `burden_rate`, `death_rate`, `visibility`, `seed`.
+
+## Cuckoo Search
+
+`CuckooSearch` — for **continuous** problems, based on brood parasitism
+(Yang & Deb, 2009). Each nest holds one solution; a cuckoo lays a new
+egg after a **Lévy flight** — a heavy-tailed random walk of mostly tiny
+steps with rare enormous jumps — and drops it into a random nest, which
+keeps it only if it is better. A fraction of the worst nests is then
+discovered by the hosts and rebuilt. The Lévy tail is the distinguishing
+feature: it escapes local optima without giving up local refinement.
+
+Key parameters: `population_size` (nests), `discovery_rate` (pa),
+`step_size` (alpha), `levy_exponent` (beta), `seed`.
 
 ## Genetic Algorithm
 
