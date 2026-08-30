@@ -231,6 +231,18 @@ yam = load_yamanishi("nuclear_receptor")  # classification, negatives sampled
 drug_ids, target_ids, y = yam.pairs(negative_ratio=1.0, seed=42)
 ```
 
+Drug-drug interactions (DrugBank/DeepDDI: 191,808 pairs, 86 interaction
+types) with symmetric pair features:
+
+```python
+from ikn_library.interactions import load_drugbank_ddi, pair_features
+from ikn_library.molecules import featurize
+
+ddi = load_drugbank_ddi()
+smiles1, smiles2, y = ddi.binary_task(47, seed=42)   # one interaction type
+X = pair_features(featurize(smiles1), featurize(smiles2), method="sum")
+```
+
 Split paired data without entity leakage — `cold_split` holds out whole
 drugs or proteins instead of individual pairs:
 

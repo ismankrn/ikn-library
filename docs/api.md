@@ -70,6 +70,12 @@
 
 ::: ikn_library.interactions.load_yamanishi
 
+::: ikn_library.interactions.load_drugbank_ddi
+
+::: ikn_library.interactions.DDIDataset
+
+::: ikn_library.interactions.pair_features
+
 ::: ikn_library.interactions.cold_split
 
 ::: ikn_library.interactions.DTIDataset

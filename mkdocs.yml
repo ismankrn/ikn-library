@@ -54,6 +54,7 @@ nav:
   - Molecule Data (BBBP, ClinTox, HIV): moleculenet.md
   - Molecular Descriptors: featurize.md
   - Drug-Target Interactions: interactions.md
+  - Drug-Drug Interactions: ddi.md
   - Teaching Notes:
       - Comparing Tuning Results: gridsearch-comparison.md
       - Plotting Convergence: convergence-plot.md
