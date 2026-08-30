@@ -7,6 +7,7 @@ parameters, then call `run(task)` to get `(best_x, best_fitness)`.
 from ikn_library.algorithms import (
     AntColonyOptimization,
     BinaryAntColonyOptimization,
+    GeneticAlgorithm,
     SimulatedAnnealing,
 )
 ```
@@ -15,6 +16,7 @@ from ikn_library.algorithms import (
 |---|---|---|---|
 | Ant Colony Optimization (ACO-R) | `AntColonyOptimization` | continuous | Socha & Dorigo, EJOR 185(3), 2008 |
 | Binary Ant Colony Optimization | `BinaryAntColonyOptimization` | binary / subsets | hyper-cube pheromone update |
+| Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -40,6 +42,22 @@ preserve exploration.
 
 Key parameters: `population_size`, `evaporation` (rho), `alpha`
 (pheromone exponent), `tau_min`, `tau_max`, `seed`.
+
+## Genetic Algorithm
+
+`GeneticAlgorithm` — real-coded GA for **continuous** problems.
+Evolves a population by tournament selection, blend crossover
+(BLX-alpha: children are sampled from an interval slightly wider than
+the one their parents span), and Gaussian mutation whose step shrinks
+linearly as the evaluation budget is consumed (non-uniform mutation);
+elitism carries the best individuals over unchanged. Notably strong on
+highly multimodal landscapes, and the algorithm family used by the
+GA-WE weighted-ensemble method (Li et al., 2016) that the ensemble
+module follows.
+
+Key parameters: `population_size`, `crossover_rate`, `mutation_rate`
+(default `1/dimension`), `mutation_scale`, `tournament_size`,
+`blend_alpha`, `elitism`, `seed`.
 
 ## Simulated Annealing
 

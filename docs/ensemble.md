@@ -129,6 +129,9 @@ problem = EnsembleWeightProblem(P_val, y_val, metric="auc")
 Following the paper, use `metric="auc"`: it is **threshold-free**
 (computed on the combined scores before the 0.5 cut-off), a smoother
 search signal than accuracy, and the safer choice on imbalanced data.
+To reproduce the paper's setup faithfully, optimize the weights with
+[`GeneticAlgorithm`][ikn_library.algorithms.GeneticAlgorithm] — the
+algorithm family GA-WE itself uses.
 
 ## Notes
 
