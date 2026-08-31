@@ -40,6 +40,7 @@ the actual source, its parameters, and the literature it comes from.
 | Self-Adaptive Differential Evolution | continuous | DE + parameters carried by selection | [jDE](jde.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 | Sine Cosine Algorithm | continuous | trigonometric swing toward the best | [SCA](sca.md) |
+| Whale Optimization Algorithm | continuous | encircle or spiral, by a coin flip | [WOA](woa.md) |
 
 ## Shared structure
 
@@ -61,7 +62,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All thirty-four on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirty-five on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -99,6 +100,7 @@ mean over 3 seeds — lower is better):
 | Particle Swarm Optimization | 1e-28 | 2e-13 | 3.0 |
 | Self-Adaptive DE (jDE) | 2e-36 | 4e-15 | **0** |
 | Sine Cosine Algorithm**** | 9e-26 | 5e-10 | 4e-11 |
+| Whale Optimization** | 2e-62 | 3e-15 | **0** |
 
 \* Forest Optimization, Harmony Search, and Monarch Butterfly all
 build solutions one coordinate at a time, so their Rastrigin scores are
@@ -109,8 +111,11 @@ Rastrigin moves it from 3e-04 to 39.6.
 
 \*\* Grey Wolf's whole row is inflated by an **origin bias**: all three
 optima sit at \(x = 0\), and shifting them costs GWO 82 orders of
-magnitude on Sphere. The Fireworks Algorithm shares this bias. See the
-[GWO page](gwo.md).
+magnitude on Sphere. The Fireworks Algorithm shares this bias, and
+Whale Optimization has a **partial** version of it — half its moves are
+translation-invariant and half are not, which is why a shift costs it
+much less than it costs Grey Wolf. See the [GWO](gwo.md) and
+[WOA](woa.md) pages.
 
 \*\*\*\* Sine Cosine is the extreme case of the same problem: the origin
 is an **exact fixed point** of its update rule, reached whatever the

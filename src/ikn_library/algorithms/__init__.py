@@ -37,6 +37,7 @@ from ikn_library.algorithms.nsga2 import NSGA2
 from ikn_library.algorithms.pso import ParticleSwarmOptimization
 from ikn_library.algorithms.sa import SimulatedAnnealing
 from ikn_library.algorithms.sca import SineCosineAlgorithm
+from ikn_library.algorithms.woa import WhaleOptimizationAlgorithm
 
 __all__ = [
     "NSGA2",
@@ -75,5 +76,6 @@ __all__ = [
     "SelfAdaptiveDifferentialEvolution",
     "SimulatedAnnealing",
     "SineCosineAlgorithm",
+    "WhaleOptimizationAlgorithm",
     "levy_flight",
 ]

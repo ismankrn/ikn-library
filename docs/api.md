@@ -186,6 +186,8 @@
 
 ::: ikn_library.algorithms.SineCosineAlgorithm
 
+::: ikn_library.algorithms.WhaleOptimizationAlgorithm
+
 ### Shared building blocks
 
 Components used by more than one algorithm, exposed so you can

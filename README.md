@@ -134,27 +134,33 @@ and the runnable script [examples/parameter_optimization.py](examples/parameter_
 
 ## Algorithms
 
-Currently available: `AntColonyOptimization` (ACO-R, continuous),
-`ArtificialBeeColony` (continuous),
+Currently available:
+`AntColonyOptimization` (continuous), `ArtificialBeeColony` (continuous),
 `BacterialForagingOptimization` (continuous), `BatAlgorithm` (continuous),
 `BeesAlgorithm` (continuous),
-`BinaryAntColonyOptimization` (binary/subsets), `CamelAlgorithm`
-(continuous), `CatSwarmOptimization` (continuous),
+`BinaryAntColonyOptimization` (binary/subsets),
+`CamelAlgorithm` (continuous), `CatSwarmOptimization` (continuous),
 `ClonalSelectionAlgorithm` (continuous),
 `CoralReefsOptimization` (continuous), `CuckooSearch` (continuous),
-`DifferentialEvolution` (continuous), `FireflyAlgorithm`
-(continuous), `FireworksAlgorithm` (continuous),
-`FishSchoolSearch` (continuous), `FlowerPollinationAlgorithm` (continuous),
-`ForestOptimizationAlgorithm` (continuous), `GeneticAlgorithm`
-(real-coded, continuous), `GravitationalSearchAlgorithm` (continuous),
+`DifferentialEvolution` (continuous), `FireflyAlgorithm` (continuous),
+`FireworksAlgorithm` (continuous), `FishSchoolSearch` (continuous),
+`FlowerPollinationAlgorithm` (continuous),
+`ForestOptimizationAlgorithm` (continuous),
+`GeneticAlgorithm` (continuous),
+`GravitationalSearchAlgorithm` (continuous),
 `GreyWolfOptimizer` (continuous), `HarmonySearch` (continuous),
-`HarrisHawksOptimization` (continuous), `KomodoMlipirAlgorithm` (continuous), `KrillHerd` (continuous),
+`HarrisHawksOptimization` (continuous), `HybridBatAlgorithm` (continuous),
+`HybridSelfAdaptiveBatAlgorithm` (continuous),
+`KomodoMlipirAlgorithm` (continuous), `KrillHerd` (continuous),
 `LionOptimizationAlgorithm` (continuous),
-`MonarchButterflyOptimization` (continuous), `MonkeyKingEvolution` (continuous),
-`MothFlameOptimization` (continuous), and
-`ParticleSwarmOptimization` (continuous),
+`MonarchButterflyOptimization` (continuous),
+`MonkeyKingEvolution` (continuous), `MothFlameOptimization` (continuous),
+`NSGA2` (multi-objective), `ParticleSwarmOptimization` (continuous),
 `SelfAdaptiveDifferentialEvolution` (continuous),
-`SimulatedAnnealing` (continuous), `SineCosineAlgorithm` (continuous). See
+`SimulatedAnnealing` (continuous), `SineCosineAlgorithm` (continuous),
+`WhaleOptimizationAlgorithm` (continuous).
+
+See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,
 key parameters, and references.
 

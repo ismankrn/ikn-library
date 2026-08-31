@@ -104,5 +104,6 @@ nav:
           - Self-Adaptive Differential Evolution: algorithm-details/jde.md
           - Simulated Annealing: algorithm-details/sa.md
           - Sine Cosine Algorithm: algorithm-details/sca.md
+          - Whale Optimization Algorithm: algorithm-details/woa.md
   - API Reference: api.md
   - Changelog: changelog.md

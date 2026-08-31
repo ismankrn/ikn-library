@@ -40,6 +40,7 @@ from ikn_library.algorithms import (
     SelfAdaptiveDifferentialEvolution,
     SimulatedAnnealing,
     SineCosineAlgorithm,
+    WhaleOptimizationAlgorithm,
 )
 ```
 
@@ -77,6 +78,7 @@ from ikn_library.algorithms import (
 | Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
 | Sine Cosine Algorithm | `SineCosineAlgorithm` | continuous | Mirjalili, Knowledge-Based Systems 96, 2016 |
 | Self-Adaptive Differential Evolution | `SelfAdaptiveDifferentialEvolution` | continuous | Brest et al., IEEE TEC 10(6), 2006 |
+| Whale Optimization Algorithm | `WhaleOptimizationAlgorithm` | continuous | Mirjalili & Lewis, Adv. Eng. Software 95, 2016 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -672,3 +674,22 @@ factor of two to six. It is included as a teaching example of exactly
 this failure mode.
 
 Key parameters: `population_size`, `amplitude`, `seed`.
+
+## Whale Optimization Algorithm
+
+`WhaleOptimizationAlgorithm` — for **continuous** problems, modelling
+the bubble-net feeding of humpback whales (Mirjalili & Lewis, 2016).
+Each whale flips a coin and either **swims toward** the best solution in
+a straight line or **spirals around** it along a logarithmic path; a
+second control sends the straight-line move after a random whale
+instead, until the falling coefficient `a` switches that branch off.
+
+Its two halves behave differently under transformation, and that is what
+makes it interesting: the encircling move scales the target's absolute
+coordinates and breaks when the optimum is shifted, while the spiral
+uses a plain difference and does not. Having one robust half is why a
+shift costs WOA far less than it costs Grey Wolf or Sine Cosine. The
+detail page compares all four Mirjalili algorithms in the library side
+by side.
+
+Key parameters: `population_size`, `a_start`, `spiral_constant`, `seed`.
