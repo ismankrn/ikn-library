@@ -34,6 +34,7 @@ the actual source, its parameters, and the literature it comes from.
 | Monarch Butterfly Optimization | continuous | two lands + per-coordinate recombination | [MBO](mbo.md) |
 | Monkey King Evolution | continuous | clone group around the incumbent | [MKE](mke.md) |
 | Moth-Flame Optimization | continuous | logarithmic spiral + shrinking flame count | [MFO](mfo.md) |
+| Particle Swarm Optimization | continuous | velocity + two attractors | [PSO](pso.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
 ## Shared structure
@@ -56,7 +57,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-nine on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirty on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -89,6 +90,7 @@ mean over 3 seeds — lower is better):
 | Monarch Butterfly* | 2e-07 | 9e-04 | 3e-04 |
 | Monkey King Evolution | 5e-08 | 4e-03 | 2.7 |
 | Moth-Flame Optimization | 2e-17 | 2e-07 | 9.3 |
+| Particle Swarm Optimization | 1e-28 | 2e-13 | 3.0 |
 
 \* Forest Optimization, Harmony Search, and Monarch Butterfly all
 build solutions one coordinate at a time, so their Rastrigin scores are

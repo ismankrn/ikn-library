@@ -174,6 +174,8 @@
 
 ::: ikn_library.algorithms.NSGA2
 
+::: ikn_library.algorithms.ParticleSwarmOptimization
+
 ::: ikn_library.algorithms.SimulatedAnnealing
 
 ### Shared building blocks

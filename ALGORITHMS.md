@@ -34,6 +34,7 @@ from ikn_library.algorithms import (
     MonkeyKingEvolution,
     MothFlameOptimization,
     NSGA2,
+    ParticleSwarmOptimization,
     SimulatedAnnealing,
 )
 ```
@@ -67,6 +68,7 @@ from ikn_library.algorithms import (
 | Moth-Flame Optimization | `MothFlameOptimization` | continuous | Mirjalili, Knowledge-Based Systems 89, 2015 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
+| Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -544,6 +546,27 @@ replacement ensures no Pareto solution is lost. Use it with
 Key parameters: `population_size`, `crossover_rate`, `mutation_rate`,
 `mutation_scale`, `blend_alpha`, `seed`.
 
+
+## Particle Swarm Optimization
+
+`ParticleSwarmOptimization` — for **continuous** problems, the oldest
+and best known swarm algorithm (Kennedy & Eberhart, 1995). Each particle
+carries a **velocity** and is pulled by two attractors: its own best
+position so far, and the best any particle has found. Momentum makes it
+overshoot and oscillate around them, which is the search — there is no
+separate exploration operator. The inertia weight falls across the run
+so the swarm settles.
+
+PSO is also the **reference baseline** for this library. Several pages
+here record published arguments that a later algorithm re-describes
+something already known, and PSO is usually what it re-describes; if a
+newer method cannot beat it on your problem, its novelty buys you
+little. Note that it is translation-invariant but **not**
+rotation-invariant, a long-documented property caused by its
+per-coordinate random coefficients.
+
+Key parameters: `population_size`, `w_start`, `w_end`, `c1`, `c2`,
+`max_velocity`, `seed`.
 ## Simulated Annealing
 
 `SimulatedAnnealing` — a **single-solution** method for continuous

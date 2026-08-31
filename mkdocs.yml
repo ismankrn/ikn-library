@@ -98,5 +98,6 @@ nav:
           - Monarch Butterfly Optimization: algorithm-details/mbo.md
           - Monkey King Evolution: algorithm-details/mke.md
           - Moth-Flame Optimization: algorithm-details/mfo.md
+          - Particle Swarm Optimization: algorithm-details/pso.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md
