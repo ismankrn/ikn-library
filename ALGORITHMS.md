@@ -27,6 +27,7 @@ from ikn_library.algorithms import (
     GreyWolfOptimizer,
     HarmonySearch,
     HarrisHawksOptimization,
+    HybridBatAlgorithm,
     KomodoMlipirAlgorithm,
     KrillHerd,
     LionOptimizationAlgorithm,
@@ -67,6 +68,7 @@ from ikn_library.algorithms import (
 | Monarch Butterfly Optimization | `MonarchButterflyOptimization` | continuous | Wang, Deb & Cui, NCA 31(7), 2015 |
 | Monkey King Evolution | `MonkeyKingEvolution` | continuous | Meng & Pan, Knowledge-Based Systems 97, 2016 |
 | Moth-Flame Optimization | `MothFlameOptimization` | continuous | Mirjalili, Knowledge-Based Systems 89, 2015 |
+| Hybrid Bat Algorithm | `HybridBatAlgorithm` | continuous | Fister Jr., Fister & Yang, Elektroteh. Vestnik 80, 2013 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
@@ -418,6 +420,26 @@ detail page.
 Key parameters: `population_size`, `energy_start`, `levy_exponent`,
 `levy_scale`, `seed`.
 
+
+## Hybrid Bat Algorithm
+
+`HybridBatAlgorithm` — for **continuous** problems, the Bat Algorithm
+with exactly one operator swapped (Fister Jr., Fister & Yang, 2013): its
+local random walk around the best solution is replaced by a
+**Differential Evolution** move. It subclasses `BatAlgorithm` and
+overrides a single method, because that is precisely what the hybrid is.
+
+The point of the swap is that a DE move takes its step size from the
+**spread of the population**, so it contracts as the search converges
+and needs no decay schedule, where plain BA's Gaussian walk needs a
+hand-tuned one. Retuned, it improves on plain Bat by a factor of eleven
+and beats plain DE on both rotated benchmark variants, with the flattest
+four-variant profile here after Krill Herd. The detail page also records
+the less comfortable finding that the *published* parameters barely
+improve on plain Bat at all.
+
+Key parameters: `population_size`, `differential_weight`,
+`crossover_rate`, `loudness`, `pulse_rate`, `alpha`, `gamma`, `seed`.
 ## Komodo Mlipir Algorithm
 
 `KomodoMlipirAlgorithm` — for **continuous** problems, inspired by

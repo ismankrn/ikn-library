@@ -28,6 +28,7 @@ the actual source, its parameters, and the literature it comes from.
 | Grey Wolf Optimizer | continuous | three-leader hierarchy | [GWO](gwo.md) |
 | Harmony Search | continuous | memory + whole-memory recombination | [HS](hs.md) |
 | Harris Hawks Optimization | continuous | six moves gated by prey energy | [HHO](hho.md) |
+| Hybrid Bat Algorithm | continuous | Bat Algorithm + a DE local search | [HBA](hybrid-bat.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Krill Herd Algorithm | continuous | three motions with inertia + food centre | [KH](kh.md) |
 | Lion Optimization Algorithm | continuous | prides and nomads + seven operators | [LOA](loa.md) |
@@ -58,7 +59,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All thirty-one on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirty-two on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -86,6 +87,7 @@ mean over 3 seeds — lower is better):
 | Grey Wolf Optimizer** | 4e-88 | 4e-16 | **0** |
 | Harmony Search* | 5e-08 | 3e-03 | 0.018 |
 | Harris Hawks Optimization | 2e-88 | 4e-16 | **0** |
+| Hybrid Bat Algorithm | 1e-04 | 1.9 | 4.1 |
 | Krill Herd | 4e-09 | 4e-04 | 3.0 |
 | Lion Optimization*** | 2e-13 | 0.39 | 2.4 |
 | Monarch Butterfly* | 2e-07 | 9e-04 | 3e-04 |

@@ -79,11 +79,20 @@ class BatAlgorithm(Algorithm):
             return task.iters / task.max_iters
         return 0.0
 
+    def _local_step(self, task, positions, index, best, walk_scale):
+        """Local random walk around the current best solution.
+
+        Subclasses replace this to hybridise the search; see
+        :class:`HybridBatAlgorithm`.
+        """
+        span = task.upper - task.lower
+        return best + (walk_scale
+                       * self.rng.standard_normal(task.dimension) * span)
+
     def run_iteration(self, task, state):
         positions, velocities, fitness, loudness = state
         best = task.best_x
         rate = self.pulse_rate * (1.0 - np.exp(-self.gamma * task.iters))
-        span = task.upper - task.lower
         walk_scale = self.local_scale * max(1.0 - self._progress(task), 1e-3)
 
         for i in range(self.population_size):
@@ -91,9 +100,8 @@ class BatAlgorithm(Algorithm):
             velocities[i] += (best - positions[i]) * frequency
             candidate = positions[i] + velocities[i]
             if self.rng.random() > rate:
-                # Local random walk around the current best solution.
-                candidate = best + (walk_scale
-                                    * self.rng.standard_normal(task.dimension) * span)
+                candidate = self._local_step(task, positions, i, best,
+                                             walk_scale)
             candidate = task.repair(candidate)
             candidate_fitness = task.eval(candidate)
             if candidate_fitness <= fitness[i] and self.rng.random() < loudness[i]:
