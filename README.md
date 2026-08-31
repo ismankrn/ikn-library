@@ -17,6 +17,8 @@ Already installed? Upgrade to the latest release with:
 pip install --upgrade ikn-library
 ```
 
+See **[CHANGELOG.md](CHANGELOG.md)** for what changed in each release.
+
 Or from source (development mode):
 
 ```bash
