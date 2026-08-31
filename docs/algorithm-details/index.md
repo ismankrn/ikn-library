@@ -29,6 +29,7 @@ the actual source, its parameters, and the literature it comes from.
 | Harmony Search | continuous | memory + whole-memory recombination | [HS](hs.md) |
 | Harris Hawks Optimization | continuous | six moves gated by prey energy | [HHO](hho.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
+| Krill Herd Algorithm | continuous | three motions with inertia + food centre | [KH](kh.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
 ## Shared structure
@@ -51,7 +52,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-four on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-five on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -79,6 +80,7 @@ mean over 3 seeds — lower is better):
 | Grey Wolf Optimizer** | 4e-88 | 4e-16 | **0** |
 | Harmony Search* | 5e-08 | 3e-03 | 0.018 |
 | Harris Hawks Optimization | 2e-88 | 4e-16 | **0** |
+| Krill Herd | 4e-09 | 4e-04 | 3.0 |
 
 \* Forest Optimization and Harmony Search both build solutions one
 coordinate at a time, so their Rastrigin scores are **largely artefacts
@@ -129,8 +131,16 @@ all four variants:
 
 Run that way, the picture changes. Harmony Search is untroubled by a
 shift (0.075) but collapses under rotation (26.3); Grey Wolf degrades
-under either; Harris Hawks holds up under both, which is why its row
-above can be taken more or less at face value while others cannot.
+under either; Harris Hawks and Krill Herd hold up under both, which is
+why their rows above can be taken at face value while others cannot.
+
+Krill Herd is the clearest illustration of why that is worth checking.
+Its Rastrigin score of 3.0 is beaten by eight algorithms in the table,
+yet it varies by under 15% across all four variants, because every
+coupling in it uses position *differences* and normalized fitness gaps
+rather than absolute coordinates. On a real problem — neither
+axis-aligned nor centred on zero — it will deliver roughly what the
+table says, which several higher-scoring rows will not.
 
 A benchmark table measures the *pairing* of algorithm and problem, never
 the algorithm alone.

@@ -162,6 +162,8 @@
 
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
 
+::: ikn_library.algorithms.KrillHerd
+
 ::: ikn_library.algorithms.NSGA2
 
 ::: ikn_library.algorithms.SimulatedAnnealing
