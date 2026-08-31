@@ -7,6 +7,29 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.13.0] — 2026-08-31
+
+### Added
+
+- **Grasshopper Optimisation Algorithm** — built around an explicit
+  short-range **repulsion**, which nothing else in the library has:
+  grasshoppers repel when close and attract at medium range, and the
+  separation where the force changes sign is the swarm's *comfort zone*.
+  Spacing comes from a force law rather than from randomness layered on
+  attraction.
+
+  Two properties are worth knowing before using it, both asserted by
+  tests. Its published update rule contains **no random term at all**,
+  so the algorithm is deterministic after initialisation and gets one
+  shot at finding the right basin. And `intensity` and
+  `attraction_length` do not tune the repulsion's strength — they decide
+  whether it exists, because a badly chosen pair removes it entirely.
+
+  Unlike the four other algorithms from the same research group in this
+  library, GOA has **no origin bias**: its scores vary by under a factor
+  of 1.7 across all four benchmark variants, the third-flattest profile
+  here.
+
 ## [0.12.0] — 2026-08-31
 
 ### Added
@@ -224,6 +247,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.13.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.13.0
 [0.12.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.12.0
 [0.11.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.11.0
 [0.10.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.10.0
