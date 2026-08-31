@@ -26,6 +26,7 @@ from ikn_library.algorithms import (
     GravitationalSearchAlgorithm,
     GreyWolfOptimizer,
     HarmonySearch,
+    HarrisHawksOptimization,
     KomodoMlipirAlgorithm,
     NSGA2,
     SimulatedAnnealing,
@@ -53,6 +54,7 @@ from ikn_library.algorithms import (
 | Gravitational Search Algorithm | `GravitationalSearchAlgorithm` | continuous | Rashedi et al., Inf. Sci. 179(13), 2009 |
 | Grey Wolf Optimizer | `GreyWolfOptimizer` | continuous | Mirjalili et al., Adv. Eng. Software 69, 2014 |
 | Harmony Search | `HarmonySearch` | continuous | Geem, Kim & Loganathan, Simulation 76(2), 2001 |
+| Harris Hawks Optimization | `HarrisHawksOptimization` | continuous | Heidari et al., FGCS 97, 2019 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -381,6 +383,26 @@ rotated problems.
 
 Key parameters: `population_size` (HMS), `hmcr`, `par`, `bandwidth`,
 `seed`.
+
+## Harris Hawks Optimization
+
+`HarrisHawksOptimization` — for **continuous** problems, modelling the
+cooperative pounce of Harris's hawks (Heidari et al., 2019). It is the
+most branched algorithm here: six moves selected by a two-level test on
+the prey's remaining *escaping energy*. While the prey is strong the
+hawks scatter; as its energy drains they close in with one of four
+besiege moves, chosen by how much energy is left and whether the prey
+bolts. The two **dive** moves build two candidates — a direct approach
+and a Lévy-flight zigzag — evaluate both, and keep whichever improves,
+or neither.
+
+It is the strongest all-round performer measured in this library, and
+the only algorithm whose ranking survives rotating **and** shifting the
+benchmark. It does still carry a mild origin bias, documented on the
+detail page.
+
+Key parameters: `population_size`, `energy_start`, `levy_exponent`,
+`levy_scale`, `seed`.
 
 ## Komodo Mlipir Algorithm
 

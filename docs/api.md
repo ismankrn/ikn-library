@@ -158,6 +158,8 @@
 
 ::: ikn_library.algorithms.HarmonySearch
 
+::: ikn_library.algorithms.HarrisHawksOptimization
+
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
 
 ::: ikn_library.algorithms.NSGA2

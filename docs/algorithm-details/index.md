@@ -27,6 +27,7 @@ the actual source, its parameters, and the literature it comes from.
 | Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
 | Grey Wolf Optimizer | continuous | three-leader hierarchy | [GWO](gwo.md) |
 | Harmony Search | continuous | memory + whole-memory recombination | [HS](hs.md) |
+| Harris Hawks Optimization | continuous | six moves gated by prey energy | [HHO](hho.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
@@ -50,7 +51,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-three on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-four on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -77,6 +78,7 @@ mean over 3 seeds — lower is better):
 | Flower Pollination | 3e-30 | 2e-13 | 7.3 |
 | Grey Wolf Optimizer** | 4e-88 | 4e-16 | **0** |
 | Harmony Search* | 5e-08 | 3e-03 | 0.018 |
+| Harris Hawks Optimization | 2e-88 | 4e-16 | **0** |
 
 \* Forest Optimization and Harmony Search both build solutions one
 coordinate at a time, so their Rastrigin scores are **largely artefacts
@@ -97,13 +99,38 @@ Second, the ranking depends
 on the *landscape*, not on how fashionable the metaphor is — always
 benchmark on a problem resembling yours.
 
-Third, and most easily missed: **all three of these benchmarks are
-separable**, meaning each coordinate can be optimized independently.
-Any algorithm that happens to search one coordinate at a time is
-flattered by them. Forest Optimization is exactly that case — it looks
-like the second-best entry in the table, but rotating Rastrigin so the
-coordinates become coupled sends it from 9e-06 to 27, well behind
-Coral Reefs (7.6) and Fireworks (17.7) on the same rotated function.
-A benchmark table is a measurement of the *pairing* of algorithm and
-problem, never of the algorithm alone; before trusting any row here,
-add a non-separable problem such as Rosenbrock or a rotated variant.
+Third, and most easily missed: these three benchmarks share **two
+properties that flatter particular algorithms**, and both are invisible
+unless you go looking.
+
+They are all **separable** — each coordinate can be optimized
+independently — which flatters anything that searches one coordinate at
+a time. Forest Optimization is exactly that case: it looks like a
+near-winner above, but rotating Rastrigin so the coordinates couple
+sends it from 9e-06 to 27.
+
+They also all place their optimum at exactly \(x = 0\), which flatters
+algorithms whose update rule is not translation-invariant. Grey Wolf
+loses 82 orders of magnitude on Sphere from nothing but moving the
+optimum.
+
+**The two transformations test different things, and a rotation alone
+does not test both.** Rotating a function turns it about the origin, so
+an optimum sitting at zero stays at zero — a rotated benchmark still
+tells you nothing about origin bias. To separate the effects you need
+all four variants:
+
+| Variant | Tests for |
+|---|---|
+| plain | — |
+| rotated | reliance on separability |
+| shifted | origin bias |
+| rotated **and** shifted | both at once |
+
+Run that way, the picture changes. Harmony Search is untroubled by a
+shift (0.075) but collapses under rotation (26.3); Grey Wolf degrades
+under either; Harris Hawks holds up under both, which is why its row
+above can be taken more or less at face value while others cannot.
+
+A benchmark table measures the *pairing* of algorithm and problem, never
+the algorithm alone.

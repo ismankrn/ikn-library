@@ -21,6 +21,7 @@ from ikn_library.algorithms.fwa import FireworksAlgorithm
 from ikn_library.algorithms.ga import GeneticAlgorithm
 from ikn_library.algorithms.gsa import GravitationalSearchAlgorithm
 from ikn_library.algorithms.gwo import GreyWolfOptimizer
+from ikn_library.algorithms.hho import HarrisHawksOptimization
 from ikn_library.algorithms.hs import HarmonySearch
 from ikn_library.algorithms.kma import KomodoMlipirAlgorithm
 from ikn_library.algorithms.nsga2 import NSGA2
@@ -50,6 +51,7 @@ __all__ = [
     "GravitationalSearchAlgorithm",
     "GreyWolfOptimizer",
     "HarmonySearch",
+    "HarrisHawksOptimization",
     "KomodoMlipirAlgorithm",
     "SimulatedAnnealing",
 ]
