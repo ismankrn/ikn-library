@@ -151,7 +151,7 @@ Currently available: `AntColonyOptimization` (ACO-R, continuous),
 `MonarchButterflyOptimization` (continuous), `MonkeyKingEvolution` (continuous),
 `MothFlameOptimization` (continuous), and
 `ParticleSwarmOptimization` (continuous),
-`SimulatedAnnealing` (continuous). See
+`SimulatedAnnealing` (continuous), `SineCosineAlgorithm` (continuous). See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,
 key parameters, and references.
 

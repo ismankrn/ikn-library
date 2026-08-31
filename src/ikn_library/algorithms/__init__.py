@@ -33,6 +33,7 @@ from ikn_library.algorithms.mke import MonkeyKingEvolution
 from ikn_library.algorithms.nsga2 import NSGA2
 from ikn_library.algorithms.pso import ParticleSwarmOptimization
 from ikn_library.algorithms.sa import SimulatedAnnealing
+from ikn_library.algorithms.sca import SineCosineAlgorithm
 
 __all__ = [
     "NSGA2",
@@ -67,5 +68,6 @@ __all__ = [
     "MothFlameOptimization",
     "ParticleSwarmOptimization",
     "SimulatedAnnealing",
+    "SineCosineAlgorithm",
     "levy_flight",
 ]

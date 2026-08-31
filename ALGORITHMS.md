@@ -36,6 +36,7 @@ from ikn_library.algorithms import (
     NSGA2,
     ParticleSwarmOptimization,
     SimulatedAnnealing,
+    SineCosineAlgorithm,
 )
 ```
 
@@ -69,6 +70,7 @@ from ikn_library.algorithms import (
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
+| Sine Cosine Algorithm | `SineCosineAlgorithm` | continuous | Mirjalili, Knowledge-Based Systems 96, 2016 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -584,3 +586,23 @@ More algorithms are planned. For usage tutorials see the
 algorithm, subclass `Algorithm` and implement `init_population` and
 `run_iteration` — the shared `run` loop, budget handling, and
 convergence tracking come from the base class and `Task`.
+
+## Sine Cosine Algorithm
+
+`SineCosineAlgorithm` — for **continuous** problems, one of the few here
+built on a mathematical function rather than an animal (Mirjalili,
+2016). Every solution moves toward the best one found so far by a
+displacement scaled by a **sine or a cosine** chosen at random; since
+both span [-1, 1], a solution can move toward the destination, away from
+it, or past it, with the balance set by geometry rather than a tuned
+probability.
+
+**Read the detail page before using it.** SCA's benchmark scores are an
+artefact: the origin is an exact fixed point of its update rule, reached
+regardless of the objective function, and every standard benchmark puts
+its optimum there. Shifting the optimum by 0.1 costs twenty-four orders
+of magnitude, and away from the origin SCA beats random search only by a
+factor of two to six. It is included as a teaching example of exactly
+this failure mode.
+
+Key parameters: `population_size`, `amplitude`, `seed`.

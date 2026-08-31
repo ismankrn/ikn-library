@@ -36,6 +36,7 @@ the actual source, its parameters, and the literature it comes from.
 | Moth-Flame Optimization | continuous | logarithmic spiral + shrinking flame count | [MFO](mfo.md) |
 | Particle Swarm Optimization | continuous | velocity + two attractors | [PSO](pso.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
+| Sine Cosine Algorithm | continuous | trigonometric swing toward the best | [SCA](sca.md) |
 
 ## Shared structure
 
@@ -57,7 +58,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All thirty on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirty-one on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -91,6 +92,7 @@ mean over 3 seeds — lower is better):
 | Monkey King Evolution | 5e-08 | 4e-03 | 2.7 |
 | Moth-Flame Optimization | 2e-17 | 2e-07 | 9.3 |
 | Particle Swarm Optimization | 1e-28 | 2e-13 | 3.0 |
+| Sine Cosine Algorithm**** | 9e-26 | 5e-10 | 4e-11 |
 
 \* Forest Optimization, Harmony Search, and Monarch Butterfly all
 build solutions one coordinate at a time, so their Rastrigin scores are
@@ -103,6 +105,12 @@ Rastrigin moves it from 3e-04 to 39.6.
 optima sit at \(x = 0\), and shifting them costs GWO 82 orders of
 magnitude on Sphere. The Fireworks Algorithm shares this bias. See the
 [GWO page](gwo.md).
+
+\*\*\*\* Sine Cosine is the extreme case of the same problem: the origin
+is an **exact fixed point** of its update rule, reached whatever the
+objective. Shifting the optimum by just 0.1 costs twenty-four orders of
+magnitude, and off the origin it beats random search only by a factor of
+two to six. Its entire row is an artefact — see the [SCA page](sca.md).
 
 \*\*\* Lion Optimization's Ackley result is **bimodal** — most runs
 reach ~1e-06, a minority stall near 1.2. Its mean of 0.39 describes no

@@ -178,6 +178,8 @@
 
 ::: ikn_library.algorithms.SimulatedAnnealing
 
+::: ikn_library.algorithms.SineCosineAlgorithm
+
 ### Shared building blocks
 
 Components used by more than one algorithm, exposed so you can
