@@ -4,8 +4,31 @@ All notable changes to `ikn-library` are recorded here. The format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 the project uses [Semantic Versioning](https://semver.org/).
 
-Install a specific release with `pip install ikn-library==0.11.0`, or
-upgrade with `pip install --upgrade ikn-library`.
+Install a specific release with `pip install ikn-library==<version>`, or
+upgrade to the latest with `pip install --upgrade ikn-library`.
+
+## [0.12.0] — 2026-08-31
+
+### Added
+
+- **Whale Optimization Algorithm** — each whale either swims toward the
+  best solution in a straight line or spirals around it, chosen by a
+  coin flip. Its two halves fail differently under transformation: the
+  encircling move scales the target's absolute coordinates and breaks
+  when the optimum is shifted, while the spiral uses a plain difference
+  and does not. Having one robust half is why a shift costs it far less
+  than it costs [Grey Wolf](https://ikn-library.readthedocs.io/en/latest/algorithm-details/gwo/)
+  or [Sine Cosine](https://ikn-library.readthedocs.io/en/latest/algorithm-details/sca/).
+  Best of the four Mirjalili algorithms in the library on every
+  benchmark variant.
+- This changelog, published to the documentation site.
+
+### Fixed
+
+- The README's algorithm list had silently lost `HybridBatAlgorithm` and
+  `HybridSelfAdaptiveBatAlgorithm`. It is now generated from the package
+  registry and cross-checked against `__all__`, so it cannot drift
+  again.
 
 ## [0.11.0] — 2026-08-31
 
@@ -201,6 +224,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.12.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.12.0
 [0.11.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.11.0
 [0.10.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.10.0
 [0.9.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.9.0
