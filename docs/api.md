@@ -162,6 +162,8 @@
 
 ::: ikn_library.algorithms.HybridBatAlgorithm
 
+::: ikn_library.algorithms.HybridSelfAdaptiveBatAlgorithm
+
 ::: ikn_library.algorithms.KomodoMlipirAlgorithm
 
 ::: ikn_library.algorithms.KrillHerd

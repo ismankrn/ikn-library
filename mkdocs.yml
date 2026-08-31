@@ -93,6 +93,7 @@ nav:
           - Harmony Search: algorithm-details/hs.md
           - Harris Hawks Optimization: algorithm-details/hho.md
           - Hybrid Bat Algorithm: algorithm-details/hybrid-bat.md
+          - Hybrid Self-Adaptive Bat Algorithm: algorithm-details/hsaba.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Krill Herd Algorithm: algorithm-details/kh.md
           - Lion Optimization Algorithm: algorithm-details/loa.md

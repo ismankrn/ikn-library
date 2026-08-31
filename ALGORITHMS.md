@@ -28,6 +28,7 @@ from ikn_library.algorithms import (
     HarmonySearch,
     HarrisHawksOptimization,
     HybridBatAlgorithm,
+    HybridSelfAdaptiveBatAlgorithm,
     KomodoMlipirAlgorithm,
     KrillHerd,
     LionOptimizationAlgorithm,
@@ -69,6 +70,7 @@ from ikn_library.algorithms import (
 | Monkey King Evolution | `MonkeyKingEvolution` | continuous | Meng & Pan, Knowledge-Based Systems 97, 2016 |
 | Moth-Flame Optimization | `MothFlameOptimization` | continuous | Mirjalili, Knowledge-Based Systems 89, 2015 |
 | Hybrid Bat Algorithm | `HybridBatAlgorithm` | continuous | Fister Jr., Fister & Yang, Elektroteh. Vestnik 80, 2013 |
+| Hybrid Self-Adaptive Bat Algorithm | `HybridSelfAdaptiveBatAlgorithm` | continuous | Fister Jr. et al., Sci. World J. 2014 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
@@ -440,6 +442,27 @@ improve on plain Bat at all.
 
 Key parameters: `population_size`, `differential_weight`,
 `crossover_rate`, `loudness`, `pulse_rate`, `alpha`, `gamma`, `seed`.
+
+## Hybrid Self-Adaptive Bat Algorithm
+
+`HybridSelfAdaptiveBatAlgorithm` — for **continuous** problems, the
+Hybrid Bat Algorithm with its two control parameters made
+**self-adaptive** (Fister Jr., Fong, Brest & Fister, 2014). Each bat
+carries its own loudness and pulse rate, occasionally **re-drawn at
+random** using the jDE scheme (Brest et al., 2006). That removes a
+one-way ratchet: in plain Bat and in the plain hybrid, loudness only
+ever decays toward zero, so acceptance eventually becomes impossible;
+re-drawing it lets a stalled bat recover.
+
+The library now holds three points on one lineage — Bat, Hybrid Bat,
+and this — which makes it possible to ask what each addition bought.
+The detail page reports the honest answer: replacing the random walk
+with a DE move bought a factor of eleven, while adding self-adaptation
+on top bought robustness to hand-tuning and roughly nothing on the
+benchmarks.
+
+Key parameters: `population_size`, `tau_1`, `tau_2`, `min_loudness`,
+`max_loudness`, `differential_weight`, `crossover_rate`, `seed`.
 ## Komodo Mlipir Algorithm
 
 `KomodoMlipirAlgorithm` — for **continuous** problems, inspired by
