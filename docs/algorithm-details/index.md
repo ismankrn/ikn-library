@@ -24,6 +24,7 @@ the actual source, its parameters, and the literature it comes from.
 | Flower Pollination Algorithm | continuous | two rules switched per flower | [FPA](fpa.md) |
 | Forest Optimization Algorithm | continuous | age-gated seeding + recycled discards | [FOA](foa.md) |
 | Genetic Algorithm | continuous | population + recombination | [GA](ga.md) |
+| Grasshopper Optimisation Algorithm | continuous | repulsion + attraction with a comfort zone | [GOA](goa.md) |
 | Gravitational Search Algorithm | continuous | population + mass-based attraction | [GSA](gsa.md) |
 | Grey Wolf Optimizer | continuous | three-leader hierarchy | [GWO](gwo.md) |
 | Harmony Search | continuous | memory + whole-memory recombination | [HS](hs.md) |
@@ -62,7 +63,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All thirty-five on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirty-six on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -71,6 +72,7 @@ mean over 3 seeds — lower is better):
 | Firefly Algorithm | 7e-57 | 2e-15 | 6.0 |
 | Differential Evolution | 2e-41 | 5e-15 | 2.0 |
 | Gravitational Search | 7e-24 | 2e-11 | 3.8 |
+| Grasshopper Optimisation | 2e-08 | 1e-03 | 18.2 |
 | ACO-R | 9e-25 | 1e-12 | 31.0 |
 | Artificial Bee Colony | 6e-15 | 5e-06 | 2e-08 |
 | Cat Swarm Optimization | 1e-05 | 0.031 | 2.3 |

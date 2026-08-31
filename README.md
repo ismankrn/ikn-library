@@ -147,6 +147,7 @@ Currently available:
 `FlowerPollinationAlgorithm` (continuous),
 `ForestOptimizationAlgorithm` (continuous),
 `GeneticAlgorithm` (continuous),
+`GrasshopperOptimizationAlgorithm` (continuous),
 `GravitationalSearchAlgorithm` (continuous),
 `GreyWolfOptimizer` (continuous), `HarmonySearch` (continuous),
 `HarrisHawksOptimization` (continuous), `HybridBatAlgorithm` (continuous),

@@ -88,6 +88,7 @@ nav:
           - Flower Pollination Algorithm: algorithm-details/fpa.md
           - Forest Optimization Algorithm: algorithm-details/foa.md
           - Genetic Algorithm: algorithm-details/ga.md
+          - Grasshopper Optimisation Algorithm: algorithm-details/goa.md
           - Gravitational Search Algorithm: algorithm-details/gsa.md
           - Grey Wolf Optimizer: algorithm-details/gwo.md
           - Harmony Search: algorithm-details/hs.md

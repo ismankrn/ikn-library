@@ -23,6 +23,7 @@ from ikn_library.algorithms import (
     FlowerPollinationAlgorithm,
     ForestOptimizationAlgorithm,
     GeneticAlgorithm,
+    GrasshopperOptimizationAlgorithm,
     GravitationalSearchAlgorithm,
     GreyWolfOptimizer,
     HarmonySearch,
@@ -62,6 +63,7 @@ from ikn_library.algorithms import (
 | Fireworks Algorithm | `FireworksAlgorithm` | continuous | Tan & Zhu, ICSI 2010 |
 | Fish School Search | `FishSchoolSearch` | continuous | Bastos Filho et al., IEEE SMC 2008 |
 | Genetic Algorithm (real-coded) | `GeneticAlgorithm` | continuous | Holland, 1975; BLX-alpha: Eshelman & Schaffer, 1993 |
+| Grasshopper Optimisation Algorithm | `GrasshopperOptimizationAlgorithm` | continuous | Saremi, Mirjalili & Lewis, Adv. Eng. Software 105, 2017 |
 | Gravitational Search Algorithm | `GravitationalSearchAlgorithm` | continuous | Rashedi et al., Inf. Sci. 179(13), 2009 |
 | Grey Wolf Optimizer | `GreyWolfOptimizer` | continuous | Mirjalili et al., Adv. Eng. Software 69, 2014 |
 | Harmony Search | `HarmonySearch` | continuous | Geem, Kim & Loganathan, Simulation 76(2), 2001 |
@@ -352,6 +354,30 @@ module follows.
 Key parameters: `population_size`, `crossover_rate`, `mutation_rate`
 (default `1/dimension`), `mutation_scale`, `tournament_size`,
 `blend_alpha`, `elitism`, `seed`.
+
+## Grasshopper Optimisation Algorithm
+
+`GrasshopperOptimizationAlgorithm` — for **continuous** problems, built
+around one idea nothing else here has: an explicit **short-range
+repulsion** (Saremi, Mirjalili & Lewis, 2017). Every pair of
+grasshoppers repels when close, attracts at medium range, and ignores
+each other far away; the separation where the force changes sign is the
+swarm's *comfort zone*. Elsewhere in this library spacing comes from
+randomness on top of attraction — here it comes from a force law.
+
+Two findings on the detail page are worth knowing before using it. Its
+update rule contains **no random term at all**, so GOA is deterministic
+after initialisation and gets one shot at finding the right basin. And
+`intensity` and `attraction_length` do not tune the repulsion's
+strength — they decide whether it exists, since a badly chosen pair
+removes it entirely.
+
+Unlike the other four algorithms from the same group in this library, it
+has **no origin bias**: its scores vary by under a factor of 1.7 across
+all four benchmark variants.
+
+Key parameters: `population_size`, `c_max`, `c_min`, `intensity`,
+`attraction_length`, `seed`.
 
 ## Gravitational Search Algorithm
 

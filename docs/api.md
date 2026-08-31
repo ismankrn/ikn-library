@@ -152,6 +152,8 @@
 
 ::: ikn_library.algorithms.GeneticAlgorithm
 
+::: ikn_library.algorithms.GrasshopperOptimizationAlgorithm
+
 ::: ikn_library.algorithms.GravitationalSearchAlgorithm
 
 ::: ikn_library.algorithms.GreyWolfOptimizer

@@ -19,6 +19,7 @@ from ikn_library.algorithms.fpa import FlowerPollinationAlgorithm
 from ikn_library.algorithms.fss import FishSchoolSearch
 from ikn_library.algorithms.fwa import FireworksAlgorithm
 from ikn_library.algorithms.ga import GeneticAlgorithm
+from ikn_library.algorithms.goa import GrasshopperOptimizationAlgorithm
 from ikn_library.algorithms.gsa import GravitationalSearchAlgorithm
 from ikn_library.algorithms.gwo import GreyWolfOptimizer
 from ikn_library.algorithms.hho import HarrisHawksOptimization
@@ -60,6 +61,7 @@ __all__ = [
     "FlowerPollinationAlgorithm",
     "ForestOptimizationAlgorithm",
     "GeneticAlgorithm",
+    "GrasshopperOptimizationAlgorithm",
     "GravitationalSearchAlgorithm",
     "GreyWolfOptimizer",
     "HarmonySearch",
