@@ -165,3 +165,10 @@
 ::: ikn_library.algorithms.NSGA2
 
 ::: ikn_library.algorithms.SimulatedAnnealing
+
+### Shared building blocks
+
+Components used by more than one algorithm, exposed so you can
+reuse them when writing your own.
+
+::: ikn_library.algorithms.levy_flight

@@ -24,6 +24,7 @@ from ikn_library.algorithms.gwo import GreyWolfOptimizer
 from ikn_library.algorithms.hho import HarrisHawksOptimization
 from ikn_library.algorithms.hs import HarmonySearch
 from ikn_library.algorithms.kma import KomodoMlipirAlgorithm
+from ikn_library.algorithms.levy import levy_flight
 from ikn_library.algorithms.nsga2 import NSGA2
 from ikn_library.algorithms.sa import SimulatedAnnealing
 
@@ -54,4 +55,5 @@ __all__ = [
     "HarrisHawksOptimization",
     "KomodoMlipirAlgorithm",
     "SimulatedAnnealing",
+    "levy_flight",
 ]
