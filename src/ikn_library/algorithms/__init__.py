@@ -25,6 +25,7 @@ from ikn_library.algorithms.hho import HarrisHawksOptimization
 from ikn_library.algorithms.hs import HarmonySearch
 from ikn_library.algorithms.hsaba import HybridSelfAdaptiveBatAlgorithm
 from ikn_library.algorithms.hybrid_bat import HybridBatAlgorithm
+from ikn_library.algorithms.jde import SelfAdaptiveDifferentialEvolution
 from ikn_library.algorithms.kh import KrillHerd
 from ikn_library.algorithms.kma import KomodoMlipirAlgorithm
 from ikn_library.algorithms.levy import levy_flight
@@ -71,6 +72,7 @@ __all__ = [
     "MonkeyKingEvolution",
     "MothFlameOptimization",
     "ParticleSwarmOptimization",
+    "SelfAdaptiveDifferentialEvolution",
     "SimulatedAnnealing",
     "SineCosineAlgorithm",
     "levy_flight",

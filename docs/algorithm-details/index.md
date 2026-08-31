@@ -37,6 +37,7 @@ the actual source, its parameters, and the literature it comes from.
 | Monkey King Evolution | continuous | clone group around the incumbent | [MKE](mke.md) |
 | Moth-Flame Optimization | continuous | logarithmic spiral + shrinking flame count | [MFO](mfo.md) |
 | Particle Swarm Optimization | continuous | velocity + two attractors | [PSO](pso.md) |
+| Self-Adaptive Differential Evolution | continuous | DE + parameters carried by selection | [jDE](jde.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 | Sine Cosine Algorithm | continuous | trigonometric swing toward the best | [SCA](sca.md) |
 
@@ -60,7 +61,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All thirty-three on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All thirty-four on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -96,6 +97,7 @@ mean over 3 seeds — lower is better):
 | Monkey King Evolution | 5e-08 | 4e-03 | 2.7 |
 | Moth-Flame Optimization | 2e-17 | 2e-07 | 9.3 |
 | Particle Swarm Optimization | 1e-28 | 2e-13 | 3.0 |
+| Self-Adaptive DE (jDE) | 2e-36 | 4e-15 | **0** |
 | Sine Cosine Algorithm**** | 9e-26 | 5e-10 | 4e-11 |
 
 \* Forest Optimization, Harmony Search, and Monarch Butterfly all

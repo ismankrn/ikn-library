@@ -180,6 +180,8 @@
 
 ::: ikn_library.algorithms.ParticleSwarmOptimization
 
+::: ikn_library.algorithms.SelfAdaptiveDifferentialEvolution
+
 ::: ikn_library.algorithms.SimulatedAnnealing
 
 ::: ikn_library.algorithms.SineCosineAlgorithm

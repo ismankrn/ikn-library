@@ -67,8 +67,13 @@ class DifferentialEvolution(Algorithm):
         choices = self.rng.permutation(self.population_size)
         return [i for i in choices if i != exclude][:count]
 
-    def _mutant(self, population, index, best_index):
-        f = self.differential_weight
+    def _mutant(self, population, index, best_index, f=None):
+        """Build a mutant; ``f`` defaults to this algorithm's ``F``.
+
+        Subclasses that adapt ``F`` per individual pass it explicitly;
+        see :class:`SelfAdaptiveDifferentialEvolution`.
+        """
+        f = self.differential_weight if f is None else f
         if self.strategy == "rand/1":
             r1, r2, r3 = self._pick(index, 3)
             return population[r1] + f * (population[r2] - population[r3])
@@ -86,9 +91,14 @@ class DifferentialEvolution(Algorithm):
                 + f * (population[best_index] - population[index])
                 + f * (population[r1] - population[r2]))
 
-    def _crossover(self, target, mutant, dimension):
-        """Binomial crossover, with one gene always taken from the mutant."""
-        take = self.rng.random(dimension) < self.crossover_rate
+    def _crossover(self, target, mutant, dimension, cr=None):
+        """Binomial crossover, with one gene always taken from the mutant.
+
+        ``cr`` defaults to this algorithm's ``CR``; subclasses that adapt
+        it per individual pass it explicitly.
+        """
+        cr = self.crossover_rate if cr is None else cr
+        take = self.rng.random(dimension) < cr
         take[self.rng.integers(dimension)] = True   # guarantees a real trial
         return np.where(take, mutant, target)
 

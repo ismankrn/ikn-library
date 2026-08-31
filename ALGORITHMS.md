@@ -37,6 +37,7 @@ from ikn_library.algorithms import (
     MothFlameOptimization,
     NSGA2,
     ParticleSwarmOptimization,
+    SelfAdaptiveDifferentialEvolution,
     SimulatedAnnealing,
     SineCosineAlgorithm,
 )
@@ -75,6 +76,7 @@ from ikn_library.algorithms import (
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
 | Sine Cosine Algorithm | `SineCosineAlgorithm` | continuous | Mirjalili, Knowledge-Based Systems 96, 2016 |
+| Self-Adaptive Differential Evolution | `SelfAdaptiveDifferentialEvolution` | continuous | Brest et al., IEEE TEC 10(6), 2006 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
 
 ## Ant Colony Optimization (ACO-R)
@@ -614,6 +616,25 @@ per-coordinate random coefficients.
 
 Key parameters: `population_size`, `w_start`, `w_end`, `c1`, `c2`,
 `max_velocity`, `seed`.
+
+## Self-Adaptive Differential Evolution
+
+`SelfAdaptiveDifferentialEvolution` — for **continuous** problems,
+Differential Evolution with its two hardest parameters taken out of the
+user's hands (jDE; Brest et al., 2006). Each individual carries its own
+`F` and `CR`, occasionally re-drawn at random and **kept only if the
+trial they produced won**. The parameters are not adjusted by any rule:
+they ride along with the solution they generated, so selection tunes
+them and the solutions at the same time.
+
+On this library's benchmarks it beats the hand-tuned `DifferentialEvolution`
+on **every** one of the four benchmark variants, and beats DE using the
+same `rand/1` strategy by nine orders of magnitude on Rastrigin. Tracing
+a run, the adapted `F` and `CR` settle close to the values manual tuning
+found — without being told.
+
+Key parameters: `population_size`, `min_weight`, `max_weight`, `tau_1`,
+`tau_2`, `strategy`, `seed`.
 ## Simulated Annealing
 
 `SimulatedAnnealing` — a **single-solution** method for continuous
