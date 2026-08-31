@@ -6,11 +6,10 @@ Reference:
     Springer, 240-249, 2012.
 """
 
-import math
-
 import numpy as np
 
 from ikn_library.algorithms.algorithm import Algorithm
+from ikn_library.algorithms.levy import levy_flight
 
 
 class FlowerPollinationAlgorithm(Algorithm):
@@ -64,19 +63,8 @@ class FlowerPollinationAlgorithm(Algorithm):
         self.levy_exponent = float(levy_exponent)
 
     def _levy_flight(self, size):
-        """Lévy-distributed steps via Mantegna's algorithm.
-
-        ``u / |v|^(1/beta)`` with normally distributed ``u`` and ``v``
-        reproduces a Lévy distribution of exponent ``beta``: many small
-        steps, rare very large ones.
-        """
-        beta = self.levy_exponent
-        sigma = (math.gamma(1.0 + beta) * math.sin(math.pi * beta / 2.0)
-                 / (math.gamma((1.0 + beta) / 2.0) * beta
-                    * 2.0 ** ((beta - 1.0) / 2.0))) ** (1.0 / beta)
-        u = self.rng.normal(0.0, sigma, size)
-        v = self.rng.normal(0.0, 1.0, size)
-        return u / np.abs(v) ** (1.0 / beta)
+        """Lévy-distributed steps of exponent ``levy_exponent``."""
+        return levy_flight(self.rng, size, self.levy_exponent)
 
     def run_iteration(self, task, state):
         flowers, fitness = state

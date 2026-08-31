@@ -6,11 +6,10 @@ Reference:
     Future Generation Computer Systems, 97, 849-872, 2019.
 """
 
-import math
-
 import numpy as np
 
 from ikn_library.algorithms.algorithm import Algorithm
+from ikn_library.algorithms.levy import levy_flight
 
 
 class HarrisHawksOptimization(Algorithm):
@@ -76,14 +75,9 @@ class HarrisHawksOptimization(Algorithm):
         return 0.0
 
     def _levy_flight(self, size):
-        """Lévy-distributed steps via Mantegna's algorithm."""
-        beta = self.levy_exponent
-        sigma = (math.gamma(1.0 + beta) * math.sin(math.pi * beta / 2.0)
-                 / (math.gamma((1.0 + beta) / 2.0) * beta
-                    * 2.0 ** ((beta - 1.0) / 2.0))) ** (1.0 / beta)
-        u = self.rng.normal(0.0, sigma, size)
-        v = self.rng.normal(0.0, 1.0, size)
-        return self.levy_scale * u / np.abs(v) ** (1.0 / beta)
+        """Lévy-distributed steps, scaled by ``levy_scale``."""
+        return levy_flight(self.rng, size, self.levy_exponent,
+                           scale=self.levy_scale)
 
     def _explore(self, task, hawks, i, rabbit, mean):
         """|E| >= 1: perch on a random hawk, or near the flock's centre."""
