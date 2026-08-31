@@ -168,6 +168,8 @@
 
 ::: ikn_library.algorithms.MonarchButterflyOptimization
 
+::: ikn_library.algorithms.MonkeyKingEvolution
+
 ::: ikn_library.algorithms.MothFlameOptimization
 
 ::: ikn_library.algorithms.NSGA2

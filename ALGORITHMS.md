@@ -31,6 +31,7 @@ from ikn_library.algorithms import (
     KrillHerd,
     LionOptimizationAlgorithm,
     MonarchButterflyOptimization,
+    MonkeyKingEvolution,
     MothFlameOptimization,
     NSGA2,
     SimulatedAnnealing,
@@ -62,6 +63,7 @@ from ikn_library.algorithms import (
 | Krill Herd Algorithm | `KrillHerd` | continuous | Gandomi & Alavi, CNSNS 17(12), 2012 |
 | Lion Optimization Algorithm | `LionOptimizationAlgorithm` | continuous | Yazdani & Jolai, JCDE 3(1), 2016 |
 | Monarch Butterfly Optimization | `MonarchButterflyOptimization` | continuous | Wang, Deb & Cui, NCA 31(7), 2015 |
+| Monkey King Evolution | `MonkeyKingEvolution` | continuous | Meng & Pan, Knowledge-Based Systems 97, 2016 |
 | Moth-Flame Optimization | `MothFlameOptimization` | continuous | Mirjalili, Knowledge-Based Systems 89, 2015 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
@@ -490,6 +492,26 @@ fails at a realistic budget.
 Key parameters: `population_size`, `partition`, `period`, `bar`,
 `max_step`, `n_elite`, `budget_tied_step`, `seed`.
 
+
+## Monkey King Evolution
+
+`MonkeyKingEvolution` — for **continuous** problems, named for the
+Monkey King's trick of turning his hairs into copies of himself (Meng &
+Pan, 2016). The best individual — the **king** — spawns a group of
+clones that each probe a different direction, and the best clone
+replaces him if it beats him. Everyone else gets a single trial. That
+asymmetry concentrates the evaluation budget on the incumbent without
+any ranking or weighting machinery; the underlying move is a masked
+difference vector, the operator Differential Evolution is built on.
+
+Note that MKE's published description leaves operator details open, so
+this is a coherent reading of the core mechanism rather than an exact
+reproduction. The detail page also documents a striking **lattice
+resonance**: certain `fluctuation` values appear to solve Rastrigin, an
+effect that survives shifting the problem but vanishes on rotating it.
+
+Key parameters: `population_size`, `n_clones`, `fluctuation`,
+`change_rate`, `seed`.
 ## Moth-Flame Optimization
 
 `MothFlameOptimization` — for **continuous** problems, based on the

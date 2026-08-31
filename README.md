@@ -148,7 +148,7 @@ Currently available: `AntColonyOptimization` (ACO-R, continuous),
 `GreyWolfOptimizer` (continuous), `HarmonySearch` (continuous),
 `HarrisHawksOptimization` (continuous), `KomodoMlipirAlgorithm` (continuous), `KrillHerd` (continuous),
 `LionOptimizationAlgorithm` (continuous),
-`MonarchButterflyOptimization` (continuous),
+`MonarchButterflyOptimization` (continuous), `MonkeyKingEvolution` (continuous),
 `MothFlameOptimization` (continuous), and
 `SimulatedAnnealing` (continuous). See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,

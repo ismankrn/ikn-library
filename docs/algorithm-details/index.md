@@ -32,6 +32,7 @@ the actual source, its parameters, and the literature it comes from.
 | Krill Herd Algorithm | continuous | three motions with inertia + food centre | [KH](kh.md) |
 | Lion Optimization Algorithm | continuous | prides and nomads + seven operators | [LOA](loa.md) |
 | Monarch Butterfly Optimization | continuous | two lands + per-coordinate recombination | [MBO](mbo.md) |
+| Monkey King Evolution | continuous | clone group around the incumbent | [MKE](mke.md) |
 | Moth-Flame Optimization | continuous | logarithmic spiral + shrinking flame count | [MFO](mfo.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
@@ -55,7 +56,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-eight on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-nine on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -86,6 +87,7 @@ mean over 3 seeds — lower is better):
 | Krill Herd | 4e-09 | 4e-04 | 3.0 |
 | Lion Optimization*** | 2e-13 | 0.39 | 2.4 |
 | Monarch Butterfly* | 2e-07 | 9e-04 | 3e-04 |
+| Monkey King Evolution | 5e-08 | 4e-03 | 2.7 |
 | Moth-Flame Optimization | 2e-17 | 2e-07 | 9.3 |
 
 \* Forest Optimization, Harmony Search, and Monarch Butterfly all
