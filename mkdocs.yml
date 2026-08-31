@@ -105,3 +105,4 @@ nav:
           - Simulated Annealing: algorithm-details/sa.md
           - Sine Cosine Algorithm: algorithm-details/sca.md
   - API Reference: api.md
+  - Changelog: changelog.md
