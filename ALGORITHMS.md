@@ -29,6 +29,7 @@ from ikn_library.algorithms import (
     HarrisHawksOptimization,
     KomodoMlipirAlgorithm,
     KrillHerd,
+    LionOptimizationAlgorithm,
     NSGA2,
     SimulatedAnnealing,
 )
@@ -57,6 +58,7 @@ from ikn_library.algorithms import (
 | Harmony Search | `HarmonySearch` | continuous | Geem, Kim & Loganathan, Simulation 76(2), 2001 |
 | Harris Hawks Optimization | `HarrisHawksOptimization` | continuous | Heidari et al., FGCS 97, 2019 |
 | Krill Herd Algorithm | `KrillHerd` | continuous | Gandomi & Alavi, CNSNS 17(12), 2012 |
+| Lion Optimization Algorithm | `LionOptimizationAlgorithm` | continuous | Yazdani & Jolai, JCDE 3(1), 2016 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -442,6 +444,26 @@ algorithms lose orders of magnitude.
 
 Key parameters: `population_size`, `n_max`, `v_f`, `d_max`, `inertia`,
 `c_t`, `crossover_rate`, `seed`.
+
+## Lion Optimization Algorithm
+
+`LionOptimizationAlgorithm` — for **continuous** problems, and the most
+elaborate algorithm here (Yazdani & Jolai, 2016). Lions are split into
+**prides** and **nomads**, each is male or female, and group and sex
+decide which of seven operators moves it — making this the only
+algorithm in the library with a genuinely **heterogeneous population**.
+Pride females hunt around a shared prey or move toward the pride's
+**territory** (the best positions its members have ever visited); males
+roam that territory; females mate with males to produce blended cubs;
+weak males are exiled to the nomads and strong nomads take their place.
+
+Two caveats are documented on the detail page: its Ackley result is
+bimodal, so the mean describes no actual run, and screening it on a
+short budget picks a configuration that loses at the full one.
+
+Key parameters: `population_size`, `n_prides`, `nomad_ratio`,
+`sex_ratio`, `roaming_ratio`, `mating_ratio`, `mutation_prob`,
+`migration_ratio`, `seed`.
 ## NSGA-II
 
 `NSGA2` — the elitist non-dominated sorting genetic algorithm for

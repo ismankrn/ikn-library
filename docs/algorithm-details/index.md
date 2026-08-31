@@ -30,6 +30,7 @@ the actual source, its parameters, and the literature it comes from.
 | Harris Hawks Optimization | continuous | six moves gated by prey energy | [HHO](hho.md) |
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Krill Herd Algorithm | continuous | three motions with inertia + food centre | [KH](kh.md) |
+| Lion Optimization Algorithm | continuous | prides and nomads + seven operators | [LOA](loa.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
 ## Shared structure
@@ -52,7 +53,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-five on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-six on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -81,6 +82,7 @@ mean over 3 seeds — lower is better):
 | Harmony Search* | 5e-08 | 3e-03 | 0.018 |
 | Harris Hawks Optimization | 2e-88 | 4e-16 | **0** |
 | Krill Herd | 4e-09 | 4e-04 | 3.0 |
+| Lion Optimization*** | 2e-13 | 0.39 | 2.4 |
 
 \* Forest Optimization and Harmony Search both build solutions one
 coordinate at a time, so their Rastrigin scores are **largely artefacts
@@ -91,6 +93,10 @@ of this benchmark suite** — see the caveat below, the
 optima sit at \(x = 0\), and shifting them costs GWO 82 orders of
 magnitude on Sphere. The Fireworks Algorithm shares this bias. See the
 [GWO page](gwo.md).
+
+\*\*\* Lion Optimization's Ackley result is **bimodal** — most runs
+reach ~1e-06, a minority stall near 1.2. Its mean of 0.39 describes no
+actual run; the median is 0.011. See the [LOA page](loa.md).
 
 Three lessons for students in this table. First, **no algorithm wins
 everywhere** (the "no free lunch" theorem in miniature): the Firefly

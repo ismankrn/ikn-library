@@ -164,6 +164,8 @@
 
 ::: ikn_library.algorithms.KrillHerd
 
+::: ikn_library.algorithms.LionOptimizationAlgorithm
+
 ::: ikn_library.algorithms.NSGA2
 
 ::: ikn_library.algorithms.SimulatedAnnealing

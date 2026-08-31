@@ -94,5 +94,6 @@ nav:
           - Harris Hawks Optimization: algorithm-details/hho.md
           - Komodo Mlipir Algorithm: algorithm-details/kma.md
           - Krill Herd Algorithm: algorithm-details/kh.md
+          - Lion Optimization Algorithm: algorithm-details/loa.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md
