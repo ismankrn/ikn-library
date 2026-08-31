@@ -31,6 +31,7 @@ from ikn_library.algorithms import (
     KrillHerd,
     LionOptimizationAlgorithm,
     MonarchButterflyOptimization,
+    MothFlameOptimization,
     NSGA2,
     SimulatedAnnealing,
 )
@@ -61,6 +62,7 @@ from ikn_library.algorithms import (
 | Krill Herd Algorithm | `KrillHerd` | continuous | Gandomi & Alavi, CNSNS 17(12), 2012 |
 | Lion Optimization Algorithm | `LionOptimizationAlgorithm` | continuous | Yazdani & Jolai, JCDE 3(1), 2016 |
 | Monarch Butterfly Optimization | `MonarchButterflyOptimization` | continuous | Wang, Deb & Cui, NCA 31(7), 2015 |
+| Moth-Flame Optimization | `MothFlameOptimization` | continuous | Mirjalili, Knowledge-Based Systems 89, 2015 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -487,6 +489,25 @@ fails at a realistic budget.
 
 Key parameters: `population_size`, `partition`, `period`, `bar`,
 `max_step`, `n_elite`, `budget_tied_step`, `seed`.
+
+## Moth-Flame Optimization
+
+`MothFlameOptimization` — for **continuous** problems, based on the
+*transverse orientation* moths use to navigate (Mirjalili, 2015). The
+population is kept as **moths** (search agents) and **flames** (the best
+positions found so far), and each moth follows a **logarithmic spiral**
+around *its own* flame rather than a shared global best. The
+exploration schedule is not a step size but the **flame count**, which
+shrinks from N to 1 across the run, so many attractors gradually merge
+into one.
+
+It has no origin bias and moderate rotation sensitivity (a factor of
+1.8). Note that MFO is one of six algorithms whose novelty is
+challenged by Camacho-Villalón, Dorigo & Stützle (2023); the detail
+page discusses what that does and does not mean.
+
+Key parameters: `population_size`, `spiral_constant`, `a_start`,
+`a_end`, `seed`.
 ## NSGA-II
 
 `NSGA2` — the elitist non-dominated sorting genetic algorithm for

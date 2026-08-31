@@ -96,5 +96,6 @@ nav:
           - Krill Herd Algorithm: algorithm-details/kh.md
           - Lion Optimization Algorithm: algorithm-details/loa.md
           - Monarch Butterfly Optimization: algorithm-details/mbo.md
+          - Moth-Flame Optimization: algorithm-details/mfo.md
           - Simulated Annealing: algorithm-details/sa.md
   - API Reference: api.md

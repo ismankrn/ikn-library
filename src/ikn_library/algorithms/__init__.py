@@ -28,6 +28,7 @@ from ikn_library.algorithms.kma import KomodoMlipirAlgorithm
 from ikn_library.algorithms.levy import levy_flight
 from ikn_library.algorithms.loa import LionOptimizationAlgorithm
 from ikn_library.algorithms.mbo import MonarchButterflyOptimization
+from ikn_library.algorithms.mfo import MothFlameOptimization
 from ikn_library.algorithms.nsga2 import NSGA2
 from ikn_library.algorithms.sa import SimulatedAnnealing
 
@@ -60,6 +61,7 @@ __all__ = [
     "KrillHerd",
     "LionOptimizationAlgorithm",
     "MonarchButterflyOptimization",
+    "MothFlameOptimization",
     "SimulatedAnnealing",
     "levy_flight",
 ]

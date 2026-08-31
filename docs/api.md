@@ -168,6 +168,8 @@
 
 ::: ikn_library.algorithms.MonarchButterflyOptimization
 
+::: ikn_library.algorithms.MothFlameOptimization
+
 ::: ikn_library.algorithms.NSGA2
 
 ::: ikn_library.algorithms.SimulatedAnnealing
