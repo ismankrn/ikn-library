@@ -31,6 +31,7 @@ the actual source, its parameters, and the literature it comes from.
 | Komodo Mlipir Algorithm | continuous | three role groups + adaptive population | [KMA](kma.md) |
 | Krill Herd Algorithm | continuous | three motions with inertia + food centre | [KH](kh.md) |
 | Lion Optimization Algorithm | continuous | prides and nomads + seven operators | [LOA](loa.md) |
+| Monarch Butterfly Optimization | continuous | two lands + per-coordinate recombination | [MBO](mbo.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 
 ## Shared structure
@@ -53,7 +54,7 @@ algorithm respects `max_evals` exactly.
 
 ## Benchmark comparison
 
-All twenty-six on the standard benchmarks (10 dimensions, 20,000 evaluations,
+All twenty-seven on the standard benchmarks (10 dimensions, 20,000 evaluations,
 mean over 3 seeds — lower is better):
 
 | Algorithm | Sphere | Ackley | Rastrigin |
@@ -83,11 +84,14 @@ mean over 3 seeds — lower is better):
 | Harris Hawks Optimization | 2e-88 | 4e-16 | **0** |
 | Krill Herd | 4e-09 | 4e-04 | 3.0 |
 | Lion Optimization*** | 2e-13 | 0.39 | 2.4 |
+| Monarch Butterfly* | 2e-07 | 9e-04 | 3e-04 |
 
-\* Forest Optimization and Harmony Search both build solutions one
-coordinate at a time, so their Rastrigin scores are **largely artefacts
-of this benchmark suite** — see the caveat below, the
-[FOA page](foa.md), and the [HS page](hs.md).
+\* Forest Optimization, Harmony Search, and Monarch Butterfly all
+build solutions one coordinate at a time, so their Rastrigin scores are
+**largely artefacts of this benchmark suite** — see the caveat below,
+the [FOA page](foa.md), the [HS page](hs.md), and the
+[MBO page](mbo.md). Monarch Butterfly is the extreme case: rotating
+Rastrigin moves it from 3e-04 to 39.6.
 
 \*\* Grey Wolf's whole row is inflated by an **origin bias**: all three
 optima sit at \(x = 0\), and shifting them costs GWO 82 orders of

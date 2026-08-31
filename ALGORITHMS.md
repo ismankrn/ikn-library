@@ -30,6 +30,7 @@ from ikn_library.algorithms import (
     KomodoMlipirAlgorithm,
     KrillHerd,
     LionOptimizationAlgorithm,
+    MonarchButterflyOptimization,
     NSGA2,
     SimulatedAnnealing,
 )
@@ -59,6 +60,7 @@ from ikn_library.algorithms import (
 | Harris Hawks Optimization | `HarrisHawksOptimization` | continuous | Heidari et al., FGCS 97, 2019 |
 | Krill Herd Algorithm | `KrillHerd` | continuous | Gandomi & Alavi, CNSNS 17(12), 2012 |
 | Lion Optimization Algorithm | `LionOptimizationAlgorithm` | continuous | Yazdani & Jolai, JCDE 3(1), 2016 |
+| Monarch Butterfly Optimization | `MonarchButterflyOptimization` | continuous | Wang, Deb & Cui, NCA 31(7), 2015 |
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Simulated Annealing | `SimulatedAnnealing` | continuous | Kirkpatrick et al., Science 220, 1983 |
@@ -464,6 +466,27 @@ short budget picks a configuration that loses at the full one.
 Key parameters: `population_size`, `n_prides`, `nomad_ratio`,
 `sex_ratio`, `roaming_ratio`, `mating_ratio`, `mutation_prob`,
 `migration_ratio`, `seed`.
+
+## Monarch Butterfly Optimization
+
+`MonarchButterflyOptimization` — for **continuous** problems, modelling
+the monarch's migration between two lands (Wang et al., 2015). The
+population is split into two subpopulations running **different
+operators**: *migration* rebuilds a Land 1 butterfly coordinate by
+coordinate from donors in either land, while *adjusting* rebuilds a
+Land 2 butterfly from the current best or a peer, sometimes adding a
+Lévy walk step.
+
+Both operators are **per-coordinate discrete recombination** — nothing
+in MBO computes a direction or velocity. That makes it strong on
+separable problems and unusable off them: rotating Rastrigin so its
+coordinates couple moves it from 3e-04 to 39.6, the most extreme
+separability dependence in this library. It has no origin bias at all.
+The detail page documents both, plus why the paper's step schedule
+fails at a realistic budget.
+
+Key parameters: `population_size`, `partition`, `period`, `bar`,
+`max_step`, `n_elite`, `budget_tied_step`, `seed`.
 ## NSGA-II
 
 `NSGA2` — the elitist non-dominated sorting genetic algorithm for
