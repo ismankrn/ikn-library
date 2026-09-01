@@ -66,8 +66,7 @@ Before (all 30 features)   : cross_val_score = 0.9279
 After  (3 selected features) : cross_val_score = 0.9508
 ```
 
-The comparison as a bar chart, with the per-fold standard deviation as
-error bars (use the full score arrays, not just the means):
+The comparison as a bar chart, with each bar labelled by its score:
 
 ```python
 import matplotlib.pyplot as plt
@@ -78,11 +77,9 @@ scores_selected = cross_val_score(model, X[:, selected], y, cv=5)
 labels = [f"Before\n(all {X.shape[1]} features)",
           f"After\n({len(selected)} selected features)"]
 means = [scores_all.mean(), scores_selected.mean()]
-errors = [scores_all.std(), scores_selected.std()]
 
 fig, ax = plt.subplots(figsize=(6, 4))
-bars = ax.bar(labels, means, yerr=errors, capsize=6,
-              color=["#9aa5b1", "#2a9d8f"])
+bars = ax.bar(labels, means, color=["#9aa5b1", "#2a9d8f"])
 ax.set_ylabel("Mean CV accuracy (cross_val_score)")
 ax.set_ylim(min(means) - 0.05, 1.0)
 ax.bar_label(bars, fmt="%.4f", padding=3)
@@ -96,7 +93,10 @@ The result:
 ![Bar chart: accuracy before vs after feature selection](img/feature_selection_comparison.png)
 
 The selected subset wins on both axes: higher accuracy (+2.3 points)
-with 10x fewer features. Two things make this a fair comparison:
+with 10x fewer features. The spread across the five folds is 0.0218
+before and 0.0143 after, so the gain is close to one fold-standard-
+deviation — real, but worth reporting alongside that spread rather than
+on its own. Two things make this a fair comparison:
 
 - **Same estimator, same folds**: both scores come from an identical
   5-fold cross-validation of an identical model — the only difference

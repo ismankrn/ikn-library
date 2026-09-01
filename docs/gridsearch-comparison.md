@@ -148,11 +148,9 @@ labels = ["Default\n(C=1.0, gamma='scale')",
           f"Best\n(C={grid.best_params_['svc__C']}, "
           f"gamma={grid.best_params_['svc__gamma']})"]
 scores = [default_row["mean_test_score"], best_row["mean_test_score"]]
-errors = [default_row["std_test_score"], best_row["std_test_score"]]
 
 fig, ax = plt.subplots(figsize=(6, 4))
-bars = ax.bar(labels, scores, yerr=errors, capsize=6,
-              color=["#9aa5b1", "#2a9d8f"])
+bars = ax.bar(labels, scores, color=["#9aa5b1", "#2a9d8f"])
 ax.set_ylabel("Mean CV accuracy (mean_test_score)")
 ax.set_ylim(min(scores) - 0.03, 1.0)
 ax.bar_label(bars, fmt="%.4f", padding=3)
@@ -167,9 +165,11 @@ The result:
 
 Tuning moved the cross-validated accuracy from **0.9714** to
 **0.9802** — a real but modest gain, which is itself a useful lesson.
-The error bars (`std_test_score`) are about 0.016, larger than the gap
-between the bars, so some of that difference could be fold-to-fold
-noise rather than a genuinely better model.
+Read it next to `std_test_score` from the table above: the spread across
+folds is 0.0179 and 0.0162, both **larger than the 0.0088 gap between
+the bars**. Some of that difference could be fold-to-fold noise rather
+than a genuinely better model, which is why the chart alone never
+settles the question.
 
 !!! note "About the truncated y-axis"
     The chart starts its y-axis near the scores to make the difference
