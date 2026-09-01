@@ -320,5 +320,5 @@ extends to richer views without any retraining: plot all 16
 combinations sorted by `mean_test_score`, or pivot `C` against `gamma`
 into a heatmap. And when comparing grid search against other tuning
 strategies — such as the metaheuristic approach in
-[Parameter Optimization](parameter-optimization.md) — the same rule
+[Hyperparameter Optimization](parameter-optimization.md) — the same rule
 applies: compare scores obtained under the same cross-validation setup.

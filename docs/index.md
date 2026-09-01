@@ -60,7 +60,7 @@ The library follows a NiaPy-like workflow built from three pieces:
   with NSGA-II: get the whole accuracy-vs-size trade-off curve in one run.
 - **[Feature Selection](feature-selection.md)** — wrapper-based feature
   selection with Binary ACO and a scikit-learn estimator.
-- **[Parameter Optimization](parameter-optimization.md)** — tuning model
+- **[Hyperparameter Optimization](parameter-optimization.md)** — tuning model
   hyperparameters (e.g. SVM `C` and `gamma`) with continuous ACO-R,
   including log-scale search spaces and convergence plotting.
 - **[Microarray Data](microarray.md)** — loading NCBI GEO series into

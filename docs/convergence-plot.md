@@ -10,7 +10,7 @@ well.
 
 Every `Task` records the best score after each iteration automatically;
 no extra bookkeeping is needed. After a run (here, the SVM tuning task
-from the [Parameter Optimization](parameter-optimization.md) tutorial):
+from the [Hyperparameter Optimization](parameter-optimization.md) tutorial):
 
 ```python
 iters, scores = task.convergence_data()

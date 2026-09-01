@@ -129,7 +129,7 @@ best_x, best_score = AntColonyOptimization(population_size=10, seed=42).run(task
 ```
 
 See the full tutorial:
-[Parameter Optimization](https://ikn-library.readthedocs.io/en/latest/parameter-optimization/)
+[Hyperparameter Optimization](https://ikn-library.readthedocs.io/en/latest/parameter-optimization/)
 and the runnable script [examples/parameter_optimization.py](examples/parameter_optimization.py).
 
 ## Algorithms

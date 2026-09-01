@@ -1,4 +1,4 @@
-# Parameter Optimization
+# Hyperparameter Optimization
 
 Metaheuristics shine at tuning model hyperparameters when the search
 space is continuous and the objective (a cross-validated score) is
@@ -325,6 +325,226 @@ Final val_loss  : 0.0652
        `MLPClassifier` (or restoring the best epoch in other
        frameworks) makes the fitness reflect the best achievable
        model rather than an arbitrary stopping point.
+
+### Keeping the best model as you search
+
+By default a search hands back the best *vector*, and you rebuild the
+model from it — which means training the winning architecture a second
+time. That is wasteful: the search already trained exactly that model
+while evaluating it, then threw it away.
+
+The fix is four lines inside `_evaluate`. Track the best loss seen so
+far, and whenever an evaluation beats it, write that model to disk
+before returning:
+
+```python
+import numpy as np
+from pathlib import Path
+from sklearn.preprocessing import StandardScaler
+
+
+class KerasMLPTuningWithCheckpoint(Problem):
+    """Same search as KerasMLPTuning, but it keeps the best model on disk."""
+
+    MAX_LAYERS = 3
+    MIN_NODES, MAX_NODES = 16, 128
+
+    def __init__(self, X_train, y_train, X_val, y_val, path="best_model.h5"):
+        super().__init__(dimension=1 + self.MAX_LAYERS, lower=0.0, upper=1.0)
+        self.X_train, self.y_train = X_train, y_train
+        self.X_val, self.y_val = X_val, y_val
+        self.path = path
+        self.best_loss = np.inf          # nothing beaten yet
+        self.best_architecture = None
+        self.n_trained = self.n_saved = 0
+
+    def decode(self, x):
+        n_layers = min(int(x[0] * self.MAX_LAYERS), self.MAX_LAYERS - 1) + 1
+        span = self.MAX_NODES - self.MIN_NODES
+        return tuple(
+            self.MIN_NODES + min(int(x[i + 1] * (span + 1)), span)
+            for i in range(n_layers)
+        )
+
+    def _evaluate(self, x):
+        keras.utils.set_random_seed(0)
+        architecture = self.decode(x)
+        model = keras.Sequential(
+            [keras.layers.Input(shape=(self.X_train.shape[1],))]
+            + [keras.layers.Dense(n, activation="relu") for n in architecture]
+            + [keras.layers.Dense(1, activation="sigmoid")]
+        )
+        model.compile(optimizer="adam", loss="binary_crossentropy")
+        history = model.fit(self.X_train, self.y_train,
+                            validation_data=(self.X_val, self.y_val),
+                            epochs=50, batch_size=32, verbose=0)
+        val_loss = history.history["val_loss"][-1]
+        self.n_trained += 1
+
+        if val_loss < self.best_loss:      # a new best: keep this model
+            self.best_loss = val_loss
+            self.best_architecture = architecture
+            model.save(self.path)          # <- saved as HDF5 (.h5)
+            self.n_saved += 1
+        return val_loss
+```
+
+The search itself is unchanged. Note the **three-way split**: the test
+set is carved out first and never touched during the search, exactly as
+caveat 2 above requires, and the scaler is fitted on the training part
+only:
+
+```python
+X, y = load_breast_cancer(return_X_y=True)
+X_rest, X_test, y_rest, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(
+    X_rest, y_rest, test_size=0.25, stratify=y_rest, random_state=42)
+
+scaler = StandardScaler().fit(X_train)
+X_train, X_val, X_test = (scaler.transform(a) for a in (X_train, X_val, X_test))
+print("train:", X_train.shape, " val:", X_val.shape, " test:", X_test.shape)
+
+problem = KerasMLPTuningWithCheckpoint(X_train, y_train, X_val, y_val)
+task = Task(problem=problem, max_evals=30)
+algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
+best_x, best_loss = algo.run(task)
+
+print("Best architecture :", problem.best_architecture)
+print("Best val_loss     :", round(best_loss, 4))
+print("Models trained    :", problem.n_trained)
+print("Models saved      :", problem.n_saved)
+print("Saved file        :", problem.path,
+      f"({Path(problem.path).stat().st_size} bytes)")
+```
+
+Output:
+
+```text
+train: (341, 30)  val: (114, 30)  test: (114, 30)
+Best architecture : (24, 61)
+Best val_loss     : 0.0462
+Models trained    : 30
+Models saved      : 3
+Saved file        : best_model.h5 (59440 bytes)
+```
+
+Look at the last two counters: **30 models were trained, but only 3
+were written to disk.** The file is overwritten only when the loss
+actually improves, so at the end it holds the single best network the
+search ever saw — already trained, with its weights exactly as they
+were when that score was measured.
+
+### Loading the model and predicting
+
+Nothing is retrained here. The file is read and used directly:
+
+```python
+model = keras.models.load_model("best_model.h5")
+model.summary()
+```
+
+Output:
+
+```text
+Model: "sequential_12"
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
+┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ dense_33 (Dense)                │ (None, 24)             │           744 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_34 (Dense)                │ (None, 61)             │         1,525 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_35 (Dense)                │ (None, 1)              │            62 │
+└─────────────────────────────────┴────────────────────────┴───────────────┘
+ Total params: 2,333 (9.12 KB)
+ Trainable params: 2,331 (9.11 KB)
+ Non-trainable params: 0 (0.00 B)
+```
+
+The architecture came back intact — two hidden layers of 24 and 61
+units, matching `best_architecture` above. Now predict on the test set
+the search never saw:
+
+```python
+from sklearn.metrics import accuracy_score, classification_report
+
+proba = model.predict(X_test, verbose=0).ravel()
+y_pred = (proba >= 0.5).astype(int)
+print("test accuracy:", round(accuracy_score(y_test, y_pred), 4))
+print(classification_report(y_test, y_pred,
+                            target_names=load_breast_cancer().target_names))
+```
+
+Output:
+
+```text
+test accuracy: 0.9561
+
+              precision    recall  f1-score   support
+
+   malignant       0.91      0.98      0.94        42
+      benign       0.99      0.94      0.96        72
+
+    accuracy                           0.96       114
+   macro avg       0.95      0.96      0.95       114
+weighted avg       0.96      0.96      0.96       114
+```
+
+Because the output layer is a sigmoid, `predict` returns
+probabilities; the threshold is yours to choose:
+
+```python
+print("first 5 probabilities:", np.round(proba[:5], 4))
+print("predicted            :", y_pred[:5])
+print("actual               :", y_test[:5])
+```
+
+Output:
+
+```text
+first 5 probabilities: [0.000e+00 1.000e+00 2.000e-04 1.777e-01 0.000e+00]
+predicted            : [0 1 0 0 0]
+actual               : [0 1 0 1 0]
+```
+
+The fourth sample is worth a look: at a probability of 0.178 the model
+leans malignant and is wrong. Three of these five predictions are made
+with near-total confidence and one is genuinely uncertain — which is
+the argument for reading probabilities rather than only labels, and for
+choosing a threshold that suits the cost of each kind of error.
+
+!!! note "Test accuracy is lower than the validation loss suggests"
+    A validation loss of 0.0462 looks excellent, but the test accuracy
+    is 0.9561 — noticeably below what the earlier two-way-split
+    examples on this page report. That is caveat 2 in action: the
+    search consumed the validation set, so its score is optimistically
+    biased, and the training set here is smaller (341 rows) because a
+    third split was carved out. The test number is the honest one.
+
+!!! warning "`.h5` is a legacy format in Keras 3"
+    `model.save("best_model.h5")` still works, but Keras 3 prints a
+    warning recommending its native format instead:
+
+    ```text
+    WARNING:absl:You are saving your model as an HDF5 file via
+    `model.save()`. This file format is considered legacy. We recommend
+    using instead the native Keras format, e.g.
+    `model.save('my_model.keras')`.
+    ```
+
+    Use `.h5` when you need it — older tooling and non-Keras readers
+    still expect HDF5. Otherwise change one character in the filename:
+    `best_model.keras` saves and loads with the same two calls, with no
+    warning. These results were produced with **Keras 3.15** on
+    **TensorFlow 2.21**.
+
+!!! tip "The saved model was trained on the training split only"
+    It is the network exactly as evaluated — which is what makes the
+    score meaningful. Retraining it on train + validation afterwards
+    usually helps a little, but then the model you ship is no longer
+    the one you measured. Decide which you want before you report a
+    number.
 
 To visualize how the best score improves over the iterations, see the
 teaching note [Plotting Convergence](convergence-plot.md).
