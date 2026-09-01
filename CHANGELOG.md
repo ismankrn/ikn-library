@@ -7,6 +7,45 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.14.0] — 2026-09-01
+
+Documentation only — the package code is unchanged from 0.13.0.
+
+### Added
+
+- **Using a tuned model**, on the renamed *Hyperparameter Tuning* page:
+  assign `best_estimator_`, evaluate it on a held-out test set, save it
+  with `pickle`, load it back and predict. Includes the two things that
+  bite people — unpickling untrusted files, and pickles not being
+  portable across library versions.
+- **Checkpointing the best Keras model during a search**, on the
+  *Hyperparameter Optimization* page. Four lines in `_evaluate` write the
+  model to `.h5` whenever the validation loss improves, so the search
+  ends holding a trained model rather than just the winning vector — 30
+  models trained, 3 written to disk. Loading it and predicting needs no
+  retraining at all. The page also records that Keras 3 treats `.h5` as
+  legacy and recommends `.keras`.
+
+### Changed
+
+- Two teaching pages renamed: *Comparing Tuning Results* is now
+  **Hyperparameter Tuning**, and *Parameter Optimization* is now
+  **Hyperparameter Optimization**. Page titles and every cross-reference
+  were updated to match; filenames and URLs are unchanged, so existing
+  links keep working.
+- Both renamed pages now hold out a test set and fit their scaler inside
+  a `Pipeline` or on the training split only. The previous examples
+  scaled the full dataset before splitting, which leaks test statistics
+  into training, and had no test set to demonstrate prediction on. All
+  affected numbers were re-measured.
+
+### Fixed
+
+- The two comparison bar charts drew per-fold standard deviation as
+  error-bar whiskers, which put a vertical line through the value label
+  above each bar. The charts now show the value alone; the spread moved
+  into the surrounding prose rather than being dropped.
+
 ## [0.13.0] — 2026-08-31
 
 ### Added
@@ -247,6 +286,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.14.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.14.0
 [0.13.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.13.0
 [0.12.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.12.0
 [0.11.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.11.0
