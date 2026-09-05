@@ -257,45 +257,20 @@ is the finding; picking the "winner" among them is picking noise.
     this works well in practice; for many unordered categories a
     discrete algorithm is the better tool.
 
-## Example: MLP architecture search
+## Example: MLP architecture search with Keras
 
 The same recipe extends to neural-network architecture: search the
-**number of hidden layers** and the **nodes per layer** of an
-`MLPClassifier`, with the **validation loss** as the fitness. Unlike the
-SVM examples, this fitness is *minimized*, so the task needs no
-`optimization_type` (minimization is the default):
+**number of hidden layers** and the **nodes per layer**, with the
+**validation loss** as the fitness. Unlike the SVM examples this fitness
+is *minimized*, so the task needs no `optimization_type` (minimization
+is the default).
+
+The data needs one more split first. The SVM examples cross-validated
+inside `X_search`; a network that is trained once per evaluation is
+better served by a single fixed validation set, carved out of
+`X_search` so the test set stays untouched:
 
 ```python
-from sklearn.metrics import log_loss
-from sklearn.neural_network import MLPClassifier
-
-
-class MLPTuning(Problem):
-    """Search: number of hidden layers (1-3), each with its own width (16-128)."""
-
-    MAX_LAYERS = 3
-    MIN_NODES, MAX_NODES = 16, 128
-
-    def __init__(self, X_train, y_train, X_val, y_val):
-        super().__init__(dimension=1 + self.MAX_LAYERS, lower=0.0, upper=1.0)
-        self.X_train, self.y_train = X_train, y_train
-        self.X_val, self.y_val = X_val, y_val
-
-    def decode(self, x):
-        n_layers = min(int(x[0] * self.MAX_LAYERS), self.MAX_LAYERS - 1) + 1
-        span = self.MAX_NODES - self.MIN_NODES
-        sizes = tuple(
-            self.MIN_NODES + min(int(x[i + 1] * (span + 1)), span)
-            for i in range(n_layers)
-        )
-        return {"hidden_layer_sizes": sizes}
-
-    def _evaluate(self, x):
-        model = MLPClassifier(**self.decode(x), max_iter=300, random_state=0)
-        model.fit(self.X_train, self.y_train)
-        return log_loss(self.y_val, model.predict_proba(self.X_val))
-
-
 # A held-out validation split, taken from the search data — the test set
 # carved out at the top of the page stays untouched
 X_train, X_val, y_train, y_val = train_test_split(
@@ -306,67 +281,27 @@ X_train, X_val, y_train, y_val = train_test_split(
 scaler = StandardScaler().fit(X_train)
 X_train, X_val, X_test = (scaler.transform(a) for a in (X_train, X_val, X_test))
 print("train:", X_train.shape, " val:", X_val.shape, " test:", X_test.shape)
-
-problem = MLPTuning(X_train, y_train, X_val, y_val)
-task = Task(problem=problem, max_evals=60)   # minimization by default
-algo = AntColonyOptimization(population_size=8, archive_size=12, seed=42)
-best_x, best_loss = algo.run(task)
-
-print("Best architecture   :", problem.decode(best_x))
-print(f"Validation log-loss : {best_loss:.4f}")
 ```
-
-Decoding details:
-
-- The search space has **4 dimensions**: `x[0]` chooses the number of
-  layers, and `x[1..3]` each control the width of one layer — so a
-  two-layer network can be wide-then-narrow, narrow-then-wide, or
-  anything in between.
-- **Number of layers** uses the categorical mapping from the previous
-  section: `min(int(x[0] * MAX_LAYERS), MAX_LAYERS - 1) + 1` gives 1,
-  2, or 3 layers with equal shares of the search space.
-- **Width of each layer** maps `x[i+1]` in `[0, 1]` onto the integer
-  range 16..128 with the same fair-partition-plus-edge-guard pattern:
-  `MIN_NODES + min(int(x * (span + 1)), span)`, where
-  `span = MAX_NODES - MIN_NODES`.
-- When `decode` selects fewer than `MAX_LAYERS` layers, the leftover
-  width dimensions are simply **ignored** — inactive dimensions are a
-  normal feature of variable-length architecture search and do no harm
-  beyond mildly enlarging the space.
-- Each fitness evaluation trains a full network, so the budget is small
-  (`max_evals=60`); a fixed `random_state` keeps the fitness
-  deterministic (see below).
 
 Output:
 
 ```text
 train: (341, 30)  val: (114, 30)  test: (114, 30)
-Best architecture   : {'hidden_layer_sizes': (93,)}
-Validation log-loss : 0.0528
 ```
 
-The default `MLPClassifier` architecture `(100,)` reaches 0.0549 on the
-same split, so 60 evaluations bought 0.0021 of log-loss — the search
-walked most of the way back to the default and confirmed it. That is a
-useful result to be able to state, and the same warning as in the SVM
-section applies to reading it as an improvement.
-
-### The same search with Keras / TensorFlow
-
-With Keras, the fitness comes straight from the training history:
-`fit` accepts `validation_data=` and returns a `History` whose
-`history["val_loss"][-1]` is the final validation loss. (This is a
-Keras idiom — scikit-learn's `fit` returns the estimator itself, so
-there the loss is computed explicitly with `log_loss`, as above.)
-The search space and `decode` are unchanged; only `_evaluate` differs:
+With Keras the fitness comes straight from the training history: `fit`
+accepts `validation_data=` and returns a `History` whose
+`history["val_loss"][-1]` is the final validation loss. (That is a Keras
+idiom — scikit-learn's `fit` returns the estimator itself, so with an
+`MLPClassifier` the loss would be computed explicitly with `log_loss`.)
 
 ```python
 from tensorflow import keras
 
 
 class KerasMLPTuning(Problem):
-    """Same search space as MLPTuning, with a Keras model and
-    history-based fitness."""
+    """Search: number of hidden layers (1-3), each with its own width
+    (16-128), scored by the Keras training history."""
 
     MAX_LAYERS = 3
     MIN_NODES, MAX_NODES = 16, 128
@@ -407,6 +342,27 @@ print("Best architecture:", problem.decode(best_x))
 print(f"Final val_loss   : {best_loss:.4f}")
 ```
 
+Decoding details:
+
+- The search space has **4 dimensions**: `x[0]` chooses the number of
+  layers, and `x[1..3]` each control the width of one layer — so a
+  two-layer network can be wide-then-narrow, narrow-then-wide, or
+  anything in between.
+- **Number of layers** uses the categorical mapping from the previous
+  section: `min(int(x[0] * MAX_LAYERS), MAX_LAYERS - 1) + 1` gives 1,
+  2, or 3 layers with equal shares of the search space.
+- **Width of each layer** maps `x[i+1]` in `[0, 1]` onto the integer
+  range 16..128 with the same fair-partition-plus-edge-guard pattern:
+  `MIN_NODES + min(int(x * (span + 1)), span)`, where
+  `span = MAX_NODES - MIN_NODES`.
+- When `decode` selects fewer than `MAX_LAYERS` layers, the leftover
+  width dimensions are simply **ignored** — inactive dimensions are a
+  normal feature of variable-length architecture search and do no harm
+  beyond mildly enlarging the space.
+- Each fitness evaluation trains a full network, so the budget is small
+  (`max_evals=30`); the fixed seed keeps the fitness deterministic
+  (see below).
+
 Output:
 
 ```text
@@ -418,10 +374,10 @@ Final val_loss   : 0.0462
     `ikn-library` does not require TensorFlow — the optimizer only ever
     sees a `Problem` with an `_evaluate` method, so any framework works
     inside it. Install TensorFlow yourself (`pip install tensorflow`)
-    to run this variant. Training here is slower per evaluation than
-    the scikit-learn version, hence the smaller budget. This `_evaluate`
-    still returns the *last* epoch's loss; the next section fixes that
-    along with everything else.
+    to run this variant. Each evaluation trains a network from scratch,
+    which is why the budget is 30 rather than the SVM examples' 150.
+    This `_evaluate` still returns the *last* epoch's loss; the next
+    section fixes that along with everything else.
 
 !!! warning "Is validation loss a valid fitness? Yes — with care"
     Using the validation loss as the fitness is standard practice, and
@@ -437,7 +393,7 @@ Final val_loss   : 0.0462
        is optimistically biased — exactly as the SVM example at the top
        of this page demonstrated, and the same three-split discipline
        as in [Ensemble Weights](ensemble.md#the-protocol-three-splits).
-    3. **Fix the training seed** (`random_state=0` above). Network
+    3. **Fix the training seed** (`set_random_seed(0)` above). Network
        training is stochastic; without a fixed seed the same
        architecture returns different losses and the optimizer partly
        chases noise. (The remaining caveat: results are then tied to
@@ -445,9 +401,9 @@ Final val_loss   : 0.0462
        proportionally more expensive.)
     4. **"Final" loss deserves early stopping.** The loss at the last
        epoch can be worse than the model's best point if the network
-       overfits late in training. Pass `early_stopping=True` to
-       `MLPClassifier`, or an `EarlyStopping` callback with
-       `restore_best_weights=True` in Keras, so the fitness reflects
+       overfits late in training. Pass an `EarlyStopping` callback with
+       `restore_best_weights=True` (or, with scikit-learn's
+       `MLPClassifier`, `early_stopping=True`) so the fitness reflects
        the best achievable model rather than an arbitrary stopping
        point.
 
