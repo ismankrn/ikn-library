@@ -65,6 +65,7 @@ nav:
   - Teaching Notes:
       - Hyperparameter Tuning: gridsearch-comparison.md
       - Plotting Convergence: convergence-plot.md
+      - Plotting Learning Curve: learning-curve.md
       - Ensemble Weights Concept: ensemble-concept.md
       - Microarray Data Concept: microarray-concept.md
       - Detail of Algorithm:
