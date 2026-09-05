@@ -30,7 +30,9 @@ class FeatureSelectionProblem(Problem):
         estimator: A scikit-learn estimator. Defaults to
             ``KNeighborsClassifier(n_neighbors=5)``, a common choice in
             wrapper feature-selection studies.
-        cv: Number of cross-validation folds.
+        cv: Number of cross-validation folds, or a splitter object such
+            as ``StratifiedKFold(5, shuffle=True, random_state=0)``. It is
+            passed straight to ``cross_val_score``.
         scoring: scikit-learn scoring name (e.g. ``"accuracy"``, ``"f1"``).
         alpha: Trade-off between score quality and subset size, in [0, 1].
             Values near 1 prioritize the model score.
