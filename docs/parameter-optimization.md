@@ -290,124 +290,11 @@ train: (341, 30)  val: (114, 30)  test: (114, 30)
 ```
 
 With Keras the fitness comes straight from the training history: `fit`
-accepts `validation_data=` and returns a `History` whose
-`history["val_loss"][-1]` is the final validation loss. (That is a Keras
-idiom — scikit-learn's `fit` returns the estimator itself, so with an
-`MLPClassifier` the loss would be computed explicitly with `log_loss`.)
-
-```python
-from tensorflow import keras
-
-
-class KerasMLPTuning(Problem):
-    """Search: number of hidden layers (1-3), each with its own width
-    (16-128), scored by the Keras training history."""
-
-    MAX_LAYERS = 3
-    MIN_NODES, MAX_NODES = 16, 128
-
-    def __init__(self, X_train, y_train, X_val, y_val):
-        super().__init__(dimension=1 + self.MAX_LAYERS, lower=0.0, upper=1.0)
-        self.X_train, self.y_train = X_train, y_train
-        self.X_val, self.y_val = X_val, y_val
-
-    def decode(self, x):
-        n_layers = min(int(x[0] * self.MAX_LAYERS), self.MAX_LAYERS - 1) + 1
-        span = self.MAX_NODES - self.MIN_NODES
-        return tuple(
-            self.MIN_NODES + min(int(x[i + 1] * (span + 1)), span)
-            for i in range(n_layers)
-        )
-
-    def _evaluate(self, x):
-        keras.utils.set_random_seed(0)   # deterministic fitness
-        model = keras.Sequential(
-            [keras.layers.Input(shape=(self.X_train.shape[1],))]
-            + [keras.layers.Dense(n, activation="relu") for n in self.decode(x)]
-            + [keras.layers.Dense(1, activation="sigmoid")]
-        )
-        model.compile(optimizer="adam", loss="binary_crossentropy")
-        history = model.fit(self.X_train, self.y_train,
-                            validation_data=(self.X_val, self.y_val),
-                            epochs=50, batch_size=32, verbose=0)
-        return history.history["val_loss"][-1]
-
-
-problem = KerasMLPTuning(X_train, y_train, X_val, y_val)
-task = Task(problem=problem, max_evals=30)
-algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
-best_x, best_loss = algo.run(task)
-
-print("Best architecture:", problem.decode(best_x))
-print(f"Final val_loss   : {best_loss:.4f}")
-```
-
-Decoding details:
-
-- The search space has **4 dimensions**: `x[0]` chooses the number of
-  layers, and `x[1..3]` each control the width of one layer — so a
-  two-layer network can be wide-then-narrow, narrow-then-wide, or
-  anything in between.
-- **Number of layers** uses the categorical mapping from the previous
-  section: `min(int(x[0] * MAX_LAYERS), MAX_LAYERS - 1) + 1` gives 1,
-  2, or 3 layers with equal shares of the search space.
-- **Width of each layer** maps `x[i+1]` in `[0, 1]` onto the integer
-  range 16..128 with the same fair-partition-plus-edge-guard pattern:
-  `MIN_NODES + min(int(x * (span + 1)), span)`, where
-  `span = MAX_NODES - MIN_NODES`.
-- When `decode` selects fewer than `MAX_LAYERS` layers, the leftover
-  width dimensions are simply **ignored** — inactive dimensions are a
-  normal feature of variable-length architecture search and do no harm
-  beyond mildly enlarging the space.
-- Each fitness evaluation trains a full network, so the budget is small
-  (`max_evals=30`); the fixed seed keeps the fitness deterministic
-  (see below).
-
-Output:
-
-```text
-Best architecture: (24, 61)
-Final val_loss   : 0.0462
-```
-
-!!! note "TensorFlow is not a dependency"
-    `ikn-library` does not require TensorFlow — the optimizer only ever
-    sees a `Problem` with an `_evaluate` method, so any framework works
-    inside it. Install TensorFlow yourself (`pip install tensorflow`)
-    to run this variant. Each evaluation trains a network from scratch,
-    which is why the budget is 30 rather than the SVM examples' 150.
-    This `_evaluate` still returns the *last* epoch's loss; the next
-    section fixes that along with everything else.
-
-!!! warning "Is validation loss a valid fitness? Yes — with care"
-    Using the validation loss as the fitness is standard practice, and
-    the *loss* is actually a better search signal than accuracy (it is
-    smooth: it distinguishes a confident correct prediction from a
-    barely-correct one). But four caveats keep it honest:
-
-    1. **The validation set must be disjoint from the training set** —
-       here the split does that; the loss on training data would just
-       reward memorization.
-    2. **Report final results on a third, untouched test set.** The
-       search consumed the validation set, so the best validation loss
-       is optimistically biased — exactly as the SVM example at the top
-       of this page demonstrated, and the same three-split discipline
-       as in [Ensemble Weights](ensemble.md#the-protocol-three-splits).
-    3. **Fix the training seed** (`set_random_seed(0)` above). Network
-       training is stochastic; without a fixed seed the same
-       architecture returns different losses and the optimizer partly
-       chases noise. (The remaining caveat: results are then tied to
-       one initialization — averaging a few seeds is more robust but
-       proportionally more expensive.)
-    4. **"Final" loss deserves early stopping.** The loss at the last
-       epoch can be worse than the model's best point if the network
-       overfits late in training. Pass an `EarlyStopping` callback with
-       `restore_best_weights=True` (or, with scikit-learn's
-       `MLPClassifier`, `early_stopping=True`) so the fitness reflects
-       the best achievable model rather than an arbitrary stopping
-       point.
-
-### Keeping the recipe, not the model
+accepts `validation_data=` and returns a `History`, so
+`min(history.history["val_loss"])` is the loss at the network's best
+epoch. (That is a Keras idiom — scikit-learn's `fit` returns the
+estimator itself, so with an `MLPClassifier` the loss would be computed
+explicitly with `log_loss`.)
 
 A search trains hundreds of networks and keeps the one that scored best
 on the validation set. It is tempting to save that network to disk — it
@@ -417,10 +304,14 @@ Saving them ships the lottery ticket.
 
 So the fitness records the **recipe** instead: the architecture, and the
 epoch at which it peaked. The weights are allowed to die with the
-function scope.
+function scope. `decode` maps the four search dimensions onto a layer
+count and three widths with the fair-partition pattern from the
+[previous section](#integer-and-categorical-hyperparameters); widths
+beyond the chosen layer count are simply ignored.
 
 ```python
 import numpy as np
+from tensorflow import keras
 
 
 def build(architecture, n_features):
@@ -436,7 +327,8 @@ def build(architecture, n_features):
 
 
 class KerasMLPTuningRecipe(Problem):
-    """Same search as KerasMLPTuning; it records the winning recipe."""
+    """Search: 1-3 hidden layers, each 16-128 units wide. What the search
+    keeps is the winning recipe, not the winning weights."""
 
     MAX_LAYERS = 3
     MIN_NODES, MAX_NODES = 16, 128
@@ -518,6 +410,41 @@ architecture and an epoch count.
     failure mode entirely; the callback stays because it costs nothing
     and keeps the in-memory model consistent with the number reported.
 
+!!! note "TensorFlow is not a dependency"
+    `ikn-library` does not require TensorFlow — the optimizer only ever
+    sees a `Problem` with an `_evaluate` method, so any framework works
+    inside it. Install TensorFlow yourself (`pip install tensorflow`)
+    to run this variant. Each evaluation trains a network from scratch,
+    which is why the budget is 30 rather than the SVM examples' 150.
+
+!!! warning "Is validation loss a valid fitness? Yes — with care"
+    Using the validation loss as the fitness is standard practice, and
+    the *loss* is actually a better search signal than accuracy (it is
+    smooth: it distinguishes a confident correct prediction from a
+    barely-correct one). But four caveats keep it honest:
+
+    1. **The validation set must be disjoint from the training set** —
+       here the split does that; the loss on training data would just
+       reward memorization.
+    2. **Report final results on a third, untouched test set.** The
+       search consumed the validation set, so the best validation loss
+       is optimistically biased — exactly as the SVM example at the top
+       of this page demonstrated, and the same three-split discipline
+       as in [Ensemble Weights](ensemble.md#the-protocol-three-splits).
+    3. **Fix the training seed** (`set_random_seed(0)` above). Network
+       training is stochastic; without a fixed seed the same
+       architecture returns different losses and the optimizer partly
+       chases noise. (The remaining caveat: results are then tied to
+       one initialization — averaging a few seeds is more robust but
+       proportionally more expensive.)
+    4. **Never score the last epoch.** The loss at the last epoch can be
+       worse than the model's best point if the network overfits late in
+       training, which would make the fitness an arbitrary stopping
+       point rather than what the architecture can do. The code above
+       does this correctly — `EarlyStopping` plus `min(...)` over the
+       history; with scikit-learn's `MLPClassifier`, pass
+       `early_stopping=True`.
+
 ### Refitting on train + validation
 
 Every decision is frozen at this point: the architecture and the epoch
@@ -556,6 +483,9 @@ saved             : ['final_mlp_seed42.keras', 'final_mlp_seed142.keras', 'final
 
 Saving is legitimate *here*: no selection of any kind touched these
 weights. They are the product of a frozen recipe applied to fixed data.
+`model.save("name.keras")` writes Keras 3's native format; `.h5` still
+works and is what older tooling expects, but it prints a legacy warning.
+These results were produced with **Keras 3.15** on **TensorFlow 2.21**.
 
 !!! question "Why a fixed epoch count, with no early stopping?"
     Because there is no honest data left to monitor — the validation set
@@ -620,6 +550,14 @@ of its own members. Averaging seeds usually helps a little and is worth
 trying, but on 114 test rows these differences are one or two
 predictions; do not read a winner into them.
 
+!!! note "The test number is lower than the validation loss suggests"
+    A validation loss of 0.0484 looks excellent, but the refit models
+    average 0.9620 accuracy on the test set. That is caveat 2 in action:
+    the search consumed the validation set, so its score is
+    optimistically biased. The test number is the honest one — and it is
+    honest precisely because these weights were never selected on
+    anything.
+
 !!! warning "Baselines must be refit the same way"
     If the point of the exercise is "the search found something better
     than a sensible default", the default has to go through the same
@@ -634,53 +572,6 @@ predictions; do not read a winner into them.
     configuration's folds, and `X_full` becomes the whole development
     set. The refit, the seeds and the single look at the test set are
     identical.
-
-### Loading a saved model and predicting
-
-The saved files are ordinary Keras models. Nothing is retrained:
-
-```python
-loaded = keras.models.load_model("final_mlp_seed42.keras")
-print("hidden units:", [layer.units for layer in loaded.layers[:-1]])
-
-proba = loaded.predict(X_test, verbose=0).ravel()
-y_pred = (proba >= 0.5).astype(int)
-print("first 5 probabilities:", np.round(proba[:5], 4))
-print("predicted            :", y_pred[:5])
-print("actual               :", y_test[:5])
-```
-
-Output:
-
-```text
-hidden units: [23, 67, 16]
-first 5 probabilities: [0.00e+00 1.00e+00 3.00e-04 1.21e-02 0.00e+00]
-predicted            : [0 1 0 0 0]
-actual               : [0 1 0 1 0]
-```
-
-The architecture came back intact — 23, 67 and 16 hidden units, matching
-the recipe. Because the output layer is a sigmoid, `predict` returns
-probabilities and the threshold is yours to choose. The fourth sample
-is the one to look at: at 0.0121 the model is *confidently* wrong about
-it — no threshold in a sensible range would rescue that row, and a
-label-only report would never have shown it. Read probabilities rather
-than labels, and pick the threshold that suits the cost of each kind of
-error.
-
-!!! note "`.keras`, not `.h5`"
-    `model.save("name.keras")` writes Keras 3's native format. `.h5`
-    still works and is what older tooling and non-Keras readers expect,
-    but it prints a legacy warning. These results were produced with
-    **Keras 3.15** on **TensorFlow 2.21**.
-
-!!! note "The test number is lower than the validation loss suggests"
-    A validation loss of 0.0484 looks excellent, but the refit models
-    average 0.9620 accuracy on the test set. That is caveat 2 in action:
-    the search consumed the validation set, so its score is
-    optimistically biased. The test number is the honest one — and it is
-    honest precisely because these weights were never selected on
-    anything.
 
 To visualize how the best score improves over the iterations, see the
 teaching note [Plotting Convergence](convergence-plot.md).
