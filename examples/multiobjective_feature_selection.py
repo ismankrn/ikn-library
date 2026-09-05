@@ -10,8 +10,10 @@ Requires scikit-learn: pip install ikn-library[ml]
 import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import StratifiedKFold, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from ikn_library.algorithms import NSGA2
 from ikn_library.multiobjective import (
@@ -19,13 +21,21 @@ from ikn_library.multiobjective import (
     MultiObjectiveTask,
 )
 
+
+def knn():
+    """A fresh scaler + KNN pipeline: the scaler is refitted per fold."""
+    return make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+
+
+CV = StratifiedKFold(5, shuffle=True, random_state=42)
+
 X, y = make_classification(n_samples=400, n_features=30, n_informative=12,
                            n_redundant=5, flip_y=0.03, random_state=0)
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size=0.3, stratify=y, random_state=42)
 
 # 1. Build the Pareto front from the TRAINING data only.
-problem = MultiObjectiveFeatureSelection(X_train, y_train, cv=5)
+problem = MultiObjectiveFeatureSelection(X_train, y_train, estimator=knn(), cv=CV)
 solutions, objectives = NSGA2(population_size=40, seed=42).run(
     MultiObjectiveTask(problem=problem, max_evals=3000))
 
@@ -59,14 +69,13 @@ candidates = {
 }
 
 # 3. Train the final model on each candidate and score it on the test set.
-model = KNeighborsClassifier(n_neighbors=5)
 baseline = accuracy_score(
-    y_test, model.fit(X_train, y_train).predict(X_test))
+    y_test, knn().fit(X_train, y_train).predict(X_test))
 print(f"all {X.shape[1]} features            : test accuracy = {baseline:.4f}")
 
 for label, index in candidates.items():
     features = problem.selected_features(solutions[index])
-    model.fit(X_train[:, features], y_train)
+    model = knn().fit(X_train[:, features], y_train)
     accuracy = accuracy_score(y_test, model.predict(X_test[:, features]))
     print(f"{label:<14} ({len(features):>2} features): "
           f"test accuracy = {accuracy:.4f}")

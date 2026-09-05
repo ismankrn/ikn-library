@@ -19,8 +19,9 @@ alpha * (1 - accuracy) + (1 - alpha) * n_selected / n_features
 That forces you to pick `alpha` *before* the search, even though no
 principled value exists — and each choice yields a different answer, so
 you end up re-running the whole optimization to explore the trade-off.
-On the breast-cancer dataset, four values of `alpha` gave four
-different subsets (5, 3, 4, and 2 features) at four separate runs.
+On the breast-cancer training split, `alpha` = 0.99, 0.95, 0.90 and
+0.80 returned subsets of 13, 9, 4 and 4 features in four separate runs —
+and the two four-feature answers do not even agree on which four.
 
 ## Pareto dominance
 
@@ -54,12 +55,21 @@ single-objective ranking:
 ## Usage
 
 ```python
+from sklearn.model_selection import StratifiedKFold
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
 from ikn_library.multiobjective import (
     MultiObjectiveFeatureSelection, MultiObjectiveTask,
 )
 from ikn_library.algorithms import NSGA2
 
-problem = MultiObjectiveFeatureSelection(X, y, cv=5)
+# The scaler goes inside the estimator so it is refitted per fold, and the
+# folds are shuffled with a fixed seed rather than following row order
+estimator = make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+problem = MultiObjectiveFeatureSelection(
+    X, y, estimator=estimator, cv=StratifiedKFold(5, shuffle=True, random_state=42))
 task = MultiObjectiveTask(problem=problem, max_evals=4000)
 solutions, objectives = NSGA2(population_size=40, seed=42).run(task)
 
@@ -74,70 +84,115 @@ the first objective.
 
 ## Example: the whole trade-off curve at once
 
-On a synthetic dataset (400 samples, 30 features, 12 informative), one
-NSGA-II run produces:
-
-![Pareto front: accuracy versus number of features](img/pareto_front.png)
-
-```text
-n_features | CV accuracy
------------|------------
-     2     |   0.5850
-     3     |   0.7000
-     4     |   0.7575
-     5     |   0.8000
-     6     |   0.8300
-     7     |   0.8525
-     8     |   0.8675
-     9     |   0.8825
-    12     |   0.8850
-```
-
-The curve makes the decision obvious in a way no single `alpha` could:
-accuracy climbs steeply up to about 9 features, then flattens — the
-last three features buy 0.25 percentage points. A clinician paying per
-assay would stop at 8 or 9.
-
-!!! tip "A smaller subset can be just as good"
-    On the breast-cancer data, NSGA-II found a **2-feature** subset with
-    95.08% accuracy — matching the *5-feature* subset that the
-    weighted-sum version returned with `alpha=0.99`. Optimizing the
-    objectives separately exposed a solution the scalarized version
-    never surfaced.
-
-## Using the selected features to train a model
-
-A Pareto front is a menu, not an answer. Three steps turn it into a
-working model.
+One NSGA-II run on a synthetic dataset (400 samples, 30 features, 12 of
+them informative) maps the whole curve:
 
 !!! warning "Run the selection on training data only"
     Feature selection is part of model building, so it must not see the
     test set. Split first, optimize on the training split, and keep the
     test split untouched for the final number — otherwise the reported
-    accuracy is optimistic.
-
-```python
-from sklearn.model_selection import train_test_split
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size=0.3, stratify=y, random_state=42)
-
-# 1. Build the front from the TRAINING data
-problem = MultiObjectiveFeatureSelection(X_train, y_train, cv=5)
-solutions, objectives = NSGA2(population_size=40, seed=42).run(
-    MultiObjectiveTask(problem=problem, max_evals=3000))
-```
-
-**Step 2 — pick a point on the front.** Common criteria:
+    accuracy is optimistic. Everything below is built on `X_train`.
 
 ```python
 import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from ikn_library.algorithms import NSGA2
+from ikn_library.multiobjective import (
+    MultiObjectiveFeatureSelection, MultiObjectiveTask,
+)
+
+
+def knn():
+    """A fresh scaler + KNN pipeline: the scaler is refitted per fold."""
+    return make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+
+
+CV = StratifiedKFold(5, shuffle=True, random_state=42)
+
+X, y = make_classification(n_samples=400, n_features=30, n_informative=12,
+                           n_redundant=5, flip_y=0.03, random_state=0)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.3, stratify=y, random_state=42)
+
+problem = MultiObjectiveFeatureSelection(X_train, y_train, estimator=knn(), cv=CV)
+solutions, objectives = NSGA2(population_size=40, seed=42).run(
+    MultiObjectiveTask(problem=problem, max_evals=3000))
 
 n_features = np.array([len(problem.selected_features(s)) for s in solutions])
-cv_accuracy = 1 - objectives[:, 0]
+cv_accuracy = 1.0 - objectives[:, 0]
+order = np.argsort(n_features)
+solutions, n_features, cv_accuracy = (solutions[order], n_features[order],
+                                      cv_accuracy[order])
 
+print("n_features | CV accuracy")
+print("-----------|------------")
+for k, accuracy in zip(n_features, cv_accuracy):
+    print(f"{k:>7}    |   {accuracy:.4f}")
+```
+
+Output:
+
+```text
+n_features | CV accuracy
+-----------|------------
+      3    |   0.6536
+      4    |   0.7321
+      5    |   0.7643
+      6    |   0.8250
+      7    |   0.8393
+      8    |   0.8607
+      9    |   0.8786
+     10    |   0.8821
+```
+
+As a picture:
+
+```python
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(7, 4.3))
+ax.plot(n_features, cv_accuracy, "o-", color="#2a9d8f",
+        label="Pareto front (one NSGA-II run)")
+for k, accuracy in zip(n_features, cv_accuracy):
+    ax.annotate(f"{accuracy:.3f}", (k, accuracy), textcoords="offset points",
+                xytext=(0, 8), ha="center", fontsize=8)
+ax.set_xlabel("Number of features selected")
+ax.set_ylabel("Cross-validated accuracy")
+ax.set_title("Accuracy vs subset size: the whole trade-off curve")
+ax.grid(alpha=0.25)
+ax.legend(loc="lower right")
+fig.tight_layout()
+plt.show()
+```
+
+![Pareto front: accuracy versus number of features](img/pareto_front.png)
+
+The curve makes the decision obvious in a way no single `alpha` could:
+accuracy climbs steeply to about 6 features, then bends — the four
+features after that buy 5.7 points together, and the last one buys 0.35.
+A clinician paying per assay can see exactly where to stop.
+
+!!! tip "A smaller subset can be just as good"
+    On the breast-cancer training split, NSGA-II returned a **6-feature**
+    subset scoring 0.9780 and a 12-feature subset scoring 0.9802. The
+    weighted-sum version needed **13** features to reach that same
+    0.9802 at `alpha=0.99` — so the front contains an answer that is
+    half the size for 0.2 points, and the scalarized run never surfaced
+    it.
+
+## Using the selected features to train a model
+
+A Pareto front is a menu, not an answer. Two steps turn the front built
+in the previous section into a working model.
+
+**Step 1 — pick a point on the front.** Common criteria:
+
+```python
 most_accurate = int(np.argmax(cv_accuracy))     # best score, size ignored
 smallest = int(np.argmin(n_features))           # fewest features
 # or: the smallest subset meeting a required accuracy
@@ -162,14 +217,15 @@ def knee_index(sizes, scores):
 
 (Read the caveat below before trusting it.)
 
-**Step 3 — extract the features and fit the final model.** The solution
+**Step 2 — extract the features and fit the final model.** The solution
 vector is a mask, so `selected_features` gives the column indices:
 
 ```python
+from sklearn.metrics import accuracy_score
+
 features = problem.selected_features(solutions[most_accurate])
 
-model = KNeighborsClassifier(n_neighbors=5)
-model.fit(X_train[:, features], y_train)
+model = knn().fit(X_train[:, features], y_train)
 accuracy = accuracy_score(y_test, model.predict(X_test[:, features]))
 ```
 
@@ -182,19 +238,18 @@ Comparing the three candidates against using every feature — the front
 is sorted by subset size, so `smallest` is simply index 0:
 
 ```python
-model = KNeighborsClassifier(n_neighbors=5)
 candidates = {
     "most accurate": int(np.argmax(cv_accuracy)),
     "knee point": knee_index(n_features, cv_accuracy),
     "smallest": 0,
 }
 
-baseline = accuracy_score(y_test, model.fit(X_train, y_train).predict(X_test))
+baseline = accuracy_score(y_test, knn().fit(X_train, y_train).predict(X_test))
 print(f"all {X.shape[1]} features            : test accuracy = {baseline:.4f}")
 
 for label, index in candidates.items():
     features = problem.selected_features(solutions[index])
-    model.fit(X_train[:, features], y_train)
+    model = knn().fit(X_train[:, features], y_train)
     accuracy = accuracy_score(y_test, model.predict(X_test[:, features]))
     print(f"{label:<14} ({len(features):>2} features): "
           f"test accuracy = {accuracy:.4f}")
@@ -203,23 +258,24 @@ for label, index in candidates.items():
 Output:
 
 ```text
-all 30 features            : test accuracy = 0.8333
-most accurate  (11 features): test accuracy = 0.8583
-knee point     ( 5 features): test accuracy = 0.6667
-smallest       ( 2 features): test accuracy = 0.6333
+all 30 features            : test accuracy = 0.7583
+most accurate  (10 features): test accuracy = 0.8083
+knee point     ( 6 features): test accuracy = 0.7500
+smallest       ( 3 features): test accuracy = 0.6917
 ```
 
 The complete runnable script is
 [`examples/multiobjective_feature_selection.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/multiobjective_feature_selection.py).
 
-The 11-feature subset **beats using all 30** — higher accuracy from a
-third of the inputs, which is the payoff feature selection promises.
+The 10-feature subset **beats using all 30** — five points of test
+accuracy from a third of the inputs, which is the payoff feature
+selection promises when most of the columns are noise.
 
 !!! warning "The knee point is a heuristic, not a rule"
     A popular shortcut is to take the *knee* — the point of maximum
-    curvature, where accuracy stops climbing steeply. Here that picked
-    5 features and scored **0.6667 on the test set**, far below both the
-    11-feature subset and using everything.
+    curvature, where accuracy stops climbing steeply. Here it picked
+    6 features and scored **0.7500 on the test set**: below the
+    10-feature subset, and below using all 30.
 
     The knee is a property of the *shape* of the training-CV curve, and
     that shape does not have to reflect generalization. Treat the front

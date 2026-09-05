@@ -88,14 +88,28 @@ deviation from textbook ACO, made explicit here because it changes the
 reachable search space slightly.
 
 ```python
+from sklearn.model_selection import StratifiedKFold
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
 from ikn_library import Task
 from ikn_library.problems import FeatureSelectionProblem
 from ikn_library.algorithms import BinaryAntColonyOptimization
 
-task = Task(problem=FeatureSelectionProblem(X, y, cv=5), max_evals=1000)
+problem = FeatureSelectionProblem(
+    X_train, y_train,
+    estimator=make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5)),
+    cv=StratifiedKFold(5, shuffle=True, random_state=42),
+)
+task = Task(problem=problem, max_evals=1000)
 algo = BinaryAntColonyOptimization(population_size=20, evaporation=0.1, seed=42)
 best_x, best_fitness = algo.run(task)
 ```
+
+The split, the pipeline and the shuffled folds are explained on the
+[Feature Selection](../feature-selection.md) page; they are repeated here
+so this snippet is not the one that gets copied.
 
 ## References
 
