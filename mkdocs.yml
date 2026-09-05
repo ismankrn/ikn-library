@@ -51,7 +51,6 @@ nav:
   - Getting Started: getting-started.md
   - Algorithms: algorithms.md
   - Feature Selection: feature-selection.md
-  - Multi-Objective Optimization: multiobjective.md
   - Hyperparameter Optimization: parameter-optimization.md
   - Microarray Data: microarray.md
   - Ensemble Weights: ensemble.md
