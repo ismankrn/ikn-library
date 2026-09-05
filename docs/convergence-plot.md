@@ -41,12 +41,16 @@ Running the SVM tuning task (`max_evals=150`, ACO-R with
 - **Steps, not slopes.** Improvements arrive as jumps whenever some ant
   finds a better solution; flat stretches mean iterations passed
   without a new best.
-- **The plateau is the signal.** In the example, most of the gain
-  (0.9772 -> 0.9807) arrives in the first few iterations and the curve
-  flattens well before the budget runs out. A long final plateau
-  suggests the budget could be reduced — or, if you expected a better
-  score, that the algorithm needs more exploration (e.g. a larger
-  population or archive) rather than more iterations.
+- **Read the plateaus, and be careful what you conclude.** The example
+  gains 0.9736 -> 0.9780 in two steps, at iterations 4 and 12 of 15.
+  The seven flat iterations in between look like a finished search, but
+  they are not: the last improvement arrives in the final fifth of the
+  budget, so cutting the budget on the strength of that plateau would
+  have cost the best solution. A plateau is only evidence of
+  convergence when it runs to the end of a budget that was generous to
+  begin with — and if the score is still disappointing, the fix is
+  usually more exploration (a larger population or archive), not more
+  iterations.
 - **Compare runs fairly.** When comparing algorithms or settings, plot
   their curves against *evaluations* used, not wall-clock time, and use
   the same seed policy — otherwise the comparison mixes convergence

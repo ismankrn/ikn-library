@@ -106,26 +106,37 @@ one hyperparameter, and `_evaluate` returns the cross-validated score
 (searched in log scale where appropriate):
 
 ```python
-import numpy as np
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from ikn_library import OptimizationType, Task
 from ikn_library.problems import Problem
 from ikn_library.algorithms import AntColonyOptimization
 
+# Hold out the test set first: the search consumes whatever it can score against
+X_search, X_test, y_search, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42)
+CV = StratifiedKFold(5, shuffle=True, random_state=42)
+
 class SVMTuning(Problem):
-    def __init__(self, X, y):
+    def __init__(self, X, y, cv):
         super().__init__(dimension=2, lower=[-2.0, -4.0], upper=[3.0, 1.0])
-        self.X, self.y = X, y
+        self.X, self.y, self.cv = X, y, cv
 
     def _evaluate(self, x):
-        model = SVC(kernel="rbf", C=10.0 ** x[0], gamma=10.0 ** x[1])
-        return cross_val_score(model, self.X, self.y, cv=5).mean()
+        # Scaler inside the pipeline: refitted per fold, no leakage
+        model = make_pipeline(StandardScaler(),
+                              SVC(kernel="rbf", C=10.0 ** x[0], gamma=10.0 ** x[1]))
+        return cross_val_score(model, self.X, self.y, cv=self.cv).mean()
 
-task = Task(problem=SVMTuning(X, y), max_evals=150,
+task = Task(problem=SVMTuning(X_search, y_search, CV), max_evals=150,
             optimization_type=OptimizationType.MAXIMIZATION)
 best_x, best_score = AntColonyOptimization(population_size=10, seed=42).run(task)
+
+# best_score is the maximum of 150 CV evaluations and is optimistically
+# biased — refit on X_search and report the score on X_test instead.
 ```
 
 See the full tutorial:

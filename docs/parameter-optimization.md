@@ -7,19 +7,58 @@ continuous ACO-R algorithm.
 
 The recipe:
 
-1. Subclass `Problem`; each dimension of the search space is one
+1. **Carve out a test set before anything else.** The search will
+   consume whatever data it is allowed to score against.
+2. Subclass `Problem`; each dimension of the search space is one
    hyperparameter.
-2. In `_evaluate`, decode the solution vector into hyperparameter values
+3. In `_evaluate`, decode the solution vector into hyperparameter values
    and return the cross-validated score.
-3. Wrap it in a `Task` with `OptimizationType.MAXIMIZATION` (higher
+4. Wrap it in a `Task` with `OptimizationType.MAXIMIZATION` (higher
    score is better) and run a continuous algorithm such as
    `AntColonyOptimization`.
+5. Report the **test** score, not the best score the search found.
 
 Requires scikit-learn:
 
 ```bash
 pip install "ikn-library[ml]"
 ```
+
+## Splitting the data before the search
+
+Two decisions here shape every number on this page, so they come first:
+
+```python
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import StratifiedKFold, cross_val_score, train_test_split
+
+X, y = load_breast_cancer(return_X_y=True)
+
+# The test set is carved out BEFORE the search starts — the search never sees it
+X_search, X_test, y_search, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42)
+
+# One fold object, shuffled with a fixed seed: independent of row order,
+# and identical for every candidate the search evaluates
+CV = StratifiedKFold(5, shuffle=True, random_state=42)
+
+print("search:", X_search.shape, " test:", X_test.shape)
+```
+
+Output:
+
+```text
+search: (455, 30)  test: (114, 30)
+```
+
+Use an explicit fold object with `shuffle=True` and a fixed
+`random_state` rather than a bare `cv=5`, which builds folds in file
+order — on a dataset sorted by class that alone can wreck the scores.
+And understand what the fold reuse costs: the CV score the search
+maximizes gets **consumed** exactly the way a validation split does.
+Hundreds of evaluations against the same five folds mean the best of
+them is optimistically biased, which is why the number reported at the
+end always comes from the test set.
 
 ## Defining the problem
 
@@ -28,8 +67,8 @@ Both are scale parameters, so we search their **base-10 logarithms** —
 `10^x` maps a uniform search dimension onto several orders of magnitude:
 
 ```python
-import numpy as np
-from sklearn.model_selection import cross_val_score
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 from ikn_library.problems import Problem
@@ -38,7 +77,7 @@ from ikn_library.problems import Problem
 class SVMTuning(Problem):
     """Search log10(C) in [-2, 3] and log10(gamma) in [-4, 1]."""
 
-    def __init__(self, X, y, cv=5):
+    def __init__(self, X, y, cv):
         super().__init__(dimension=2, lower=[-2.0, -4.0], upper=[3.0, 1.0])
         self.X, self.y, self.cv = X, y, cv
 
@@ -46,28 +85,29 @@ class SVMTuning(Problem):
         return {"C": 10.0 ** x[0], "gamma": 10.0 ** x[1]}
 
     def _evaluate(self, x):
-        params = self.decode(x)
-        model = SVC(kernel="rbf", **params)
+        # Scaler INSIDE the pipeline: refitted per fold, never sees the fold
+        # it is validated on
+        model = make_pipeline(StandardScaler(), SVC(kernel="rbf", **self.decode(x)))
         return cross_val_score(model, self.X, self.y, cv=self.cv).mean()
 ```
 
-The `decode` helper keeps the mapping between the search vector and the
-actual hyperparameters in one place, so you can reuse it on the final
-result.
+Two things are doing quiet work here:
+
+- The `decode` helper keeps the mapping between the search vector and
+  the actual hyperparameters in one place, so you can reuse it on the
+  final result.
+- `make_pipeline(StandardScaler(), ...)` puts the scaler *inside* the
+  cross-validated estimator. Scaling the whole array once, before the
+  split, would let every fold's mean and variance leak into the fold
+  used to score it — and would leak the test set into all of them.
 
 ## Running the optimization
 
 ```python
-from sklearn.datasets import load_breast_cancer
-from sklearn.preprocessing import StandardScaler
-
 from ikn_library import OptimizationType, Task
 from ikn_library.algorithms import AntColonyOptimization
 
-X, y = load_breast_cancer(return_X_y=True)
-X = StandardScaler().fit_transform(X)
-
-problem = SVMTuning(X, y, cv=5)
+problem = SVMTuning(X_search, y_search, cv=CV)
 task = Task(
     problem=problem,
     max_evals=150,
@@ -76,14 +116,67 @@ task = Task(
 algo = AntColonyOptimization(population_size=10, archive_size=15, seed=42)
 best_x, best_score = algo.run(task)
 
-print("Best parameters:", problem.decode(best_x))
-print("Cross-validated accuracy:", best_score)
+params = problem.decode(best_x)
+final = make_pipeline(StandardScaler(),
+                      SVC(kernel="rbf", **params)).fit(X_search, y_search)
+
+print(f"Best parameters : C={params['C']:.4f}, gamma={params['gamma']:.4f}")
+print(f"Best CV score   : {best_score:.4f}  (search maximum, optimistically biased)")
+print(f"Test accuracy   : {final.score(X_test, y_test):.4f}  (the number to report)")
 ```
 
-Each fitness evaluation runs a full cross-validation, so choose
-`max_evals` according to your time budget. With `max_evals=150` this
-typically beats the default `SVC()` accuracy on the breast-cancer
-dataset.
+Output:
+
+```text
+Best parameters : C=6.7972, gamma=0.0031
+Best CV score   : 0.9780  (search maximum, optimistically biased)
+Test accuracy   : 0.9825  (the number to report)
+```
+
+The best CV score is the maximum of 150 evaluations against one fixed
+set of folds, so it is optimistically biased — the number to report is
+the test accuracy. Each fitness evaluation runs a full
+cross-validation, so choose `max_evals` according to your time budget.
+
+## Did the tuning actually help?
+
+Comparing the search's best CV score against the default model's CV
+score is not a symmetric comparison: the first is the maximum of 150
+candidates, the second is a single unselected number. The fair
+comparison refits both on the same data and scores both on the test set:
+
+```python
+default = make_pipeline(StandardScaler(), SVC())
+default_cv = cross_val_score(default, X_search, y_search, cv=CV).mean()
+default.fit(X_search, y_search)
+
+print(f"CV   — default {default_cv:.4f}   tuned {best_score:.4f}")
+print(f"Test — default {default.score(X_test, y_test):.4f}   tuned "
+      f"{final.score(X_test, y_test):.4f}")
+print("Test predictions that agree:",
+      f"{(default.predict(X_test) == final.predict(X_test)).sum()}/{len(y_test)}")
+```
+
+Output:
+
+```text
+CV   — default 0.9692   tuned 0.9780
+Test — default 0.9825   tuned 0.9825
+Test predictions that agree: 114/114
+```
+
+This is the **winner's curse**, and it is worth sitting with. On the
+folds, tuning bought 0.9 accuracy points. On the test set it bought
+nothing at all: the two models make the *same prediction on all 114
+rows*. Searching hard for the maximum of a noisy score finds
+configurations whose noise happens to point up, and that part of the
+advantage does not survive contact with new data. `SVC()`'s defaults
+(`C=1`, `gamma="scale"`) were already in a good region for this dataset.
+
+Tuning is not therefore useless — it is how you *find out* that the
+default was fine, and on a dataset where the default is badly placed the
+gain is real. But the claim has to be made on the test set, and a gain
+of a fold-noise's width is not a gain.
 
 ## Integer and categorical hyperparameters
 
@@ -96,7 +189,7 @@ becomes a third, categorical search dimension:
 class SVMTuningWithKernel(Problem):
     KERNELS = ("rbf", "poly", "sigmoid")
 
-    def __init__(self, X, y, cv=5):
+    def __init__(self, X, y, cv):
         super().__init__(dimension=3, lower=[-2.0, -4.0, 0.0], upper=[3.0, 1.0, 1.0])
         self.X, self.y, self.cv = X, y, cv
 
@@ -109,7 +202,7 @@ class SVMTuningWithKernel(Problem):
         }
 
     def _evaluate(self, x):
-        model = SVC(**self.decode(x))
+        model = make_pipeline(StandardScaler(), SVC(**self.decode(x)))
         return cross_val_score(model, self.X, self.y, cv=self.cv).mean()
 ```
 
@@ -125,15 +218,37 @@ How the categorical mapping works:
 - For **integer** parameters, map and round instead, e.g.
   `n_neighbors = int(round(1 + x[0] * 29))` for a range of 1–30.
 
-Running it with the same task setup as above yields:
+Running it with the same task setup as above:
 
-```text
-Best parameters: {'C': 7.5849, 'gamma': 0.0185, 'kernel': 'rbf'}
-Cross-validated accuracy: 0.9825
+```python
+problem_k = SVMTuningWithKernel(X_search, y_search, cv=CV)
+task_k = Task(problem=problem_k, max_evals=150,
+              optimization_type=OptimizationType.MAXIMIZATION)
+best_xk, best_scorek = AntColonyOptimization(
+    population_size=10, archive_size=15, seed=42).run(task_k)
+
+params_k = problem_k.decode(best_xk)
+final_k = make_pipeline(StandardScaler(), SVC(**params_k)).fit(X_search, y_search)
+
+print(f"Best parameters : C={params_k['C']:.4f}, gamma={params_k['gamma']:.4f}, "
+      f"kernel={params_k['kernel']}")
+print(f"Best CV score   : {best_scorek:.4f}")
+print(f"Test accuracy   : {final_k.score(X_test, y_test):.4f}")
 ```
 
-The optimizer settled on the RBF kernel on its own — the choice of
-kernel was part of the search, not an assumption.
+Output:
+
+```text
+Best parameters : C=31.7194, gamma=0.0036, kernel=sigmoid
+Best CV score   : 0.9780
+Test accuracy   : 0.9825
+```
+
+The kernel was part of the search rather than an assumption — and the
+result is a third configuration landing on exactly the same numbers as
+the other two: CV 0.9780, test 0.9825. Three different corners of the
+space, one plateau. When several configurations tie like this, the tie
+is the finding; picking the "winner" among them is picking noise.
 
 !!! note "A caveat on categorical dimensions"
     Continuous algorithms assume nearby points have similar fitness.
@@ -152,7 +267,6 @@ SVM examples, this fitness is *minimized*, so the task needs no
 
 ```python
 from sklearn.metrics import log_loss
-from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
 
@@ -182,16 +296,24 @@ class MLPTuning(Problem):
         return log_loss(self.y_val, model.predict_proba(self.X_val))
 
 
+# A held-out validation split, taken from the search data — the test set
+# carved out at the top of the page stays untouched
 X_train, X_val, y_train, y_val = train_test_split(
-    X, y, test_size=0.25, stratify=y, random_state=42)
+    X_search, y_search, test_size=0.25, stratify=y_search, random_state=42)
+
+# The estimator here is not a pipeline, so the scaler is fitted on the
+# training rows only and merely applied to the others
+scaler = StandardScaler().fit(X_train)
+X_train, X_val, X_test = (scaler.transform(a) for a in (X_train, X_val, X_test))
+print("train:", X_train.shape, " val:", X_val.shape, " test:", X_test.shape)
 
 problem = MLPTuning(X_train, y_train, X_val, y_val)
 task = Task(problem=problem, max_evals=60)   # minimization by default
 algo = AntColonyOptimization(population_size=8, archive_size=12, seed=42)
 best_x, best_loss = algo.run(task)
 
-print("Best architecture:", problem.decode(best_x))
-print("Validation log-loss:", best_loss)
+print("Best architecture   :", problem.decode(best_x))
+print(f"Validation log-loss : {best_loss:.4f}")
 ```
 
 Decoding details:
@@ -218,14 +340,16 @@ Decoding details:
 Output:
 
 ```text
-Best architecture: {'hidden_layer_sizes': (75,)}
-Validation log-loss: 0.065
+train: (341, 30)  val: (114, 30)  test: (114, 30)
+Best architecture   : {'hidden_layer_sizes': (93,)}
+Validation log-loss : 0.0528
 ```
 
-For comparison, the default `MLPClassifier` architecture `(100,)`
-reaches a validation log-loss of 0.0721 on the same split — even with
-per-layer widths available, the search settled on a single hidden
-layer for this dataset.
+The default `MLPClassifier` architecture `(100,)` reaches 0.0549 on the
+same split, so 60 evaluations bought 0.0021 of log-loss — the search
+walked most of the way back to the default and confirmed it. That is a
+useful result to be able to state, and the same warning as in the SVM
+section applies to reading it as an improvement.
 
 ### The same search with Keras / TensorFlow
 
@@ -280,14 +404,14 @@ algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
 best_x, best_loss = algo.run(task)
 
 print("Best architecture:", problem.decode(best_x))
-print("Final val_loss  :", best_loss)
+print(f"Final val_loss   : {best_loss:.4f}")
 ```
 
 Output:
 
 ```text
-Best architecture: (61,)
-Final val_loss  : 0.0652
+Best architecture: (24, 61)
+Final val_loss   : 0.0462
 ```
 
 !!! note "TensorFlow is not a dependency"
@@ -295,10 +419,9 @@ Final val_loss  : 0.0652
     sees a `Problem` with an `_evaluate` method, so any framework works
     inside it. Install TensorFlow yourself (`pip install tensorflow`)
     to run this variant. Training here is slower per evaluation than
-    the scikit-learn version, hence the smaller budget; with Keras you
-    can also pass an `EarlyStopping` callback and return
-    `min(history.history["val_loss"])` for the caveat-4 variant
-    discussed above.
+    the scikit-learn version, hence the smaller budget. This `_evaluate`
+    still returns the *last* epoch's loss; the next section fixes that
+    along with everything else.
 
 !!! warning "Is validation loss a valid fitness? Yes — with care"
     Using the validation loss as the fitness is standard practice, and
@@ -311,8 +434,9 @@ Final val_loss  : 0.0652
        reward memorization.
     2. **Report final results on a third, untouched test set.** The
        search consumed the validation set, so the best validation loss
-       is optimistically biased — the same three-split discipline as in
-       [Ensemble Weights](ensemble.md#the-protocol-three-splits).
+       is optimistically biased — exactly as the SVM example at the top
+       of this page demonstrated, and the same three-split discipline
+       as in [Ensemble Weights](ensemble.md#the-protocol-three-splits).
     3. **Fix the training seed** (`random_state=0` above). Network
        training is stochastic; without a fixed seed the same
        architecture returns different losses and the optimizer partly
@@ -321,10 +445,11 @@ Final val_loss  : 0.0652
        proportionally more expensive.)
     4. **"Final" loss deserves early stopping.** The loss at the last
        epoch can be worse than the model's best point if the network
-       overfits late in training. Passing `early_stopping=True` to
-       `MLPClassifier` (or restoring the best epoch in other
-       frameworks) makes the fitness reflect the best achievable
-       model rather than an arbitrary stopping point.
+       overfits late in training. Pass `early_stopping=True` to
+       `MLPClassifier`, or an `EarlyStopping` callback with
+       `restore_best_weights=True` in Keras, so the fitness reflects
+       the best achievable model rather than an arbitrary stopping
+       point.
 
 ### Keeping the best model as you search
 
@@ -333,14 +458,15 @@ model from it — which means training the winning architecture a second
 time. That is wasteful: the search already trained exactly that model
 while evaluating it, then threw it away.
 
-The fix is four lines inside `_evaluate`. Track the best loss seen so
+The fix is a few lines inside `_evaluate`. Track the best loss seen so
 far, and whenever an evaluation beats it, write that model to disk
-before returning:
+before returning. This version also applies caveat 4 — the two changes
+belong together, as the note after the code explains:
 
 ```python
-import numpy as np
 from pathlib import Path
-from sklearn.preprocessing import StandardScaler
+
+import numpy as np
 
 
 class KerasMLPTuningWithCheckpoint(Problem):
@@ -356,6 +482,7 @@ class KerasMLPTuningWithCheckpoint(Problem):
         self.path = path
         self.best_loss = np.inf          # nothing beaten yet
         self.best_architecture = None
+        self.best_epoch = None           # needed to refit later
         self.n_trained = self.n_saved = 0
 
     def decode(self, x):
@@ -375,43 +502,46 @@ class KerasMLPTuningWithCheckpoint(Problem):
             + [keras.layers.Dense(1, activation="sigmoid")]
         )
         model.compile(optimizer="adam", loss="binary_crossentropy")
+        stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10,
+                                             restore_best_weights=True)
         history = model.fit(self.X_train, self.y_train,
                             validation_data=(self.X_val, self.y_val),
-                            epochs=50, batch_size=32, verbose=0)
-        val_loss = history.history["val_loss"][-1]
+                            epochs=50, batch_size=32, verbose=0,
+                            callbacks=[stop])
+        val_loss = min(history.history["val_loss"])   # not [-1]
         self.n_trained += 1
 
         if val_loss < self.best_loss:      # a new best: keep this model
             self.best_loss = val_loss
             self.best_architecture = architecture
+            self.best_epoch = int(np.argmin(history.history["val_loss"])) + 1
             model.save(self.path)          # <- saved as HDF5 (.h5)
             self.n_saved += 1
         return val_loss
 ```
 
-The search itself is unchanged. Note the **three-way split**: the test
-set is carved out first and never touched during the search, exactly as
-caveat 2 above requires, and the scaler is fitted on the training part
-only:
+!!! danger "`restore_best_weights=True` is not optional here"
+    The fitness is now `min(history.history["val_loss"])` — the loss at
+    the network's *best* epoch. Without `restore_best_weights=True`,
+    the weights still in memory when `model.save()` runs are the *last*
+    epoch's. The score and the artefact would then describe two
+    different networks: you would report a number the saved file cannot
+    reproduce. Whenever the fitness is a `min` over epochs, the
+    checkpoint has to be the epoch that produced it.
+
+The search itself is unchanged, and the splits are already in place from
+the previous section: the test set was carved out at the top of the
+page, and the scaler was fitted on the training rows only.
 
 ```python
-X, y = load_breast_cancer(return_X_y=True)
-X_rest, X_test, y_rest, y_test = train_test_split(
-    X, y, test_size=0.2, stratify=y, random_state=42)
-X_train, X_val, y_train, y_val = train_test_split(
-    X_rest, y_rest, test_size=0.25, stratify=y_rest, random_state=42)
-
-scaler = StandardScaler().fit(X_train)
-X_train, X_val, X_test = (scaler.transform(a) for a in (X_train, X_val, X_test))
-print("train:", X_train.shape, " val:", X_val.shape, " test:", X_test.shape)
-
 problem = KerasMLPTuningWithCheckpoint(X_train, y_train, X_val, y_val)
 task = Task(problem=problem, max_evals=30)
 algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
 best_x, best_loss = algo.run(task)
 
 print("Best architecture :", problem.best_architecture)
-print("Best val_loss     :", round(best_loss, 4))
+print(f"Best val_loss     : {best_loss:.4f}")
+print("Best epoch        :", problem.best_epoch)
 print("Models trained    :", problem.n_trained)
 print("Models saved      :", problem.n_saved)
 print("Saved file        :", problem.path,
@@ -421,19 +551,25 @@ print("Saved file        :", problem.path,
 Output:
 
 ```text
-train: (341, 30)  val: (114, 30)  test: (114, 30)
-Best architecture : (24, 61)
-Best val_loss     : 0.0462
+Best architecture : (23, 67, 16)
+Best val_loss     : 0.0484
+Best epoch        : 35
 Models trained    : 30
-Models saved      : 3
-Saved file        : best_model.h5 (59440 bytes)
+Models saved      : 5
+Saved file        : best_model.h5 (78464 bytes)
 ```
 
-Look at the last two counters: **30 models were trained, but only 3
-were written to disk.** The file is overwritten only when the loss
-actually improves, so at the end it holds the single best network the
-search ever saw — already trained, with its weights exactly as they
-were when that score was measured.
+Look at the two counters: **30 models were trained, but only 5 were
+written to disk.** The file is overwritten only when the loss actually
+improves, so at the end it holds the single best network the search ever
+saw — already trained, with its weights exactly as they were when that
+score was measured.
+
+This search picked a different architecture from the one above,
+`(23, 67, 16)` rather than `(24, 61)`, and its 0.0484 is not comparable
+with the previous 0.0462: changing the fitness from "last epoch" to
+"best epoch, with early stopping" changes the landscape the optimizer
+is climbing. They are two different searches, not two attempts at one.
 
 ### Loading the model and predicting
 
@@ -447,24 +583,27 @@ model.summary()
 Output:
 
 ```text
-Model: "sequential_12"
+Model: "sequential_50"
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
 ┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
 ┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
-│ dense_33 (Dense)                │ (None, 24)             │           744 │
+│ dense_137 (Dense)               │ (None, 23)             │           713 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_34 (Dense)                │ (None, 61)             │         1,525 │
+│ dense_138 (Dense)               │ (None, 67)             │         1,608 │
 ├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_35 (Dense)                │ (None, 1)              │            62 │
+│ dense_139 (Dense)               │ (None, 16)             │         1,088 │
+├─────────────────────────────────┼────────────────────────┼───────────────┤
+│ dense_140 (Dense)               │ (None, 1)              │            17 │
 └─────────────────────────────────┴────────────────────────┴───────────────┘
- Total params: 2,333 (9.12 KB)
- Trainable params: 2,331 (9.11 KB)
+ Total params: 3,428 (13.39 KB)
+ Trainable params: 3,426 (13.38 KB)
  Non-trainable params: 0 (0.00 B)
+ Optimizer params: 2 (12.00 B)
 ```
 
-The architecture came back intact — two hidden layers of 24 and 61
-units, matching `best_architecture` above. Now predict on the test set
-the search never saw:
+The architecture came back intact — three hidden layers of 23, 67 and
+16 units, matching `best_architecture` above. Now predict on the test
+set the search never saw:
 
 ```python
 from sklearn.metrics import accuracy_score, classification_report
@@ -480,7 +619,6 @@ Output:
 
 ```text
 test accuracy: 0.9561
-
               precision    recall  f1-score   support
 
    malignant       0.91      0.98      0.94        42
@@ -503,24 +641,24 @@ print("actual               :", y_test[:5])
 Output:
 
 ```text
-first 5 probabilities: [0.000e+00 1.000e+00 2.000e-04 1.777e-01 0.000e+00]
+first 5 probabilities: [0.000e+00 1.000e+00 5.000e-04 2.516e-01 0.000e+00]
 predicted            : [0 1 0 0 0]
 actual               : [0 1 0 1 0]
 ```
 
-The fourth sample is worth a look: at a probability of 0.178 the model
+The fourth sample is worth a look: at a probability of 0.2516 the model
 leans malignant and is wrong. Three of these five predictions are made
 with near-total confidence and one is genuinely uncertain — which is
 the argument for reading probabilities rather than only labels, and for
 choosing a threshold that suits the cost of each kind of error.
 
 !!! note "Test accuracy is lower than the validation loss suggests"
-    A validation loss of 0.0462 looks excellent, but the test accuracy
-    is 0.9561 — noticeably below what the earlier two-way-split
-    examples on this page report. That is caveat 2 in action: the
-    search consumed the validation set, so its score is optimistically
-    biased, and the training set here is smaller (341 rows) because a
-    third split was carved out. The test number is the honest one.
+    A validation loss of 0.0484 looks excellent, but the test accuracy
+    is 0.9561 — below what the SVM examples on this page report. That
+    is caveat 2 in action: the search consumed the validation set, so
+    its score is optimistically biased, and the training set here is
+    smaller (341 rows) because a third split was carved out. The test
+    number is the honest one.
 
 !!! warning "`.h5` is a legacy format in Keras 3"
     `model.save("best_model.h5")` still works, but Keras 3 prints a
@@ -539,12 +677,69 @@ choosing a threshold that suits the cost of each kind of error.
     warning. These results were produced with **Keras 3.15** on
     **TensorFlow 2.21**.
 
-!!! tip "The saved model was trained on the training split only"
-    It is the network exactly as evaluated — which is what makes the
-    score meaningful. Retraining it on train + validation afterwards
-    usually helps a little, but then the model you ship is no longer
-    the one you measured. Decide which you want before you report a
-    number.
+### Ship the saved model, or refit from the recipe?
+
+A search leaves you with two different things: a trained artefact, and a
+recipe (the architecture, plus the epoch count that worked). They are
+not interchangeable, and which one you should use depends on the claim
+you are about to make.
+
+!!! tip "Which to use"
+    **Use the saved model** — load it, no retraining — when the search
+    budget was small (tens of evaluations), there is a single pipeline,
+    and the goal is to ship a measured artefact. Its test score is an
+    honest measurement *of that artefact*.
+
+    **Refit from the recipe** — best configuration, fresh
+    initialization, the epoch count recorded during the search, trained
+    on train + validation combined — when either of these holds:
+
+    - **The search budget was large.** The more candidates scored
+      against the same validation set, the larger the share of "luck"
+      frozen into the saved weights.
+    - **The claim is comparative or methodological** — "algorithm X
+      finds good architectures", "scheme A beats scheme B". A claim
+      about a *method* has to be tested on a refitted recipe, ideally
+      averaged over several seeds, not on the single draw that happened
+      to win the validation lottery.
+
+```python
+# Refit from the recipe: keep the architecture, discard the weights
+best_epoch = problem.best_epoch                 # recorded during the search
+X_full = np.concatenate([X_train, X_val])
+y_full = np.concatenate([y_train, y_val])
+
+keras.utils.set_random_seed(42)                 # a fresh draw, not the search's
+refit = keras.Sequential(
+    [keras.layers.Input(shape=(X_full.shape[1],))]
+    + [keras.layers.Dense(n, activation="relu")
+       for n in problem.best_architecture]
+    + [keras.layers.Dense(1, activation="sigmoid")]
+)
+refit.compile(optimizer="adam", loss="binary_crossentropy")
+refit.fit(X_full, y_full, epochs=best_epoch, batch_size=32, verbose=0)
+
+refit_pred = (refit.predict(X_test, verbose=0).ravel() >= 0.5).astype(int)
+print("Epochs from the search :", best_epoch)
+print("Training rows          :", X_full.shape[0], "(train + val)")
+print(f"Saved model, test acc  : {accuracy_score(y_test, y_pred):.4f}")
+print(f"Refit model, test acc  : {accuracy_score(y_test, refit_pred):.4f}")
+```
+
+Output:
+
+```text
+Epochs from the search : 35
+Training rows          : 455 (train + val)
+Saved model, test acc  : 0.9561
+Refit model, test acc  : 0.9649
+```
+
+The refit wins here — one extra correct prediction out of 114, which is
+well within noise, but it also trains on 33% more rows, which is a real
+advantage rather than a lucky one. Note what the refit cannot do:
+there is no validation set left to early-stop on, which is exactly why
+`best_epoch` had to be recorded during the search.
 
 To visualize how the best score improves over the iterations, see the
 teaching note [Plotting Convergence](convergence-plot.md).
