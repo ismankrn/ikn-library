@@ -407,39 +407,47 @@ Final val_loss   : 0.0462
        the best achievable model rather than an arbitrary stopping
        point.
 
-### Keeping the best model as you search
+### Keeping the recipe, not the model
 
-By default a search hands back the best *vector*, and you rebuild the
-model from it — which means training the winning architecture a second
-time. That is wasteful: the search already trained exactly that model
-while evaluating it, then threw it away.
+A search trains hundreds of networks and keeps the one that scored best
+on the validation set. It is tempting to save that network to disk — it
+is already trained, after all — but the weights that won are the weights
+that happened to suit *this* validation set out of everything tried.
+Saving them ships the lottery ticket.
 
-The fix is a few lines inside `_evaluate`. Track the best loss seen so
-far, and whenever an evaluation beats it, write that model to disk
-before returning. This version also applies caveat 4 — the two changes
-belong together, as the note after the code explains:
+So the fitness records the **recipe** instead: the architecture, and the
+epoch at which it peaked. The weights are allowed to die with the
+function scope.
 
 ```python
-from pathlib import Path
-
 import numpy as np
 
 
-class KerasMLPTuningWithCheckpoint(Problem):
-    """Same search as KerasMLPTuning, but it keeps the best model on disk."""
+def build(architecture, n_features):
+    """The only model factory — used during the search AND for the refit,
+    so the retrained network is identical to the one that was searched."""
+    model = keras.Sequential(
+        [keras.layers.Input(shape=(n_features,))]
+        + [keras.layers.Dense(n, activation="relu") for n in architecture]
+        + [keras.layers.Dense(1, activation="sigmoid")]
+    )
+    model.compile(optimizer="adam", loss="binary_crossentropy")
+    return model
+
+
+class KerasMLPTuningRecipe(Problem):
+    """Same search as KerasMLPTuning; it records the winning recipe."""
 
     MAX_LAYERS = 3
     MIN_NODES, MAX_NODES = 16, 128
 
-    def __init__(self, X_train, y_train, X_val, y_val, path="best_model.h5"):
+    def __init__(self, X_train, y_train, X_val, y_val):
         super().__init__(dimension=1 + self.MAX_LAYERS, lower=0.0, upper=1.0)
         self.X_train, self.y_train = X_train, y_train
         self.X_val, self.y_val = X_val, y_val
-        self.path = path
-        self.best_loss = np.inf          # nothing beaten yet
-        self.best_architecture = None
-        self.best_epoch = None           # needed to refit later
-        self.n_trained = self.n_saved = 0
+        # What is tracked is the RECIPE — there is no model.save() in this class
+        self.best = {"val_loss": np.inf, "architecture": None, "epoch": None}
+        self.n_trained = 0
 
     def decode(self, x):
         n_layers = min(int(x[0] * self.MAX_LAYERS), self.MAX_LAYERS - 1) + 1
@@ -450,145 +458,193 @@ class KerasMLPTuningWithCheckpoint(Problem):
         )
 
     def _evaluate(self, x):
-        keras.utils.set_random_seed(0)
         architecture = self.decode(x)
-        model = keras.Sequential(
-            [keras.layers.Input(shape=(self.X_train.shape[1],))]
-            + [keras.layers.Dense(n, activation="relu") for n in architecture]
-            + [keras.layers.Dense(1, activation="sigmoid")]
-        )
-        model.compile(optimizer="adam", loss="binary_crossentropy")
+        keras.utils.set_random_seed(0)          # deterministic across candidates
+        model = build(architecture, self.X_train.shape[1])
         stop = keras.callbacks.EarlyStopping(monitor="val_loss", patience=10,
                                              restore_best_weights=True)
         history = model.fit(self.X_train, self.y_train,
                             validation_data=(self.X_val, self.y_val),
-                            epochs=50, batch_size=32, verbose=0,
-                            callbacks=[stop])
-        val_loss = min(history.history["val_loss"])   # not [-1]
+                            epochs=50, batch_size=32, verbose=0, callbacks=[stop])
+        val_loss = float(min(history.history["val_loss"]))   # not [-1]
         self.n_trained += 1
 
-        if val_loss < self.best_loss:      # a new best: keep this model
-            self.best_loss = val_loss
-            self.best_architecture = architecture
-            self.best_epoch = int(np.argmin(history.history["val_loss"])) + 1
-            model.save(self.path)          # <- saved as HDF5 (.h5)
-            self.n_saved += 1
-        return val_loss
-```
+        if val_loss < self.best["val_loss"]:
+            self.best = {
+                "val_loss": val_loss,
+                "architecture": architecture,
+                "epoch": int(np.argmin(history.history["val_loss"])) + 1,
+            }
+        return val_loss      # the weights die with this function's scope
 
-!!! danger "`restore_best_weights=True` is not optional here"
-    The fitness is now `min(history.history["val_loss"])` — the loss at
-    the network's *best* epoch. Without `restore_best_weights=True`,
-    the weights still in memory when `model.save()` runs are the *last*
-    epoch's. The score and the artefact would then describe two
-    different networks: you would report a number the saved file cannot
-    reproduce. Whenever the fitness is a `min` over epochs, the
-    checkpoint has to be the epoch that produced it.
 
-The search itself is unchanged, and the splits are already in place from
-the previous section: the test set was carved out at the top of the
-page, and the scaler was fitted on the training rows only.
-
-```python
-problem = KerasMLPTuningWithCheckpoint(X_train, y_train, X_val, y_val)
+problem = KerasMLPTuningRecipe(X_train, y_train, X_val, y_val)
 task = Task(problem=problem, max_evals=30)
 algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
 best_x, best_loss = algo.run(task)
 
-print("Best architecture :", problem.best_architecture)
-print(f"Best val_loss     : {best_loss:.4f}")
-print("Best epoch        :", problem.best_epoch)
 print("Models trained    :", problem.n_trained)
-print("Models saved      :", problem.n_saved)
-print("Saved file        :", problem.path,
-      f"({Path(problem.path).stat().st_size} bytes)")
+print("Models kept       : 0")
+print("Best architecture :", problem.best["architecture"])
+print(f"Best val_loss     : {problem.best['val_loss']:.4f}")
+print("Epoch budget      :", problem.best["epoch"])
 ```
 
 Output:
 
 ```text
+Models trained    : 30
+Models kept       : 0
 Best architecture : (23, 67, 16)
 Best val_loss     : 0.0484
-Best epoch        : 35
-Models trained    : 30
-Models saved      : 5
-Saved file        : best_model.h5 (78464 bytes)
+Epoch budget      : 35
 ```
 
-Look at the two counters: **30 models were trained, but only 5 were
-written to disk.** The file is overwritten only when the loss actually
-improves, so at the end it holds the single best network the search ever
-saw — already trained, with its weights exactly as they were when that
-score was measured.
+Note what is **absent**: no `model.save()` inside `_evaluate`. Thirty
+networks are trained and thirty are discarded; what comes home is an
+architecture and an epoch count.
 
-This search picked a different architecture from the one above,
-`(23, 67, 16)` rather than `(24, 61)`, and its 0.0484 is not comparable
-with the previous 0.0462: changing the fitness from "last epoch" to
-"best epoch, with early stopping" changes the landscape the optimizer
-is climbing. They are two different searches, not two attempts at one.
+!!! note "One factory, two callers"
+    `build()` is used by `_evaluate` *and* by the refit below. That is
+    deliberate: if the refit built its network from a second, parallel
+    piece of code, nothing would guarantee that the thing you ship is
+    the thing you searched. One factory makes the guarantee structural.
 
-### Loading the model and predicting
+!!! note "Why `restore_best_weights=True` is still here"
+    The fitness is `min(...)` over epochs, while the weights left in
+    memory after `fit` are the *last* epoch's. That mismatch is a real
+    bug when the model is saved — the score and the artefact would
+    describe different networks. Discarding the weights removes the
+    failure mode entirely; the callback stays because it costs nothing
+    and keeps the in-memory model consistent with the number reported.
 
-Nothing is retrained here. The file is read and used directly:
+### Refitting on train + validation
+
+Every decision is frozen at this point: the architecture and the epoch
+budget were both chosen *from the validation set*. The validation set
+has finished its job as a judge — so it can join the training data.
 
 ```python
-model = keras.models.load_model("best_model.h5")
-model.summary()
+best_architecture = problem.best["architecture"]   # the recipe
+epoch_budget = problem.best["epoch"]               # inherited from the search
+
+X_full = np.concatenate([X_train, X_val])
+y_full = np.concatenate([y_train, y_val])
+print("training rows     :", X_full.shape[0], "(train + val)")
+
+FINAL_SEEDS = (42, 142, 242)
+final_models = []
+for seed in FINAL_SEEDS:
+    keras.utils.set_random_seed(seed)              # a FRESH initialization
+    model = build(best_architecture, X_full.shape[1])
+    model.fit(X_full, y_full,
+              epochs=epoch_budget,                 # fixed: nothing left to monitor
+              batch_size=32,                       # (no validation_data,
+              verbose=0, shuffle=True)             #  no early stopping)
+    model.save(f"final_mlp_seed{seed}.keras")
+    final_models.append(model)
+
+print("saved             :", [f"final_mlp_seed{s}.keras" for s in FINAL_SEEDS])
 ```
 
 Output:
 
 ```text
-Model: "sequential_50"
-┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
-┃ Layer (type)                    ┃ Output Shape           ┃       Param # ┃
-┡━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
-│ dense_137 (Dense)               │ (None, 23)             │           713 │
-├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_138 (Dense)               │ (None, 67)             │         1,608 │
-├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_139 (Dense)               │ (None, 16)             │         1,088 │
-├─────────────────────────────────┼────────────────────────┼───────────────┤
-│ dense_140 (Dense)               │ (None, 1)              │            17 │
-└─────────────────────────────────┴────────────────────────┴───────────────┘
- Total params: 3,428 (13.39 KB)
- Trainable params: 3,426 (13.38 KB)
- Non-trainable params: 0 (0.00 B)
- Optimizer params: 2 (12.00 B)
+training rows     : 455 (train + val)
+saved             : ['final_mlp_seed42.keras', 'final_mlp_seed142.keras', 'final_mlp_seed242.keras']
 ```
 
-The architecture came back intact — three hidden layers of 23, 67 and
-16 units, matching `best_architecture` above. Now predict on the test
-set the search never saw:
+Saving is legitimate *here*: no selection of any kind touched these
+weights. They are the product of a frozen recipe applied to fixed data.
+
+!!! question "Why a fixed epoch count, with no early stopping?"
+    Because there is no honest data left to monitor — the validation set
+    is inside `X_full` now. The best epoch found during the search is a
+    reasonable estimate of how long this architecture needs, and since
+    the refit sees 33% more rows, that budget errs on the short side,
+    which is the safe direction.
+
+    If that trade feels uncomfortable, the compromise is to refit on
+    `X_train` only, with early stopping on `X_val` as before: fresh
+    weights, one fresh initialization per seed, at the cost of the extra
+    data.
+
+### Reporting: open the test set once
+
+Three models, three seeds, one look at the test set:
 
 ```python
-from sklearn.metrics import accuracy_score, classification_report
+import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score
 
-proba = model.predict(X_test, verbose=0).ravel()
+rows = []
+for seed, model in zip(FINAL_SEEDS, final_models):
+    proba = model.predict(X_test, verbose=0).ravel()
+    pred = (proba >= 0.5).astype(int)
+    rows.append({"seed": seed,
+                 "test_acc": accuracy_score(y_test, pred),
+                 "test_f1": f1_score(y_test, pred)})
+
+report = pd.DataFrame(rows)
+print(report.round(4))
+print(f"Test accuracy: {report.test_acc.mean():.4f} +/- {report.test_acc.std():.4f}")
+print(f"Test F1      : {report.test_f1.mean():.4f} +/- {report.test_f1.std():.4f}")
+
+# Optional: average the three seeds' probabilities into one ensemble
+proba_ens = np.mean([m.predict(X_test, verbose=0).ravel()
+                     for m in final_models], axis=0)
+print("Ensemble acc :", round(accuracy_score(y_test, (proba_ens >= 0.5).astype(int)), 4))
+```
+
+Output:
+
+```text
+   seed  test_acc  test_f1
+0    42    0.9649   0.9718
+1   142    0.9737   0.9790
+2   242    0.9474   0.9571
+Test accuracy: 0.9620 +/- 0.0134
+Test F1      : 0.9693 +/- 0.0112
+Ensemble acc : 0.9561
+```
+
+The three seeds span 0.9474 to 0.9737 — 2.6 accuracy points, on an
+identical recipe and identical data, from nothing but the weight
+initialization. Reporting whichever single seed you happened to run
+first would have been a coin flip across that range, which is the whole
+argument for the loop. `pandas`' `std` is the sample standard deviation,
+so the honest headline is **0.9620 ± 0.0134**.
+
+The probability-averaging ensemble scores 0.9561 here — *below* the mean
+of its own members. Averaging seeds usually helps a little and is worth
+trying, but on 114 test rows these differences are one or two
+predictions; do not read a winner into them.
+
+!!! warning "Baselines must be refit the same way"
+    If the point of the exercise is "the search found something better
+    than a sensible default", the default has to go through the same
+    three-seed refit on `X_full`, with an epoch budget from its own
+    development run, and land in the same table. Comparing a refit
+    search result against a single old baseline run compares two
+    protocols, not two architectures.
+
+!!! note "If the fitness used cross-validation instead of a validation split"
+    Nothing changes except where the two numbers come from: the epoch
+    budget becomes the median `best_epoch` across the winning
+    configuration's folds, and `X_full` becomes the whole development
+    set. The refit, the seeds and the single look at the test set are
+    identical.
+
+### Loading a saved model and predicting
+
+The saved files are ordinary Keras models. Nothing is retrained:
+
+```python
+loaded = keras.models.load_model("final_mlp_seed42.keras")
+print("hidden units:", [layer.units for layer in loaded.layers[:-1]])
+
+proba = loaded.predict(X_test, verbose=0).ravel()
 y_pred = (proba >= 0.5).astype(int)
-print("test accuracy:", round(accuracy_score(y_test, y_pred), 4))
-print(classification_report(y_test, y_pred,
-                            target_names=load_breast_cancer().target_names))
-```
-
-Output:
-
-```text
-test accuracy: 0.9561
-              precision    recall  f1-score   support
-
-   malignant       0.91      0.98      0.94        42
-      benign       0.99      0.94      0.96        72
-
-    accuracy                           0.96       114
-   macro avg       0.95      0.96      0.95       114
-weighted avg       0.96      0.96      0.96       114
-```
-
-Because the output layer is a sigmoid, `predict` returns
-probabilities; the threshold is yours to choose:
-
-```python
 print("first 5 probabilities:", np.round(proba[:5], 4))
 print("predicted            :", y_pred[:5])
 print("actual               :", y_test[:5])
@@ -597,105 +653,34 @@ print("actual               :", y_test[:5])
 Output:
 
 ```text
-first 5 probabilities: [0.000e+00 1.000e+00 5.000e-04 2.516e-01 0.000e+00]
+hidden units: [23, 67, 16]
+first 5 probabilities: [0.00e+00 1.00e+00 3.00e-04 1.21e-02 0.00e+00]
 predicted            : [0 1 0 0 0]
 actual               : [0 1 0 1 0]
 ```
 
-The fourth sample is worth a look: at a probability of 0.2516 the model
-leans malignant and is wrong. Three of these five predictions are made
-with near-total confidence and one is genuinely uncertain — which is
-the argument for reading probabilities rather than only labels, and for
-choosing a threshold that suits the cost of each kind of error.
+The architecture came back intact — 23, 67 and 16 hidden units, matching
+the recipe. Because the output layer is a sigmoid, `predict` returns
+probabilities and the threshold is yours to choose. The fourth sample
+is the one to look at: at 0.0121 the model is *confidently* wrong about
+it — no threshold in a sensible range would rescue that row, and a
+label-only report would never have shown it. Read probabilities rather
+than labels, and pick the threshold that suits the cost of each kind of
+error.
 
-!!! note "Test accuracy is lower than the validation loss suggests"
-    A validation loss of 0.0484 looks excellent, but the test accuracy
-    is 0.9561 — below what the SVM examples on this page report. That
-    is caveat 2 in action: the search consumed the validation set, so
-    its score is optimistically biased, and the training set here is
-    smaller (341 rows) because a third split was carved out. The test
-    number is the honest one.
+!!! note "`.keras`, not `.h5`"
+    `model.save("name.keras")` writes Keras 3's native format. `.h5`
+    still works and is what older tooling and non-Keras readers expect,
+    but it prints a legacy warning. These results were produced with
+    **Keras 3.15** on **TensorFlow 2.21**.
 
-!!! warning "`.h5` is a legacy format in Keras 3"
-    `model.save("best_model.h5")` still works, but Keras 3 prints a
-    warning recommending its native format instead:
-
-    ```text
-    WARNING:absl:You are saving your model as an HDF5 file via
-    `model.save()`. This file format is considered legacy. We recommend
-    using instead the native Keras format, e.g.
-    `model.save('my_model.keras')`.
-    ```
-
-    Use `.h5` when you need it — older tooling and non-Keras readers
-    still expect HDF5. Otherwise change one character in the filename:
-    `best_model.keras` saves and loads with the same two calls, with no
-    warning. These results were produced with **Keras 3.15** on
-    **TensorFlow 2.21**.
-
-### Ship the saved model, or refit from the recipe?
-
-A search leaves you with two different things: a trained artefact, and a
-recipe (the architecture, plus the epoch count that worked). They are
-not interchangeable, and which one you should use depends on the claim
-you are about to make.
-
-!!! tip "Which to use"
-    **Use the saved model** — load it, no retraining — when the search
-    budget was small (tens of evaluations), there is a single pipeline,
-    and the goal is to ship a measured artefact. Its test score is an
-    honest measurement *of that artefact*.
-
-    **Refit from the recipe** — best configuration, fresh
-    initialization, the epoch count recorded during the search, trained
-    on train + validation combined — when either of these holds:
-
-    - **The search budget was large.** The more candidates scored
-      against the same validation set, the larger the share of "luck"
-      frozen into the saved weights.
-    - **The claim is comparative or methodological** — "algorithm X
-      finds good architectures", "scheme A beats scheme B". A claim
-      about a *method* has to be tested on a refitted recipe, ideally
-      averaged over several seeds, not on the single draw that happened
-      to win the validation lottery.
-
-```python
-# Refit from the recipe: keep the architecture, discard the weights
-best_epoch = problem.best_epoch                 # recorded during the search
-X_full = np.concatenate([X_train, X_val])
-y_full = np.concatenate([y_train, y_val])
-
-keras.utils.set_random_seed(42)                 # a fresh draw, not the search's
-refit = keras.Sequential(
-    [keras.layers.Input(shape=(X_full.shape[1],))]
-    + [keras.layers.Dense(n, activation="relu")
-       for n in problem.best_architecture]
-    + [keras.layers.Dense(1, activation="sigmoid")]
-)
-refit.compile(optimizer="adam", loss="binary_crossentropy")
-refit.fit(X_full, y_full, epochs=best_epoch, batch_size=32, verbose=0)
-
-refit_pred = (refit.predict(X_test, verbose=0).ravel() >= 0.5).astype(int)
-print("Epochs from the search :", best_epoch)
-print("Training rows          :", X_full.shape[0], "(train + val)")
-print(f"Saved model, test acc  : {accuracy_score(y_test, y_pred):.4f}")
-print(f"Refit model, test acc  : {accuracy_score(y_test, refit_pred):.4f}")
-```
-
-Output:
-
-```text
-Epochs from the search : 35
-Training rows          : 455 (train + val)
-Saved model, test acc  : 0.9561
-Refit model, test acc  : 0.9649
-```
-
-The refit wins here — one extra correct prediction out of 114, which is
-well within noise, but it also trains on 33% more rows, which is a real
-advantage rather than a lucky one. Note what the refit cannot do:
-there is no validation set left to early-stop on, which is exactly why
-`best_epoch` had to be recorded during the search.
+!!! note "The test number is lower than the validation loss suggests"
+    A validation loss of 0.0484 looks excellent, but the refit models
+    average 0.9620 accuracy on the test set. That is caveat 2 in action:
+    the search consumed the validation set, so its score is
+    optimistically biased. The test number is the honest one — and it is
+    honest precisely because these weights were never selected on
+    anything.
 
 To visualize how the best score improves over the iterations, see the
 teaching note [Plotting Convergence](convergence-plot.md).
