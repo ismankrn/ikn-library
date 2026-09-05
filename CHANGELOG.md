@@ -7,6 +7,76 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.15.0] — 2026-09-05
+
+Documentation only — the package code is unchanged from 0.14.0, apart
+from one docstring.
+
+A single theme runs through this release: **every page that reports a
+number now reports it on data the search never saw.** Applying that
+consistently overturned three claims the docs had been making.
+
+### Changed
+
+- **Every example splits before it selects or tunes.** Feature
+  selection, hyperparameter optimization, hyperparameter tuning,
+  undersampling and the multi-objective walkthrough all carve out a test
+  set first, put the scaler inside a `Pipeline` so it is refitted per
+  fold, and use an explicit `StratifiedKFold(shuffle=True,
+  random_state=...)` instead of a bare `cv=5`. The three example scripts
+  and the README snippets follow the same pattern, since those are what
+  get copied.
+- **Comparisons are made symmetric.** A search's best score is the
+  maximum over many candidates on one set of folds; a default model's
+  score is a single unselected number. Comparing them favours the search
+  on every dataset, whether or not it helped. Both tuning pages now
+  refit each candidate and compare on the test set.
+- **The Keras workflow ships a recipe, not weights.** The
+  *Hyperparameter Optimization* page no longer saves the best model
+  during the search. The fitness records the architecture and the epoch
+  where it peaked; the weights are discarded. After the search, three
+  seeds refit that recipe on train + validation, and the test set is
+  opened once: 0.9620 ± 0.0134. The page also documents when the saved
+  artefact would have been the right choice, and what to do when the
+  fitness is a cross-validation rather than a validation split.
+
+### Added
+
+- **Plotting Learning Curve** teaching note — the two plots that share
+  that name, drawn side by side: loss per epoch (where this run overfits
+  after epoch 33) and score per training-set size (where more data stops
+  paying at 176 rows), with a table mapping each question to the curve
+  that answers it.
+- **SMILES2Vec Concept** teaching note — the encoding `SmilesVectorizer`
+  performs, worked by hand: why the vocabulary is sorted (a trained
+  embedding matrix is indexed by it), why case is never folded, that an
+  embedding lookup and a one-hot matrix product are the same operation,
+  and why 87% of an unconfigured BBBP encoding is padding.
+
+### Fixed
+
+- **Three results that did not survive being checked properly.** On
+  breast cancer, wrapper feature selection repeated over five splits
+  gains −0.0070 ± 0.0116 — the headline gain was one split's luck. On
+  the same data, tuning an SVM by grid search or by ACO-R beats the
+  defaults on cross-validation and ties with them on the test set, with
+  identical predictions on all 114 rows. And the microarray page's claim
+  that selection "raises the cross-validated KNN accuracy well above the
+  all-probes baseline" was measured on the data the selection was made
+  from; on a held-out split it evaporates. All three pages now report
+  what the data supports.
+- The microarray example used 5-NN with 161 training rows and 200
+  probes, which scores below the majority-class rate. It now uses a
+  scaled logistic regression, and a search budget suited to a
+  200-dimensional binary space.
+
+### Documented
+
+- `FeatureSelectionProblem`'s `cv` argument accepts a splitter object,
+  not only a fold count. It always did; the docstring now says so.
+- *Multi-Objective Optimization* was removed from the navigation. The
+  page and its API remain and its URL still resolves.
+
 ## [0.14.0] — 2026-09-01
 
 Documentation only — the package code is unchanged from 0.13.0.
@@ -286,6 +356,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.15.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.0
 [0.14.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.14.0
 [0.13.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.13.0
 [0.12.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.12.0
