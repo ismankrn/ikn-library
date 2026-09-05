@@ -14,6 +14,8 @@ from sklearn.datasets import make_classification
 from sklearn.metrics import f1_score
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from ikn_library import Task
 from ikn_library.algorithms import BinaryAntColonyOptimization
@@ -37,14 +39,18 @@ print(f"Train class counts: minority={np.sum(y_train == 1)}, "
       f"majority={np.sum(y_train == 0)}")
 
 
+def knn():
+    """A fresh scaler + KNN pipeline: the scaler is refitted per subset."""
+    return make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+
+
 def test_f1(X_fit, y_fit):
-    model = KNeighborsClassifier(n_neighbors=5).fit(X_fit, y_fit)
-    return f1_score(y_test, model.predict(X_test))
+    return f1_score(y_test, knn().fit(X_fit, y_fit).predict(X_test))
 
 
 problem = UndersamplingProblem(
     X_train, y_train, X_val, y_val,
-    estimator=KNeighborsClassifier(n_neighbors=5),
+    estimator=knn(),
     target_ratio=1.0, metric="f1",
 )
 task = Task(problem=problem, max_evals=3000)

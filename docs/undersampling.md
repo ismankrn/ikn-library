@@ -38,16 +38,54 @@ Accuracy is misleading under imbalance (predicting "all majority" on a
 
 ## Example
 
+The snippet below runs end to end. It starts where every other page in
+these docs starts — by carving out the splits — because undersampling
+is a *training-set* operation and the protocol only holds if the
+validation and test rows are separated first:
+
 ```python
+import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.metrics import f1_score
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 from ikn_library import Task
 from ikn_library.algorithms import BinaryAntColonyOptimization
 from ikn_library.sampling import UndersamplingProblem
 
+# An imbalanced dataset whose majority class carries label noise: a quarter
+# of the minority samples are mislabeled as majority. This is the regime
+# where *which* samples you discard matters most.
+X, y = make_classification(n_samples=3000, n_features=10, n_informative=4,
+                           weights=[0.85, 0.15], flip_y=0.0, random_state=0)
+rng = np.random.default_rng(0)
+minority_idx = np.flatnonzero(y == 1)
+mislabeled = rng.choice(minority_idx, int(0.25 * len(minority_idx)), replace=False)
+y = y.copy()
+y[mislabeled] = 0
+
+# Three splits, before anything else: the search is scored on validation,
+# and the test rows are not touched until the last block on this page
+X_train, X_rest, y_train, y_rest = train_test_split(
+    X, y, test_size=0.5, stratify=y, random_state=42)
+X_val, X_test, y_val, y_test = train_test_split(
+    X_rest, y_rest, test_size=0.5, stratify=y_rest, random_state=42)
+
+print(f"Train class counts: minority={np.sum(y_train == 1)}, "
+      f"majority={np.sum(y_train == 0)}")
+
+
+def knn():
+    """A fresh scaler + KNN pipeline: the scaler is refitted per subset."""
+    return make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+
+
 problem = UndersamplingProblem(
     X_train, y_train, X_val, y_val,
-    estimator=KNeighborsClassifier(n_neighbors=5),
+    estimator=knn(),
     target_ratio=1.0,        # balance the classes exactly
     metric="f1",
 )
@@ -59,22 +97,63 @@ X_reduced, y_reduced = problem.resampled_data(best_x)   # train your final model
 kept_rows = problem.selected_indices(best_x)            # row indices into X_train
 ```
 
-On a synthetic dataset (3,000 samples, 15% minority) whose majority
-class is polluted with mislabeled samples — the regime where the
-*choice* of discarded samples matters most — the full pipeline
-(`examples/undersampling.py`) gives:
+Output:
 
 ```text
 Train class counts: minority=169, majority=1331
-No undersampling (imbalanced) : test F1 = 0.5390
-Random undersampling (mean/5) : test F1 = 0.6012
-Optimized undersampling       : test F1 = 0.6122
+```
+
+The estimator is a `Pipeline` rather than a bare `KNeighborsClassifier`
+for the usual reason — KNN measures distances, so unscaled columns with
+larger ranges decide every neighbour — and for one specific to this
+problem: each candidate trains on a *different* subset of the majority
+class, so each one has its own means and variances. Putting the scaler
+inside the estimator means it is refitted on whatever subset is being
+evaluated, instead of carrying statistics from a set that candidate
+never saw.
+
+### Does it beat discarding at random?
+
+The question the whole method exists to answer, settled on the test
+split that nothing above has touched:
+
+```python
+def test_f1(X_fit, y_fit):
+    return f1_score(y_test, knn().fit(X_fit, y_fit).predict(X_test))
+
+
+# five random subsets with the same class ratio, for comparison
+random_scores = [
+    test_f1(*problem.resampled_data(
+        np.random.default_rng(7 + i).random(problem.dimension)))
+    for i in range(5)
+]
+
+print(f"No undersampling (imbalanced) : test F1 = {test_f1(X_train, y_train):.4f}")
+print(f"Random undersampling (mean/5) : test F1 = {np.mean(random_scores):.4f}")
+print(f"Optimized undersampling       : test F1 = {test_f1(X_reduced, y_reduced):.4f}")
+print(f"Reduced training set: {len(kept_rows)} samples (from {len(X_train)})")
+```
+
+Output:
+
+```text
+No undersampling (imbalanced) : test F1 = 0.5116
+Random undersampling (mean/5) : test F1 = 0.5581
+Optimized undersampling       : test F1 = 0.5902
 Reduced training set: 338 samples (from 1500)
 ```
 
-The optimizer beats random undersampling by learning to discard the
-mislabeled majority samples, and the training set shrinks to a quarter
-of its size.
+Both comparisons matter. Undersampling at all is worth 4.7 F1 points
+over the imbalanced training set; *choosing* which majority samples to
+discard is worth another 3.2 on top of discarding them at random — and
+the training set ends up at 338 samples, under a quarter of its original
+size. The random baseline is averaged over five draws rather than taken
+once, because a single random subset would be one sample of a noisy
+quantity, and beating one lucky or unlucky draw proves nothing.
+
+The same code is available as a script at
+[`examples/undersampling.py`](https://github.com/ismankrn/ikn-library/blob/main/examples/undersampling.py).
 
 !!! note "Gains vary by dataset"
     Undersampling of any kind helps most when the majority class is
@@ -89,8 +168,10 @@ of its size.
   `BinaryAntColonyOptimization` works out of the box — and continuous
   algorithms can optimize it too (entries above `threshold` count as
   "keep").
-- Any estimator with `fit`/`predict` works; scikit-learn is only
-  required for the default KNN.
+- Any estimator with `fit`/`predict` works — including a `Pipeline`,
+  which is how preprocessing stays inside each candidate's fit. The
+  estimator is cloned per evaluation, so one instance can be passed and
+  reused safely. scikit-learn is only required for the default KNN.
 - Binary classification only; the minority/majority classes are
   detected automatically from `y_train`.
 
