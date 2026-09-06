@@ -167,25 +167,6 @@ failed experiment, and it took one measurement to reach.
 
 ## Best practice: how to pick the number
 
-### Why "10% of the iterations" does not work
-
-It is the obvious rule and it fails in both directions, which the two
-cases above demonstrate with the same percentage:
-
-| | Iterations | 10% rule | Longest interior plateau | Verdict |
-|---|---|---|---|---|
-| Feature selection, 1000 evals | 50 | 5 | 22 | **too small** — cuts runs short |
-| PSO / Sphere, `min_delta=1e-6` | 667 | 67 | 15 | too large — leaves ~50% of the recoverable tail on the table |
-
-The reason is structural: plateau length is a property of the *problem
-and algorithm*, not of the budget. It does not even scale within one
-problem. Re-running the feature-selection measurement with
-`max_evals=3000` (150 iterations instead of 50) moves the longest
-interior plateau from 22 to **98** — from 44% of the run to 65% of it.
-Any fixed percentage is wrong somewhere.
-
-### The rule that does work
-
 1. **Run once without patience.** You need a complete run to see a
    plateau you would have survived; a truncated run cannot show you one.
    This is the same run you would draw a
@@ -200,9 +181,13 @@ Any fixed percentage is wrong somewhere.
    `min_delta` to the precision you actually need. On continuous
    problems `min_delta` is not optional: with the default of 0.0, an
    improvement of 1e-15 resets the counter and patience never fires.
-5. **Re-measure whenever the configuration changes.** Problem, algorithm,
-   population size and budget each change the plateau structure — and as
-   the 22 → 98 result shows, the budget changes it a lot.
+5. **Re-measure whenever the configuration changes.** Problem,
+   algorithm, population size and budget each change the plateau
+   structure, and the budget changes it more than you would expect:
+   re-running the feature-selection measurement above with
+   `max_evals=3000` — 150 iterations instead of 50 — moves the longest
+   interior plateau from 22 to **98**, from 44% of the run to 65% of it.
+   A value calibrated at one budget does not transfer to another.
 
 ### If you cannot afford the calibration run
 
