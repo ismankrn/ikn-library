@@ -70,6 +70,7 @@ nav:
       - Plotting Learning Curve: learning-curve.md
       - Ensemble Weights Concept: ensemble-concept.md
       - Microarray Data Concept: microarray-concept.md
+      - Pareto Concept: pareto-concept.md
       - SMILES2Vec Concept: smiles2vec-concept.md
       - Detail of Algorithm:
           - Overview: algorithm-details/index.md
