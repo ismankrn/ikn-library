@@ -7,6 +7,52 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.16.0] — 2026-09-07
+
+### Added
+
+- **Early stopping on `Task`.** `patience=N` ends a run after N
+  consecutive iterations without an improvement to the best solution,
+  and `min_delta` sets how large an improvement has to be to count —
+  measured against the last *improving* iteration, so slow steady
+  progress still resets the counter. The stop is decided in
+  `Task.stopping_condition`, which the shared `Algorithm.run` loop
+  already checks, so all 37 algorithms support it without a line of
+  change each. A budget is still required alongside it: patience
+  shortens a run, it cannot bound one.
+
+  Two attributes report what happened: `stalled_iters` and
+  `stopped_early`, the latter true only when patience rather than the
+  budget ended the run.
+
+- **`Task.stall_lengths()`** — replays the convergence history under the
+  task's own `min_delta` and splits it into the plateaus that ended in
+  an improvement and the tail that never did. A patience value must
+  exceed the longest plateau or it would have cut that run short; the
+  tail is the budget it could have saved. Comparing the two answers
+  whether patience is worth using at all.
+
+- **Early Stopping with `patience`** teaching note — the procedure,
+  built on two measured cases rather than advice. PSO on Sphere with
+  `min_delta=1e-6`: a tail of 419 iterations against a longest interior
+  plateau of 15, so `patience=20` saves 60% of the budget and still
+  returns 7.5e-08, while `patience=10` — below the measured plateau —
+  stops at 8e-02, five orders of magnitude short. Wrapper feature
+  selection: interior plateaus as long as the tails, so a safe value
+  saves 8% on average and the page says plainly not to use patience
+  there.
+
+- **Pareto Concept** teaching note — NSGA-II's dominance, non-dominated
+  sorting and crowding distance worked by hand on seven solutions, each
+  step checked against the library's own function, closing with a
+  demonstration that a weighted sum cannot reach a solution sitting in a
+  dent in the front, at any weight.
+
+### Changed
+
+- *Multi-Objective Optimization* is back in the documentation
+  navigation, in its original position.
+
 ## [0.15.1] — 2026-09-06
 
 ### Fixed
@@ -392,6 +438,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.16.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.16.0
 [0.15.1]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.1
 [0.15.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.0
 [0.14.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.14.0
