@@ -12,11 +12,17 @@ task = Task(problem=Rastrigin(dimension=10), max_evals=20000)
 ```
 
 You can bound the run by evaluations (`max_evals`), iterations
-(`max_iters`), or both. After a run, the task holds useful information:
+(`max_iters`), or both. Adding `patience=N` stops the run early once N
+consecutive iterations pass without improving the best solution — see
+[Plotting Convergence](convergence-plot.md#stopping-early-when-the-curve-flattens),
+which also shows how easily an impatient run walks away from a better
+answer. After a run, the task holds useful information:
 
 ```python
 task.evals               # evaluations used
 task.iters               # iterations performed
+task.stalled_iters       # iterations since the last improvement
+task.stopped_early       # True when patience, not the budget, ended the run
 task.result()            # (best_x, best_fitness)
 task.convergence_data()  # (iterations, best_fitness_per_iteration) for plotting
 ```

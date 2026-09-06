@@ -23,24 +23,48 @@ class Task:
         max_iters: Stop after this many iterations (optional). The
             algorithm must call :meth:`next_iter` once per iteration.
         optimization_type: Minimize (default) or maximize.
+        patience: Stop early after this many consecutive iterations
+            without an improvement to the best solution (optional).
+            ``None`` (default) disables early stopping. A budget is
+            still required: patience shortens a run, it does not bound
+            one, since a search that keeps improving by a hair would
+            otherwise never stop.
+        min_delta: How much the best fitness must improve for an
+            iteration to count as an improvement (default 0.0, meaning
+            any improvement counts). Expressed in the problem's own
+            units, always as a positive magnitude regardless of whether
+            the task minimizes or maximizes.
 
     At least one of ``max_evals`` / ``max_iters`` must be given.
+
+    Attributes:
+        stalled_iters: Consecutive iterations without an improvement.
+        stopped_early: ``True`` when patience ended the run.
     """
 
     def __init__(self, problem, max_evals=None, max_iters=None,
-                 optimization_type=OptimizationType.MINIMIZATION):
+                 optimization_type=OptimizationType.MINIMIZATION,
+                 patience=None, min_delta=0.0):
         if max_evals is None and max_iters is None:
             raise ValueError("provide max_evals and/or max_iters")
+        if patience is not None and int(patience) < 1:
+            raise ValueError("patience must be >= 1 (or None to disable it)")
+        if float(min_delta) < 0.0:
+            raise ValueError("min_delta must be >= 0")
         self.problem = problem
         self.max_evals = np.inf if max_evals is None else int(max_evals)
         self.max_iters = np.inf if max_iters is None else int(max_iters)
         self.optimization_type = optimization_type
+        self.patience = None if patience is None else int(patience)
+        self.min_delta = float(min_delta)
 
         self.evals = 0
         self.iters = 0
         self.best_x = None
         self.best_fitness = np.inf
         self.convergence = []  # best internal fitness after each iteration
+        self.stalled_iters = 0
+        self._last_improvement = np.inf  # best internal fitness when last improved
 
     @property
     def dimension(self):
@@ -74,13 +98,37 @@ class Task:
         return fitness
 
     def next_iter(self):
-        """Advance the iteration counter and record convergence."""
+        """Advance the iteration counter and record convergence.
+
+        Also updates the patience counter: the iteration counts as an
+        improvement when the best fitness dropped by more than
+        ``min_delta`` since the last one that did.
+        """
         self.iters += 1
         self.convergence.append(self.best_fitness)
+        if self.best_fitness < self._last_improvement - self.min_delta:
+            self._last_improvement = self.best_fitness
+            self.stalled_iters = 0
+        else:
+            self.stalled_iters += 1
+
+    @property
+    def budget_exhausted(self):
+        """True when the evaluation or iteration budget has run out."""
+        return self.evals >= self.max_evals or self.iters >= self.max_iters
+
+    @property
+    def stopped_early(self):
+        """True when ``patience`` ended the run before its budget did."""
+        return (self.patience is not None
+                and self.stalled_iters >= self.patience
+                and not self.budget_exhausted)
 
     def stopping_condition(self):
-        """True when the evaluation or iteration budget is exhausted."""
-        return self.evals >= self.max_evals or self.iters >= self.max_iters
+        """True when the budget is exhausted or patience has run out."""
+        return self.budget_exhausted or (
+            self.patience is not None and self.stalled_iters >= self.patience
+        )
 
     def result(self):
         """Return ``(best_x, best_fitness)`` in the problem's original sense."""
