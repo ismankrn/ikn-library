@@ -7,6 +7,42 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.15.1] — 2026-09-06
+
+### Fixed
+
+- **`threshold` is validated in the three subset problems.** It was
+  always a constructor argument, but it accepted values that make a run
+  meaningless without saying so. `threshold=1.0` is the sharp case:
+  solutions are bounded to `[0, 1]` and an entry counts as selected only
+  when it is *strictly* greater, so every candidate became the empty
+  subset, every fitness collapsed to the worst value, and the search
+  finished looking perfectly normal. Negative values were accepted too,
+  selecting everything on every candidate.
+
+  `FeatureSelectionProblem`, `MultiObjectiveFeatureSelection` and
+  `UndersamplingProblem` now require `threshold` in `[0, 1)` and raise a
+  `ValueError` explaining the strict comparison. Zero stays legal:
+  binary algorithms emit 0/1, and a 0 bit is not `> 0.0`, so
+  `threshold=0.0` separates them correctly. `EnsembleWeightProblem`
+  already validated its own threshold; this brings the rest in line,
+  with `(0, 1)` there and `[0, 1)` here because the semantics differ.
+
+### Documented
+
+- The docstrings and the *Feature Selection* and *Undersampling* pages
+  now state the accepted range, that `threshold` only bites for
+  continuous algorithms — binary ones emit 0/1 and are unaffected by its
+  exact value — and that raising it biases a search towards smaller
+  subsets independently of `alpha`.
+
+### Added
+
+- Thirteen tests covering the new validation, `threshold=0.0` on binary
+  solutions, and that a rising threshold shrinks the selected subset.
+  `MultiObjectiveFeatureSelection` had no tests before; it has some now.
+  762 tests in total.
+
 ## [0.15.0] — 2026-09-05
 
 Documentation only — the package code is unchanged from 0.14.0, apart
@@ -356,6 +392,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.15.1]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.1
 [0.15.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.0
 [0.14.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.14.0
 [0.13.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.13.0
