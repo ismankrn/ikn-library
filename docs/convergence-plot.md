@@ -151,6 +151,96 @@ Two attributes report what happened: `task.stalled_iters` is the current
 run of iterations without improvement, and `task.stopped_early` is
 `True` only when patience — not the budget — ended the run.
 
+### Choosing patience from your own runs
+
+Guessing a patience value is how you lose a solution. The number you
+need is already inside a run you have paid for: `task.stall_lengths()`
+replays the convergence history and splits it into
+
+- **interior plateaus** — stretches that *ended* in an improvement. A
+  patience value has to be larger than the longest of these, or it would
+  have cut that run short.
+- **the tail** — iterations after the last improvement. This never
+  ended, so it is the budget patience could have saved.
+
+The comparison between the two decides whether patience is worth using
+at all. Measure it across several seeds, because a single run's plateau
+structure is itself noisy:
+
+```python
+from sklearn.datasets import load_breast_cancer
+from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+
+from ikn_library import Task
+from ikn_library.algorithms import BinaryAntColonyOptimization
+from ikn_library.problems import FeatureSelectionProblem
+
+X, y = load_breast_cancer(return_X_y=True)
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y)
+CV = StratifiedKFold(5, shuffle=True, random_state=42)
+
+
+def knn():
+    return make_pipeline(StandardScaler(), KNeighborsClassifier(n_neighbors=5))
+
+
+rows = []
+for seed in range(5):
+    problem = FeatureSelectionProblem(X_train, y_train, estimator=knn(), cv=CV)
+    task = Task(problem=problem, max_evals=1000)
+    BinaryAntColonyOptimization(population_size=20, evaporation=0.1,
+                                seed=seed).run(task)
+    interior, tail = task.stall_lengths()
+    rows.append((seed, task.iters, int(interior.max()) if len(interior) else 0, tail))
+
+print("seed  iters  longest interior  tail")
+for seed, iters, longest, tail in rows:
+    print(f"{seed:>4}  {iters:>5}  {longest:>16}  {tail:>4}")
+
+safe = max(row[2] for row in rows) + 1
+saved = [max(0, tail - safe) for _, _, _, tail in rows]
+print(f"\nsafe patience  : {safe}  (longest interior plateau + 1)")
+print(f"average saving : {sum(saved) / len(saved):.1f} of "
+      f"{rows[0][1]} iterations ({100 * sum(saved) / len(saved) / rows[0][1]:.0f}%)")
+```
+
+Output:
+
+```text
+seed  iters  longest interior  tail
+   0     50                18    18
+   1     50                10     8
+   2     50                 2    44
+   3     50                 8    19
+   4     50                22     8
+
+safe patience  : 23  (longest interior plateau + 1)
+average saving : 4.2 of 50 iterations (8%)
+```
+
+**And the answer here is no.** On this problem the interior plateaus are
+as long as the tails — one run sat still for 22 iterations and then
+improved, another stopped improving after iteration 6 — so a patience
+value safe enough for the worst run (23) is longer than the wasted tail
+in four runs out of five. It saves 8% of the budget on average and
+risks a solution to do it.
+
+That is a useful answer, not a failed measurement. The same two numbers
+say when patience *is* worth it: when the tail is consistently much
+longer than the longest interior plateau. Run the measurement on your
+own problem, algorithm and population size — all three change the
+plateau structure — and let the numbers decide instead of a guess.
+
+!!! note "Measuring costs one full run"
+    `stall_lengths()` needs a run that was *not* stopped early, since a
+    truncated run cannot show you the plateau you would have survived.
+    Pay for that run once per configuration; it is the same run you
+    would plot the convergence curve from anyway.
+
 !!! tip "Where does the starting point come from?"
     The curve starts high already at iteration 1 because the initial
     population is evaluated before the first iteration — with 10+

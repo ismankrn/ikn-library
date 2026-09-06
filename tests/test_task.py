@@ -125,3 +125,58 @@ def test_patience_that_never_triggers_leaves_the_run_untouched():
 def test_patience_validation(kwargs):
     with pytest.raises(ValueError):
         Task(problem=Sphere(dimension=2), max_iters=10, **kwargs)
+
+
+# --- stall_lengths ------------------------------------------------------
+
+def _drive(task, history):
+    for value in history:
+        task.best_fitness = float(value)
+        task.next_iter()
+    return task
+
+
+def test_stall_lengths_splits_plateaus_from_the_tail():
+    task = _drive(Task(problem=Sphere(dimension=2), max_iters=100),
+                  [10, 10, 10, 9, 9, 8, 8, 8, 8])
+    interior, tail = task.stall_lengths()
+    np.testing.assert_array_equal(interior, [2, 1])
+    assert tail == 3
+
+
+def test_stall_lengths_is_empty_when_every_iteration_improves():
+    task = _drive(Task(problem=Sphere(dimension=2), max_iters=100), [5, 4, 3, 2])
+    interior, tail = task.stall_lengths()
+    assert len(interior) == 0
+    assert tail == 0
+
+
+def test_stall_lengths_on_a_run_that_never_started():
+    task = Task(problem=Sphere(dimension=2), max_iters=10)
+    interior, tail = task.stall_lengths()
+    assert len(interior) == 0
+    assert tail == 0
+
+
+def test_stall_lengths_follows_min_delta():
+    history = [10, 9.6, 9.2, 8.8]        # steps of 0.4
+    loose = _drive(Task(problem=Sphere(dimension=2), max_iters=100), history)
+    strict = _drive(Task(problem=Sphere(dimension=2), max_iters=100,
+                         min_delta=1.0), history)
+
+    loose_interior, loose_tail = loose.stall_lengths()
+    assert len(loose_interior) == 0 and loose_tail == 0   # every step counts
+
+    # only 10 -> 8.8 clears min_delta, so the two steps between stalled
+    strict_interior, strict_tail = strict.stall_lengths()
+    np.testing.assert_array_equal(strict_interior, [2])
+    assert strict_tail == 0
+
+
+def test_stall_lengths_accounts_for_every_iteration():
+    task = Task(problem=Sphere(dimension=5), max_evals=1000)
+    AntColonyOptimization(population_size=10, seed=3).run(task)
+    interior, tail = task.stall_lengths()
+    improvements = sum(1 for i, value in enumerate(task.convergence)
+                       if i == 0 or value < task.convergence[i - 1])
+    assert int(interior.sum()) + tail + improvements == task.iters

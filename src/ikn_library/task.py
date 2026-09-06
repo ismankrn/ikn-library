@@ -138,3 +138,34 @@ class Task:
         """Convergence history as ``(iterations, best_fitness_values)``."""
         values = np.array(self.convergence) * self.optimization_type.value
         return np.arange(1, len(values) + 1), values
+
+    def stall_lengths(self):
+        """How long this run went without improving, plateau by plateau.
+
+        Replays the convergence history under this task's ``min_delta``,
+        so it reports exactly what ``patience`` would have counted —
+        whether or not patience was set. Use it to calibrate a patience
+        value from a run you have already paid for:
+
+        - ``interior`` holds one entry per plateau that *ended* in an
+          improvement. A patience value must be **larger than the
+          longest of these**, or it would have cut the run short.
+        - ``tail`` is the run of iterations after the last improvement.
+          It never ended, so it is the budget a patience value could
+          have saved.
+
+        Returns:
+            tuple: ``(interior, tail)`` — an ``int`` array and an ``int``.
+        """
+        interior = []
+        stalled = 0
+        reference = np.inf
+        for value in self.convergence:
+            if value < reference - self.min_delta:
+                reference = value
+                if stalled:
+                    interior.append(stalled)
+                stalled = 0
+            else:
+                stalled += 1
+        return np.array(interior, dtype=int), stalled

@@ -23,6 +23,7 @@ task.evals               # evaluations used
 task.iters               # iterations performed
 task.stalled_iters       # iterations since the last improvement
 task.stopped_early       # True when patience, not the budget, ended the run
+task.stall_lengths()     # (plateaus that ended, tail) — calibrates patience
 task.result()            # (best_x, best_fitness)
 task.convergence_data()  # (iterations, best_fitness_per_iteration) for plotting
 ```
