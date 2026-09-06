@@ -117,3 +117,24 @@ def test_input_validation(imbalanced):
     with pytest.raises(ValueError):
         UndersamplingProblem(X_train, y_train, X_val, y_val, estimator=est,
                              metric="rmse")
+
+
+@pytest.mark.parametrize("threshold", [1.0, 2.0, -0.5])
+def test_threshold_outside_unit_interval_is_rejected(imbalanced, threshold):
+    """threshold=1.0 would keep no majority sample at all, silently."""
+    X_train, y_train, X_val, y_val = imbalanced
+    with pytest.raises(ValueError, match=r"threshold must be in \[0, 1\)"):
+        UndersamplingProblem(X_train, y_train, X_val, y_val,
+                             estimator=NearestCentroid(), threshold=threshold)
+
+
+def test_threshold_zero_keeps_only_the_set_bits(imbalanced):
+    """threshold=0.0 is legal: a 0 bit is not > 0, so it stays unselected."""
+    X_train, y_train, X_val, y_val = imbalanced
+    problem = UndersamplingProblem(X_train, y_train, X_val, y_val,
+                                   estimator=NearestCentroid(), threshold=0.0)
+    bits = np.zeros(problem.dimension)
+    bits[: problem.target] = 1.0        # exactly `target` ones: no repair needed
+    np.testing.assert_array_equal(problem.majority_mask(bits), bits.astype(bool))
+    assert len(problem.selected_indices(bits)) == (
+        problem.target + len(problem.minority_indices))

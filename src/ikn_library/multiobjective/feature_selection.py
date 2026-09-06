@@ -28,7 +28,9 @@ class MultiObjectiveFeatureSelection(MultiObjectiveProblem):
             ``KNeighborsClassifier(n_neighbors=5)``.
         cv: Number of cross-validation folds.
         scoring: scikit-learn scoring name.
-        threshold: Entries above this count as selected.
+        threshold: Entries above this count as selected, in ``[0, 1)``
+            (default 0.5). Only meaningful for continuous algorithms;
+            binary ones emit 0/1.
     """
 
     def __init__(self, X, y, estimator=None, cv=5, scoring="accuracy",
@@ -47,6 +49,12 @@ class MultiObjectiveFeatureSelection(MultiObjectiveProblem):
             raise ValueError("X must be 2-dimensional (n_samples, n_features)")
         if len(self.X) != len(self.y):
             raise ValueError("X and y must have the same number of samples")
+        if not 0.0 <= threshold < 1.0:
+            raise ValueError(
+                "threshold must be in [0, 1): solutions are bounded to "
+                "[0, 1] and an entry counts as selected only when it is "
+                "strictly greater, so threshold=1.0 selects nothing"
+            )
 
         super().__init__(dimension=self.X.shape[1], n_objectives=2,
                          lower=0.0, upper=1.0,

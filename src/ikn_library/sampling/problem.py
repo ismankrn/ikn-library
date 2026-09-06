@@ -58,8 +58,9 @@ class UndersamplingProblem(Problem):
             ``"balanced_accuracy"``, ``"accuracy"``, or a callable
             ``f(y_true, y_pred) -> float`` where higher is better.
         threshold: Cut-off above which a solution entry counts as
-            "keep", so continuous algorithms can optimize this problem
-            too.
+            "keep", in ``[0, 1)`` (default 0.5), so continuous algorithms
+            can optimize this problem too. Binary algorithms emit 0/1 and
+            are unaffected by its exact value.
 
     The fitness (minimized) is ``1 - metric``.
     """
@@ -79,6 +80,12 @@ class UndersamplingProblem(Problem):
             raise ValueError("undersampling requires exactly 2 classes in y_train")
         if target_ratio <= 0:
             raise ValueError("target_ratio must be > 0")
+        if not 0.0 <= threshold < 1.0:
+            raise ValueError(
+                "threshold must be in [0, 1): solutions are bounded to "
+                "[0, 1] and an entry counts as kept only when it is "
+                "strictly greater, so threshold=1.0 keeps nothing"
+            )
 
         self.minority_class = classes[np.argmin(counts)]
         self.majority_class = classes[np.argmax(counts)]

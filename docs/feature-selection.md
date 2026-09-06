@@ -286,9 +286,12 @@ and in NiaPy's feature-selection tutorial.
 ## Notes
 
 - Solutions are vectors in `[0, 1]`; entries above `threshold` (default
-  0.5) mark selected features. This means **continuous algorithms** like
-  `AntColonyOptimization` can also optimize the problem, not only binary
-  ones.
+  0.5, accepted range `[0, 1)`) mark selected features. This means
+  **continuous algorithms** like `AntColonyOptimization` can also
+  optimize the problem, not only binary ones. Raising the threshold
+  biases a continuous search towards smaller subsets, independently of
+  `alpha`; binary algorithms emit 0/1 and are unaffected by its exact
+  value.
 - Any scikit-learn estimator and scoring name works (`"f1"`,
   `"roc_auc"`, regressors with `"r2"`, ...) — including a `Pipeline`,
   which is how preprocessing stays inside the cross-validation.

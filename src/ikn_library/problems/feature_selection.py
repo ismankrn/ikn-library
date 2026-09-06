@@ -36,7 +36,11 @@ class FeatureSelectionProblem(Problem):
         scoring: scikit-learn scoring name (e.g. ``"accuracy"``, ``"f1"``).
         alpha: Trade-off between score quality and subset size, in [0, 1].
             Values near 1 prioritize the model score.
-        threshold: Cut-off above which a variable counts as selected.
+        threshold: Cut-off above which a variable counts as selected,
+            in ``[0, 1)`` (default 0.5). It only matters for continuous
+            algorithms — binary ones emit 0/1, which any threshold in
+            ``(0, 1)`` separates identically. Raising it biases the
+            search towards smaller subsets independently of ``alpha``.
     """
 
     def __init__(self, X, y, estimator=None, cv=5, scoring="accuracy",
@@ -57,6 +61,12 @@ class FeatureSelectionProblem(Problem):
             raise ValueError("X and y must have the same number of samples")
         if not 0.0 <= alpha <= 1.0:
             raise ValueError("alpha must be in [0, 1]")
+        if not 0.0 <= threshold < 1.0:
+            raise ValueError(
+                "threshold must be in [0, 1): solutions are bounded to "
+                "[0, 1] and an entry counts as selected only when it is "
+                "strictly greater, so threshold=1.0 selects nothing"
+            )
 
         super().__init__(dimension=self.X.shape[1], lower=0.0, upper=1.0)
 

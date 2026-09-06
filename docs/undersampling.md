@@ -167,7 +167,7 @@ The same code is available as a script at
 - The optimizer sees a standard binary problem, so
   `BinaryAntColonyOptimization` works out of the box — and continuous
   algorithms can optimize it too (entries above `threshold` count as
-  "keep").
+  "keep"; default 0.5, accepted range `[0, 1)`).
 - Any estimator with `fit`/`predict` works — including a `Pipeline`,
   which is how preprocessing stays inside each candidate's fit. The
   estimator is cloned per evaluation, so one instance can be passed and

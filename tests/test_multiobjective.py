@@ -206,3 +206,36 @@ def test_nsga2_respects_eval_budget():
 def test_nsga2_invalid_params(kwargs):
     with pytest.raises(ValueError):
         NSGA2(**kwargs)
+
+
+# --- MultiObjectiveFeatureSelection ------------------------------------
+
+def _mo_feature_selection_data():
+    pytest.importorskip("sklearn")
+    from sklearn.datasets import make_classification
+    return make_classification(
+        n_samples=80, n_features=8, n_informative=3, n_redundant=0,
+        n_repeated=0, shuffle=False, random_state=42,
+    )
+
+
+@pytest.mark.parametrize("threshold", [1.0, 1.5, -0.1])
+def test_mo_threshold_outside_unit_interval_is_rejected(threshold):
+    """threshold=1.0 would make every candidate the empty subset."""
+    from ikn_library.multiobjective import MultiObjectiveFeatureSelection
+
+    X, y = _mo_feature_selection_data()
+    with pytest.raises(ValueError, match=r"threshold must be in \[0, 1\)"):
+        MultiObjectiveFeatureSelection(X, y, threshold=threshold)
+
+
+def test_mo_threshold_changes_the_selected_subset():
+    from ikn_library.multiobjective import MultiObjectiveFeatureSelection
+
+    X, y = _mo_feature_selection_data()
+    x = np.linspace(0.0, 1.0, X.shape[1])
+    sizes = [len(MultiObjectiveFeatureSelection(X, y, threshold=t)
+                 .selected_features(x))
+             for t in (0.25, 0.5, 0.75)]
+    assert sizes == sorted(sizes, reverse=True)
+    assert sizes[0] > sizes[-1]
