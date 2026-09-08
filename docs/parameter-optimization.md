@@ -128,8 +128,8 @@ print(f"Test accuracy   : {final.score(X_test, y_test):.4f}  (the number to repo
 Output:
 
 ```text
-Best parameters : C=6.7972, gamma=0.0031
-Best CV score   : 0.9780  (search maximum, optimistically biased)
+Best parameters : C=34.3743, gamma=0.0060
+Best CV score   : 0.9758  (search maximum, optimistically biased)
 Test accuracy   : 0.9825  (the number to report)
 ```
 
@@ -160,13 +160,13 @@ print("Test predictions that agree:",
 Output:
 
 ```text
-CV   — default 0.9692   tuned 0.9780
+CV   — default 0.9692   tuned 0.9758
 Test — default 0.9825   tuned 0.9825
 Test predictions that agree: 114/114
 ```
 
 This is the **winner's curse**, and it is worth sitting with. On the
-folds, tuning bought 0.9 accuracy points. On the test set it bought
+folds, tuning bought 0.7 accuracy points. On the test set it bought
 nothing at all: the two models make the *same prediction on all 114
 rows*. Searching hard for the maximum of a noisy score finds
 configurations whose noise happens to point up, and that part of the
@@ -239,16 +239,19 @@ print(f"Test accuracy   : {final_k.score(X_test, y_test):.4f}")
 Output:
 
 ```text
-Best parameters : C=31.7194, gamma=0.0036, kernel=sigmoid
-Best CV score   : 0.9780
+Best parameters : C=65.1347, gamma=0.0011, kernel=sigmoid
+Best CV score   : 0.9802
 Test accuracy   : 0.9825
 ```
 
-The kernel was part of the search rather than an assumption — and the
-result is a third configuration landing on exactly the same numbers as
-the other two: CV 0.9780, test 0.9825. Three different corners of the
-space, one plateau. When several configurations tie like this, the tie
-is the finding; picking the "winner" among them is picking noise.
+The kernel was part of the search rather than an assumption — and
+widening the space did raise the CV maximum, from 0.9758 to 0.9802.
+On the test set that gain evaporates: 0.9825, the same number the
+RBF-only search and the untuned default both reached — and all three
+models agree on *every one of the 114 test rows*. Three different
+corners of the space, one plateau. When configurations tie like this on
+the data that counts, the tie is the finding; ranking them by CV score
+is ranking noise.
 
 !!! note "A caveat on categorical dimensions"
     Continuous algorithms assume nearby points have similar fitness.
@@ -256,6 +259,14 @@ is the finding; picking the "winner" among them is picking noise.
     borders, where a tiny step flips the category. With a few categories
     this works well in practice; for many unordered categories a
     discrete algorithm is the better tool.
+
+    A second, quieter effect: `Task.repair` clips every proposal back
+    into the box, so anything that overshoots a bound lands *exactly*
+    on it — and that extra mass falls entirely on the first and last
+    category. In the run above, 24 of the 150 evaluations had
+    `x[2] == 1.0` exactly. The partition of the space is equal; the
+    sampling of it is not. Print the category counts before reading a
+    category's win as a preference.
 
 ## Example: MLP architecture search with Keras
 
@@ -279,8 +290,13 @@ X_train, X_val, y_train, y_val = train_test_split(
 # The estimator here is not a pipeline, so the scaler is fitted on the
 # training rows only and merely applied to the others
 scaler = StandardScaler().fit(X_train)
-X_train, X_val, X_test = (scaler.transform(a) for a in (X_train, X_val, X_test))
-print("train:", X_train.shape, " val:", X_val.shape, " test:", X_test.shape)
+
+# Scaled copies get NEW names. Rebinding X_test here would silently hand
+# the SVM sections above a scaled test set, and re-running this cell would
+# scale everything a second time — both fail without raising anything
+X_train_s, X_val_s, X_test_s = (scaler.transform(a)
+                                for a in (X_train, X_val, X_test))
+print("train:", X_train_s.shape, " val:", X_val_s.shape, " test:", X_test_s.shape)
 ```
 
 Output:
@@ -370,7 +386,7 @@ class KerasMLPTuningRecipe(Problem):
         return val_loss      # the weights die with this function's scope
 
 
-problem = KerasMLPTuningRecipe(X_train, y_train, X_val, y_val)
+problem = KerasMLPTuningRecipe(X_train_s, y_train, X_val_s, y_val)
 task = Task(problem=problem, max_evals=30)
 algo = AntColonyOptimization(population_size=6, archive_size=10, seed=42)
 best_x, best_loss = algo.run(task)
@@ -455,7 +471,7 @@ has finished its job as a judge — so it can join the training data.
 best_architecture = problem.best["architecture"]   # the recipe
 epoch_budget = problem.best["epoch"]               # inherited from the search
 
-X_full = np.concatenate([X_train, X_val])
+X_full = np.concatenate([X_train_s, X_val_s])
 y_full = np.concatenate([y_train, y_val])
 print("training rows     :", X_full.shape[0], "(train + val)")
 
@@ -495,7 +511,7 @@ These results were produced with **Keras 3.15** on **TensorFlow 2.21**.
     which is the safe direction.
 
     If that trade feels uncomfortable, the compromise is to refit on
-    `X_train` only, with early stopping on `X_val` as before: fresh
+    `X_train_s` only, with early stopping on `X_val_s` as before: fresh
     weights, one fresh initialization per seed, at the cost of the extra
     data.
 
@@ -509,7 +525,7 @@ from sklearn.metrics import accuracy_score, f1_score
 
 rows = []
 for seed, model in zip(FINAL_SEEDS, final_models):
-    proba = model.predict(X_test, verbose=0).ravel()
+    proba = model.predict(X_test_s, verbose=0).ravel()
     pred = (proba >= 0.5).astype(int)
     rows.append({"seed": seed,
                  "test_acc": accuracy_score(y_test, pred),
@@ -521,7 +537,7 @@ print(f"Test accuracy: {report.test_acc.mean():.4f} +/- {report.test_acc.std():.
 print(f"Test F1      : {report.test_f1.mean():.4f} +/- {report.test_f1.std():.4f}")
 
 # Optional: average the three seeds' probabilities into one ensemble
-proba_ens = np.mean([m.predict(X_test, verbose=0).ravel()
+proba_ens = np.mean([m.predict(X_test_s, verbose=0).ravel()
                      for m in final_models], axis=0)
 print("Ensemble acc :", round(accuracy_score(y_test, (proba_ens >= 0.5).astype(int)), 4))
 ```
