@@ -67,6 +67,7 @@ nav:
       - Hyperparameter Tuning: gridsearch-comparison.md
       - Feature Selection Protocol: feature-selection-protocol.md
       - Beating Random Search: beating-random-search.md
+      - Hyperparameter Optimization Protocol: hyperparameter-protocol.md
       - Setting the Annealing Temperature: annealing-temperature.md
       - Plotting Convergence: convergence-plot.md
       - Early Stopping (patience): early-stopping.md
