@@ -259,7 +259,7 @@ anywhere in this table, because every row is annealing.
 
 - [`SimulatedAnnealing`](algorithm-details/sa.md) — the acceptance rule,
   the step-size schedule, and the parameters calibrated here.
-- [Proving Feature Selection Helped](proving-feature-selection.md) — the
+- [Feature Selection Protocol](proving-feature-selection.md) — the
   companion check on whether the search moved at all.
 - [Early Stopping (patience)](early-stopping.md) — same principle applied
   to a different parameter: measure it rather than guess it.

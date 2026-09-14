@@ -1,4 +1,4 @@
-# Proving Feature Selection Helped
+# Feature Selection Protocol
 
 [Feature Selection](feature-selection.md) shows how to *run* a wrapper
 search. This page covers the question that follows: how much of the
@@ -18,6 +18,151 @@ them is expensive.
     the difference carries both effects. The subtraction that isolates
     selection is `selection + tuning` versus **tuning alone**. On the
     example below the two subtractions differ in sign.
+
+## The protocol at a glance
+
+The three measurements below sit inside a larger discipline: the folds
+used to *choose* are kept separate from the folds used to *report*, and
+the test set is opened once, at the end. Drawn as nested regions rather
+than as a list of steps, because the nesting is the part that matters:
+
+<figure>
+<svg viewBox="0 0 880 1205" width="100%" style="max-width:880px;height:auto;border:1px solid #C2CED7;border-radius:4px" role="img" aria-label="Alur induk: data dibagi menjadi X_dev dan X_test; X_test disegel sampai tahap akhir; X_dev masuk ke lipatan luar yang hanya melaporkan, di dalamnya lipatan dalam yang melakukan seluruh pemilihan (filter, SMOTE, grid hyperparameter, lalu seleksi fitur metaheuristik); skor nested dilaporkan; setelah semua keputusan dikunci, segel dibuka satu kali untuk evaluasi empat lengan dan uji statistik berpasangan.">
+          <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#1F2933"/>
+            </marker>
+            <marker id="arSeal" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#8A2F26"/>
+            </marker>
+            <marker id="arGate" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M0 0 L10 5 L0 10 z" fill="#1C6450"/>
+            </marker>
+          </defs>
+
+          <rect x="0" y="0" width="880" height="1205" fill="#FFFFFF"/>
+          <g font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="12.5" fill="#1F2933">
+
+            <!-- root -->
+            <rect x="300" y="28" width="280" height="42" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="440" y="54" text-anchor="middle" font-size="13" font-weight="600">Data lengkap · n sampel × p fitur</text>
+
+            <line x1="440" y1="70" x2="440" y2="94" stroke="#1F2933" stroke-width="1.2"/>
+            <line x1="250" y1="94" x2="700" y2="94" stroke="#1F2933" stroke-width="1.2"/>
+            <line x1="250" y1="94" x2="250" y2="118" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <line x1="700" y1="94" x2="700" y2="118" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <text x="452" y="88" font-size="11" fill="#5A6B78" font-family="IBM Plex Mono, monospace">stratified split · random_state tetap</text>
+
+            <!-- dev -->
+            <rect x="120" y="120" width="260" height="42" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="250" y="140" text-anchor="middle" font-size="13" font-weight="600">X_dev — 80%</text>
+            <text x="250" y="155" text-anchor="middle" font-size="11" fill="#5A6B78">semua keputusan dibuat di sini</text>
+
+            <!-- test -->
+            <rect x="580" y="120" width="240" height="42" rx="3" fill="#F6E9E7" stroke="#8A2F26" stroke-width="1.6"/>
+            <text x="700" y="146" text-anchor="middle" font-size="13" font-weight="600" fill="#8A2F26">X_test — 20%</text>
+            <text x="700" y="186" text-anchor="middle" font-size="11" fill="#8A2F26" font-family="IBM Plex Mono, monospace" letter-spacing="1.6">S E G E L</text>
+            <text x="700" y="203" text-anchor="middle" font-size="11" fill="#8A2F26">tidak disentuh sampai Tahap 9</text>
+            <line x1="700" y1="216" x2="700" y2="997" stroke="#8A2F26" stroke-width="1.4" stroke-dasharray="5 5"/>
+
+            <!-- OUTER region -->
+            <rect x="40" y="200" width="500" height="600" rx="5" fill="none" stroke="#1F2933" stroke-width="1.6"/>
+            <text x="58" y="224" font-size="11" font-weight="600" font-family="IBM Plex Mono, monospace" letter-spacing=".9">LOOP LIPATAN LUAR × 5 — hanya MELAPORKAN</text>
+
+            <line x1="250" y1="162" x2="250" y2="200" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <line x1="250" y1="200" x2="250" y2="226" stroke="#1F2933" stroke-width="1.2"/>
+            <line x1="175" y1="226" x2="413" y2="226" stroke="#1F2933" stroke-width="1.2"/>
+            <line x1="175" y1="226" x2="175" y2="246" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <line x1="413" y1="226" x2="413" y2="246" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+
+            <rect x="62" y="246" width="226" height="38" rx="3" fill="none" stroke="#1F2933" stroke-width="1.2"/>
+            <text x="175" y="270" text-anchor="middle">fold latih · 4/5</text>
+
+            <rect x="308" y="246" width="210" height="38" rx="3" fill="none" stroke="#1F2933" stroke-width="1.2" stroke-dasharray="4 4"/>
+            <text x="413" y="270" text-anchor="middle">fold uji-luar · 1/5</text>
+            <line x1="413" y1="284" x2="413" y2="666" stroke="#1F2933" stroke-width="1.1" stroke-dasharray="4 4" marker-end="url(#ar)"/>
+            <text x="424" y="470" font-size="11" fill="#5A6B78">menunggu —</text>
+            <text x="424" y="485" font-size="11" fill="#5A6B78">tak dilihat</text>
+            <text x="424" y="500" font-size="11" fill="#5A6B78">satu tahap pun</text>
+
+            <!-- INNER region -->
+            <line x1="175" y1="284" x2="175" y2="320" stroke="#1F2933" stroke-width="1.2" marker-end="url(#arGate)"/>
+            <rect x="62" y="320" width="258" height="320" rx="5" fill="#E4EFEA" stroke="#1C6450" stroke-width="1.6"/>
+            <text x="76" y="344" font-size="11" font-weight="600" fill="#1C6450" font-family="IBM Plex Mono, monospace" letter-spacing=".9">LIPATAN DALAM × 5 — hanya MEMILIH</text>
+
+            <rect x="78" y="358" width="226" height="36" rx="3" fill="#FFFFFF" stroke="#1C6450" stroke-width="1.1"/>
+            <text x="191" y="381" text-anchor="middle" font-size="12">① filter tak-terawasi + scaling</text>
+
+            <line x1="191" y1="394" x2="191" y2="406" stroke="#1C6450" stroke-width="1.2" marker-end="url(#arGate)"/>
+            <rect x="78" y="406" width="226" height="36" rx="3" fill="#FFFFFF" stroke="#1C6450" stroke-width="1.1"/>
+            <text x="191" y="429" text-anchor="middle" font-size="12">② SMOTE / RUS — fold latih saja</text>
+
+            <line x1="191" y1="442" x2="191" y2="454" stroke="#1C6450" stroke-width="1.2" marker-end="url(#arGate)"/>
+            <rect x="78" y="454" width="226" height="36" rx="3" fill="#FFFFFF" stroke="#1C6450" stroke-width="1.1"/>
+            <text x="191" y="477" text-anchor="middle" font-size="12">③ Grid hyperparameter — DULU</text>
+
+            <line x1="191" y1="490" x2="191" y2="502" stroke="#1C6450" stroke-width="1.2" marker-end="url(#arGate)"/>
+            <rect x="78" y="502" width="226" height="36" rx="3" fill="#FFFFFF" stroke="#1C6450" stroke-width="1.1"/>
+            <text x="191" y="525" text-anchor="middle" font-size="12">④ Metaheuristik pilih fitur</text>
+
+            <line x1="191" y1="538" x2="191" y2="554" stroke="#1C6450" stroke-width="1.2" marker-end="url(#arGate)"/>
+            <rect x="78" y="554" width="226" height="36" rx="3" fill="none" stroke="#1C6450" stroke-width="1.1" stroke-dasharray="4 4"/>
+            <text x="191" y="577" text-anchor="middle" font-size="12" fill="#1C6450" font-weight="600">kembalikan: HP + mask fitur</text>
+
+            <text x="191" y="612" text-anchor="middle" font-size="11" fill="#1C6450">③ mendahului ④ — fitur dipilih untuk</text>
+            <text x="191" y="627" text-anchor="middle" font-size="11" fill="#1C6450">model yang benar, bukan model default</text>
+
+            <!-- retrain -->
+            <line x1="191" y1="640" x2="191" y2="666" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <rect x="62" y="666" width="226" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="175" y="684" text-anchor="middle" font-size="12">latih ulang di fold latih penuh</text>
+            <text x="175" y="700" text-anchor="middle" font-size="11" fill="#5A6B78">pakai HP + mask dari lipatan dalam</text>
+
+            <line x1="288" y1="688" x2="306" y2="688" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <rect x="308" y="666" width="210" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="413" y="692" text-anchor="middle" font-size="12">skor lipatan ke-k</text>
+
+            <line x1="413" y1="710" x2="413" y2="742" stroke="#1F2933" stroke-width="1.2"/>
+            <line x1="413" y1="742" x2="290" y2="742" stroke="#1F2933" stroke-width="1.2"/>
+            <line x1="290" y1="742" x2="290" y2="800" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <text x="300" y="766" font-size="11" fill="#5A6B78">rata-rata 5 lipatan</text>
+
+            <!-- reported -->
+            <rect x="100" y="826" width="380" height="46" rx="3" fill="#E4EFEA" stroke="#1C6450" stroke-width="1.8"/>
+            <text x="290" y="846" text-anchor="middle" font-size="13" font-weight="600" fill="#1C6450">SKOR NESTED — angka yang dilaporkan</text>
+            <text x="290" y="862" text-anchor="middle" font-size="11" fill="#1C6450">bukan best_score_, bukan fitness terbaik</text>
+
+            <line x1="290" y1="872" x2="290" y2="900" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <rect x="100" y="900" width="380" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="290" y="926" text-anchor="middle" font-size="12.5">kunci kernel · HP · mask fitur · skema</text>
+
+            <line x1="290" y1="944" x2="290" y2="972" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <rect x="160" y="972" width="260" height="46" rx="3" fill="#F6E9E7" stroke="#8A2F26" stroke-width="1.8"/>
+            <text x="290" y="999" text-anchor="middle" font-size="13" font-weight="600" fill="#8A2F26">BUKA SEGEL — satu kali</text>
+            <line x1="700" y1="997" x2="426" y2="997" stroke="#8A2F26" stroke-width="1.4" stroke-dasharray="5 5" marker-end="url(#arSeal)"/>
+
+            <line x1="290" y1="1018" x2="290" y2="1046" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <rect x="80" y="1046" width="420" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="290" y="1072" text-anchor="middle" font-size="12.5">evaluasi 4 lengan P1–P4 pada X_test</text>
+
+            <line x1="290" y1="1090" x2="290" y2="1118" stroke="#1F2933" stroke-width="1.2" marker-end="url(#ar)"/>
+            <rect x="60" y="1118" width="460" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+            <text x="290" y="1144" text-anchor="middle" font-size="12.5">McNemar · bootstrap CI · TOST</text>
+          </g>
+        </svg>
+<figcaption>
+Everything that learns from the labels — class balancing, tuning,
+feature selection — lives in the green region. The outer test fold and
+<code>X_test</code> never enter it. The reported score is produced
+outside the green region; the score inside it is only used to choose.
+</figcaption>
+</figure>
+
+Two orderings in that picture are easy to get backwards. Step ③ runs
+before step ④, so the features are chosen for the model that will
+actually score them rather than for the defaults. And the outer fold
+sits idle through the whole inner loop — it is scored once, by a model
+refitted from the recipe the inner loop returned.
 
 ## 1. Four arms, not two
 

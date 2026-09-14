@@ -12,7 +12,7 @@ evaluation budget; drawing the same number of configurations uniformly
 at random is another, and it costs nothing to implement. Random search
 is therefore the reference point for a *search* claim, in the same way
 that `tuning alone` is the reference point for a feature-selection
-claim in [Proving Feature Selection Helped](proving-feature-selection.md).
+claim in [Feature Selection Protocol](proving-feature-selection.md).
 
 Four measurements make the comparison interpretable.
 
@@ -366,7 +366,7 @@ for baseline in BASELINES:
   reporting.
 - [Hyperparameter Tuning](gridsearch-comparison.md) — grid search as the
   exhaustive counterpart to the budgets used here.
-- [Proving Feature Selection Helped](proving-feature-selection.md) — the
+- [Feature Selection Protocol](proving-feature-selection.md) — the
   same attribution question for feature subsets.
 - [Setting the Annealing Temperature](annealing-temperature.md) — if the
   search is `SimulatedAnnealing`, calibrate it before benchmarking it.

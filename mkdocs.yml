@@ -65,7 +65,7 @@ nav:
   - Drug-Drug Interactions: ddi.md
   - Teaching Notes:
       - Hyperparameter Tuning: gridsearch-comparison.md
-      - Proving Feature Selection Helped: proving-feature-selection.md
+      - Feature Selection Protocol: proving-feature-selection.md
       - Beating Random Search: beating-random-search.md
       - Setting the Annealing Temperature: annealing-temperature.md
       - Plotting Convergence: convergence-plot.md
