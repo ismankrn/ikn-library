@@ -16,6 +16,108 @@ claim in [Feature Selection Protocol](feature-selection-protocol.md).
 
 Four measurements make the comparison interpretable.
 
+## The comparison at a glance
+
+Three arms, one evaluation budget, one sealed test set. What separates
+them is only how the budget is spent, so the difference between any two
+is attributable to that:
+
+<figure>
+<svg viewBox="0 0 880 612" width="100%" style="max-width:880px;height:auto;border:1px solid #C2CED7;border-radius:4px" role="img" aria-label="The search data feeds three arms that share one estimator factory, one cross-validation object and one search box. The defaults arm spends no evaluations, random search draws N configurations uniformly, and the metaheuristic spends the same N under guidance. Each arm is refit and scored once on the sealed test set. Subtracting the metaheuristic from the defaults measures tuning and search together; subtracting it from random search at the same budget isolates the contribution of the algorithm. Both differences are only readable above the objective's measured noise floor.">
+  <defs>
+    <marker id="f2a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1F2933"/></marker>
+    <marker id="f2g" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#1C6450"/></marker>
+    <marker id="f2s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8A2F26"/></marker>
+  </defs>
+  <rect x="0" y="0" width="880" height="612" fill="#FFFFFF"/>
+  <g font-family="system-ui, -apple-system, Segoe UI, sans-serif" font-size="12.5" fill="#1F2933">
+
+    <rect x="90" y="24" width="320" height="40" rx="3" fill="none" stroke="#1F2933" stroke-width="1.4"/>
+    <text x="250" y="49" text-anchor="middle" font-size="13" font-weight="600">X_search</text>
+
+    <rect x="580" y="24" width="240" height="40" rx="3" fill="#F6E9E7" stroke="#8A2F26" stroke-width="1.6"/>
+    <text x="700" y="49" text-anchor="middle" font-size="13" font-weight="600" fill="#8A2F26">X_test — sealed</text>
+
+    <rect x="90" y="80" width="320" height="34" rx="3" fill="none" stroke="#1F2933" stroke-width="1.1" stroke-dasharray="4 4"/>
+    <text x="250" y="101" text-anchor="middle" font-size="11.5" fill="#5A6B78">one CV object · one estimator factory · one box</text>
+
+    <polyline points="250,114 250,132 48,132 48,192" fill="none" stroke="#1F2933" stroke-width="1.2"/>
+
+    <rect x="30" y="150" width="530" height="292" rx="5" fill="none" stroke="#1F2933" stroke-width="1.6"/>
+    <text x="48" y="174" font-size="11" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing=".9">IDENTICAL EVALUATION BUDGET — N = 150</text>
+
+    <line x1="48" y1="192" x2="48" y2="402" stroke="#1F2933" stroke-width="1.2"/>
+
+    <line x1="48" y1="214" x2="64" y2="214" stroke="#1F2933" stroke-width="1.2" marker-end="url(#f2a)"/>
+    <rect x="66" y="192" width="276" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.2"/>
+    <text x="80" y="211" font-weight="600">A · defaults</text>
+    <text x="80" y="228" font-size="11.5" fill="#5A6B78">0 evaluations — no search at all</text>
+
+    <line x1="48" y1="298" x2="64" y2="298" stroke="#1F2933" stroke-width="1.2" marker-end="url(#f2a)"/>
+    <rect x="66" y="276" width="276" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.2"/>
+    <text x="80" y="295" font-weight="600">B · random search</text>
+    <text x="80" y="312" font-size="11.5" fill="#5A6B78">N uniform draws from the same box</text>
+
+    <line x1="48" y1="382" x2="64" y2="382" stroke="#1F2933" stroke-width="1.2" marker-end="url(#f2g)"/>
+    <rect x="66" y="360" width="276" height="44" rx="3" fill="#E4EFEA" stroke="#1C6450" stroke-width="1.4"/>
+    <text x="80" y="379" font-weight="600" fill="#1C6450">C · metaheuristic</text>
+    <text x="80" y="396" font-size="11.5" fill="#1C6450">N guided evaluations</text>
+
+    <line x1="342" y1="214" x2="374" y2="214" stroke="#1F2933" stroke-width="1.2" marker-end="url(#f2a)"/>
+    <line x1="342" y1="298" x2="374" y2="298" stroke="#1F2933" stroke-width="1.2" marker-end="url(#f2a)"/>
+    <line x1="342" y1="382" x2="374" y2="382" stroke="#1C6450" stroke-width="1.2" marker-end="url(#f2g)"/>
+
+    <rect x="376" y="192" width="168" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.2"/>
+    <text x="460" y="218" text-anchor="middle" font-size="12">test score A</text>
+    <rect x="376" y="276" width="168" height="44" rx="3" fill="none" stroke="#1F2933" stroke-width="1.2"/>
+    <text x="460" y="302" text-anchor="middle" font-size="12">test score B</text>
+    <rect x="376" y="360" width="168" height="44" rx="3" fill="#E4EFEA" stroke="#1C6450" stroke-width="1.4"/>
+    <text x="460" y="386" text-anchor="middle" font-size="12" fill="#1C6450">test score C</text>
+
+    <polyline points="700,64 700,124 460,124 460,186" fill="none" stroke="#8A2F26" stroke-width="1.4" stroke-dasharray="5 5" marker-end="url(#f2s)"/>
+    <text x="472" y="112" font-size="11.5" fill="#8A2F26">broken once, for all three arms</text>
+
+    <polyline points="548,298 596,298 596,382 548,382" fill="none" stroke="#1C6450" stroke-width="1.6"/>
+    <line x1="596" y1="340" x2="624" y2="340" stroke="#1C6450" stroke-width="1.6" marker-end="url(#f2g)"/>
+    <text x="632" y="336" font-size="13" font-weight="600" fill="#1C6450">C − B</text>
+    <text x="632" y="353" font-size="11.5" fill="#1C6450">the algorithm's contribution</text>
+    <text x="632" y="369" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#1C6450">+0.0018 in §2</text>
+
+    <polyline points="548,214 668,214 668,420 548,420" fill="none" stroke="#5A6B78" stroke-width="1.2"/>
+    <line x1="668" y1="252" x2="696" y2="252" stroke="#5A6B78" stroke-width="1.2" marker-end="url(#f2a)"/>
+    <text x="704" y="248" font-size="13" font-weight="600" fill="#5A6B78">C − A</text>
+    <text x="704" y="265" font-size="11.5" fill="#5A6B78">tuning and search together</text>
+    <text x="704" y="281" font-size="11.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5A6B78">+0.0000 in §2</text>
+
+    <rect x="30" y="480" width="820" height="96" rx="4" fill="#F4F6F8" stroke="#C2CED7" stroke-width="1.2"/>
+    <text x="48" y="506" font-size="11" font-weight="600" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" letter-spacing=".9" fill="#5A6B78">NOISE FLOOR — measure it before reading either difference</text>
+    <line x1="140" y1="546" x2="760" y2="546" stroke="#1F2933" stroke-width="1.2"/>
+    <rect x="318" y="530" width="264" height="32" fill="#E6EBEF"/>
+    <line x1="450" y1="526" x2="450" y2="566" stroke="#5A6B78" stroke-width="1" stroke-dasharray="3 3"/>
+    <text x="450" y="578" text-anchor="middle" font-size="10.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5A6B78">0</text>
+    <text x="326" y="578" font-size="10.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5A6B78">−0.0088</text>
+    <text x="574" y="578" text-anchor="end" font-size="10.5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#5A6B78">+0.0088</text>
+    <circle cx="450" cy="538" r="4" fill="#5A6B78"/>
+    <circle cx="477" cy="554" r="4" fill="#1C6450"/>
+    <text x="596" y="536" font-size="11.5" fill="#5A6B78">shaded band = one test observation (1/114)</text>
+    <text x="596" y="553" font-size="11.5" fill="#1F2933">both differences land inside it</text>
+  </g>
+</svg>
+<figcaption>
+Arm A spends nothing, arm B draws uniformly, arm C searches — all three
+from the same box, with the same estimator factory and the same
+cross-validation object. <code>C − A</code> moves two things at once and
+measures tuning and search together; <code>C − B</code> holds the budget
+fixed and isolates the algorithm. The band at the bottom is the smallest
+difference either subtraction can resolve.
+</figcaption>
+</figure>
+
+The band is what makes the two numbers on the brackets readable. Both
+land inside one test observation, so on this dataset neither subtraction
+supports a claim — which is a result, and the rest of this page is how
+to get it.
+
 ## 1. A best-of-N score improves with budget on its own
 
 Before comparing algorithms, it helps to see how much of a search score
