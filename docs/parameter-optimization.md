@@ -24,6 +24,21 @@ Requires scikit-learn:
 pip install "ikn-library[ml]"
 ```
 
+!!! note "Versions behind the numbers on this page"
+    Every output block here was produced by running the code on this
+    page, in order, with **ikn-library 0.17.0**, **scikit-learn 1.9.0**,
+    **NumPy 2.5.2** on **Python 3.13** (the Keras section adds Keras
+    3.15 on TensorFlow 2.21).
+
+    Worth stating because the search results are not
+    version-independent: which configuration wins a 150-evaluation
+    search depends on the exact cross-validated scores, and those can
+    shift in the last digits between scikit-learn releases. Enough to
+    change which of several tied configurations comes first — the same
+    tie this page argues you should not read anything into. If you
+    reproduce this and see different parameters at the same CV score,
+    that is the effect, not a mistake.
+
 ## Splitting the data before the search
 
 Two decisions here shape every number on this page, so they come first:
@@ -128,8 +143,8 @@ print(f"Test accuracy   : {final.score(X_test, y_test):.4f}  (the number to repo
 Output:
 
 ```text
-Best parameters : C=34.3743, gamma=0.0060
-Best CV score   : 0.9758  (search maximum, optimistically biased)
+Best parameters : C=6.7972, gamma=0.0031
+Best CV score   : 0.9780  (search maximum, optimistically biased)
 Test accuracy   : 0.9825  (the number to report)
 ```
 
@@ -160,13 +175,13 @@ print("Test predictions that agree:",
 Output:
 
 ```text
-CV   — default 0.9692   tuned 0.9758
+CV   — default 0.9692   tuned 0.9780
 Test — default 0.9825   tuned 0.9825
 Test predictions that agree: 114/114
 ```
 
 This is the **winner's curse**, and it is worth sitting with. On the
-folds, tuning bought 0.7 accuracy points. On the test set it bought
+folds, tuning bought 0.9 accuracy points. On the test set it bought
 nothing at all: the two models make the *same prediction on all 114
 rows*. Searching hard for the maximum of a noisy score finds
 configurations whose noise happens to point up, and that part of the
@@ -239,19 +254,18 @@ print(f"Test accuracy   : {final_k.score(X_test, y_test):.4f}")
 Output:
 
 ```text
-Best parameters : C=65.1347, gamma=0.0011, kernel=sigmoid
-Best CV score   : 0.9802
+Best parameters : C=31.7194, gamma=0.0036, kernel=sigmoid
+Best CV score   : 0.9780
 Test accuracy   : 0.9825
 ```
 
-The kernel was part of the search rather than an assumption — and
-widening the space did raise the CV maximum, from 0.9758 to 0.9802.
-On the test set that gain evaporates: 0.9825, the same number the
-RBF-only search and the untuned default both reached — and all three
-models agree on *every one of the 114 test rows*. Three different
-corners of the space, one plateau. When configurations tie like this on
-the data that counts, the tie is the finding; ranking them by CV score
-is ranking noise.
+The kernel was part of the search rather than an assumption — and the
+result is a third configuration landing on exactly the same numbers as
+the other two: CV 0.9780, test 0.9825. Widening the search space bought
+nothing at all, on either measure, and all three models agree on *every
+one of the 114 test rows*. Three different corners of the space, one
+plateau. When configurations tie like this on the data that counts, the
+tie is the finding; ranking them by CV score is ranking noise.
 
 !!! note "A caveat on categorical dimensions"
     Continuous algorithms assume nearby points have similar fitness.
