@@ -110,6 +110,7 @@ nav:
           - Monkey King Evolution: algorithm-details/mke.md
           - Moth-Flame Optimization: algorithm-details/mfo.md
           - Particle Swarm Optimization: algorithm-details/pso.md
+          - Random Search: algorithm-details/random-search.md
           - Self-Adaptive Differential Evolution: algorithm-details/jde.md
           - Simulated Annealing: algorithm-details/sa.md
           - Sine Cosine Algorithm: algorithm-details/sca.md

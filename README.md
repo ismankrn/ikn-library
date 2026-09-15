@@ -184,6 +184,7 @@ Currently available:
 `MonarchButterflyOptimization` (continuous),
 `MonkeyKingEvolution` (continuous), `MothFlameOptimization` (continuous),
 `NSGA2` (multi-objective), `ParticleSwarmOptimization` (continuous),
+`RandomSearch` (continuous, binary — the baseline),
 `SelfAdaptiveDifferentialEvolution` (continuous),
 `SimulatedAnnealing` (continuous), `SineCosineAlgorithm` (continuous),
 `WhaleOptimizationAlgorithm` (continuous).

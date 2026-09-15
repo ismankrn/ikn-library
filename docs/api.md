@@ -182,6 +182,8 @@
 
 ::: ikn_library.algorithms.ParticleSwarmOptimization
 
+::: ikn_library.algorithms.RandomSearch
+
 ::: ikn_library.algorithms.SelfAdaptiveDifferentialEvolution
 
 ::: ikn_library.algorithms.SimulatedAnnealing

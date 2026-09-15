@@ -38,6 +38,7 @@ from ikn_library.algorithms import (
     MothFlameOptimization,
     NSGA2,
     ParticleSwarmOptimization,
+    RandomSearch,
     SelfAdaptiveDifferentialEvolution,
     SimulatedAnnealing,
     SineCosineAlgorithm,
@@ -78,6 +79,7 @@ from ikn_library.algorithms import (
 | Komodo Mlipir Algorithm | `KomodoMlipirAlgorithm` | continuous | Suyanto et al., Applied Soft Computing 114, 2022 |
 | NSGA-II | `NSGA2` | continuous, **multi-objective** | Deb et al., IEEE TEVC 6(2), 2002 |
 | Particle Swarm Optimization | `ParticleSwarmOptimization` | continuous | Kennedy & Eberhart, ICNN'95, 1995 |
+| Random Search | `RandomSearch` | continuous, binary / subsets | Bergstra & Bengio, JMLR 13, 2012 |
 | Sine Cosine Algorithm | `SineCosineAlgorithm` | continuous | Mirjalili, Knowledge-Based Systems 96, 2016 |
 | Self-Adaptive Differential Evolution | `SelfAdaptiveDifferentialEvolution` | continuous | Brest et al., IEEE TEC 10(6), 2006 |
 | Whale Optimization Algorithm | `WhaleOptimizationAlgorithm` | continuous | Mirjalili & Lewis, Adv. Eng. Software 95, 2016 |
@@ -644,6 +646,29 @@ per-coordinate random coefficients.
 
 Key parameters: `population_size`, `w_start`, `w_end`, `c1`, `c2`,
 `max_velocity`, `seed`.
+
+## Random Search
+
+`RandomSearch` — the **control**, not a metaheuristic. Every iteration
+draws fresh points uniformly from the search box, scores them and
+forgets them: no population, no memory, no parameter to tune. It works
+on any `Problem`, continuous or binary, so it drops into a feature
+selection or hyperparameter script by swapping one line.
+
+Its job is to price the others. A best-so-far curve slopes downward for
+any objective at all — the minimum of N draws improves with N even on
+pure noise — so an algorithm's score is only evidence of *searching* if
+it beats uniform sampling at the same evaluation budget. Being unbiased
+by construction, it is also the flattest entry in the four-variant
+benchmark (max/min 1.0-1.1x), which makes it a fixed reference against
+which another algorithm's origin bias shows up as a ratio.
+
+One caveat on subset problems: solutions are uniform in `[0, 1]`, so at
+the default threshold each variable is kept with probability one half
+and its subsets cluster around half the features. It is a handicapped
+reference against an objective that rewards small subsets.
+
+Key parameters: `population_size`, `seed`.
 
 ## Self-Adaptive Differential Evolution
 

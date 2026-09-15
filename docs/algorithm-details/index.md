@@ -38,6 +38,7 @@ the actual source, its parameters, and the literature it comes from.
 | Monkey King Evolution | continuous | clone group around the incumbent | [MKE](mke.md) |
 | Moth-Flame Optimization | continuous | logarithmic spiral + shrinking flame count | [MFO](mfo.md) |
 | Particle Swarm Optimization | continuous | velocity + two attractors | [PSO](pso.md) |
+| Random Search | continuous, binary | uniform sampling, no memory | [Random Search](random-search.md) |
 | Self-Adaptive Differential Evolution | continuous | DE + parameters carried by selection | [jDE](jde.md) |
 | Simulated Annealing | continuous | single solution + cooling | [SA](sa.md) |
 | Sine Cosine Algorithm | continuous | trigonometric swing toward the best | [SCA](sca.md) |
@@ -64,7 +65,10 @@ algorithm respects `max_evals` exactly.
 ## Benchmark comparison
 
 All thirty-six on the standard benchmarks (10 dimensions, 20,000 evaluations,
-mean over 3 seeds — lower is better):
+mean over 3 seeds — lower is better). The last row is not a competitor:
+it is [Random Search](random-search.md), the score of spending the same
+budget without searching at all, and every number above it should be read
+as a distance from it:
 
 | Algorithm | Sphere | Ackley | Rastrigin |
 |---|---|---|---|
@@ -103,6 +107,7 @@ mean over 3 seeds — lower is better):
 | Self-Adaptive DE (jDE) | 2e-36 | 4e-15 | **0** |
 | Sine Cosine Algorithm**** | 9e-26 | 5e-10 | 4e-11 |
 | Whale Optimization** | 2e-62 | 3e-15 | **0** |
+| *Random Search (baseline)* | *11.4* | *16.7* | *64.5* |
 
 \* Forest Optimization, Harmony Search, and Monarch Butterfly all
 build solutions one coordinate at a time, so their Rastrigin scores are

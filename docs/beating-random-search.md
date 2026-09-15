@@ -16,6 +16,15 @@ claim in [Feature Selection Protocol](feature-selection-protocol.md).
 
 Four measurements make the comparison interpretable.
 
+!!! tip "Random search is a first-class algorithm here"
+    The snippets on this page draw their random configurations inline,
+    so each one stays readable on its own. In your own scripts use
+    [`RandomSearch`](algorithm-details/random-search.md) instead: it is
+    an `Algorithm` like any other, so it takes the same `Problem`, the
+    same `Task` and the same evaluation budget, and swapping it in is a
+    one-line change that guarantees the two arms are counted the same
+    way.
+
 ## The comparison at a glance
 
 Three arms, one evaluation budget, one sealed test set. What separates
