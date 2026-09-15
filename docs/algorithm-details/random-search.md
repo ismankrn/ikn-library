@@ -97,17 +97,26 @@ biased.
 
 Tuning an RBF SVM over `log10(C)` and `log10(gamma)` — the problem from
 [Hyperparameter Optimization](../parameter-optimization.md), same split
-and same folds, 150 evaluations:
+and same folds, 150 evaluations, best CV score per seed:
 
-| | best CV | test | parameters |
-|---|---|---|---|
-| Random Search | 0.9780 | 0.9825 | C=6.2522, gamma=0.0033 |
-| ACO-R | 0.9780 | 0.9825 | C=6.7972, gamma=0.0031 |
-| default `SVC()` | 0.9692 | 0.9825 | — |
+| seed | Random Search | ACO-R |
+|---|---|---|
+| 42 | 0.9780 | 0.9780 |
+| 1 | 0.9758 | 0.9780 |
+| 2 | 0.9780 | 0.9780 |
+| 3 | 0.9758 | 0.9758 |
+| 4 | 0.9758 | 0.9780 |
+| **mean** | **0.9767** | **0.9776** |
 
-In two dimensions with a smooth objective, 150 random draws find the
-same place a guided search finds. Reporting ACO-R's 0.9780 without this
-row would credit the algorithm for what the budget did.
+In two dimensions with a smooth objective, 150 random draws land where
+the guided search lands on three seeds out of five, and the mean gap is
+**0.0009** — roughly a tenth of the 0.0088 that separates the tuned
+model from the default. Both reach 0.9825 on the test set, as does
+`SVC()` untuned.
+
+Read one seed and the two look identical; read five and ACO-R is
+narrowly but consistently ahead. Either way, quoting a tuned CV score
+without this column credits the algorithm for what the budget did.
 
 The picture changes in a larger, discrete space. Wrapper feature
 selection on the same data, 1000 evaluations:
