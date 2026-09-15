@@ -7,6 +7,57 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.17.0] — 2026-09-15
+
+### Added
+
+- **`RandomSearch`** — the baseline the documentation already required.
+  *Beating Random Search* has a checklist item for running random search
+  at the same evaluation budget, but readers had to hand-roll the loop.
+  It is an `Algorithm` now, so it takes the same `Problem`, the same
+  `Task` and the same budget accounting as everything else, and dropping
+  it into a feature-selection or tuning script is one line.
+
+  Four lines of implementation with nothing to tune, which is the point:
+  any advantage another algorithm shows over it cannot be attributed to
+  its parameters. Measured under the four-variant protocol it is the
+  **flattest profile in the library** (1.0-1.1x across plain, rotated,
+  shifted and both), because uniform sampling has no preferred region —
+  which makes it a fixed reference against which another algorithm's
+  origin bias reads as a ratio. Grey Wolf's advantage over it on Sphere
+  is 10^89 with the optimum at the origin and 10^6.5 once it is shifted;
+  DE's and PSO's do not move.
+
+  Where guidance does and does not pay is now measurable in one line.
+  On the two-dimensional SVM tuning problem, random draws tie with ACO-R
+  on three seeds out of five and trail by 0.0009 on average — about a
+  tenth of the tuned-versus-default gap. On 30-dimensional wrapper
+  feature selection, Binary ACO clearly wins (fitness 0.0239 against
+  0.0318, 13 features against 17).
+
+  One caveat is documented rather than hidden: solutions are uniform in
+  `[0, 1]`, so at the default threshold each variable is kept with
+  probability one half. Its subsets cluster around half the features, so
+  against a size-penalised objective it is a *handicapped* reference,
+  not a neutral one.
+
+- **Four teaching notes on attributing a result to the search**, the
+  question that follows every tutorial in these docs:
+  *Beating Random Search* (what a tuned score must be compared against
+  before the search can be said to have contributed), *Feature Selection
+  Protocol* (four arms rather than two, and why a wrapper's best score
+  is not a result), *Hyperparameter Optimization Protocol* (the sequence
+  for neural networks, where the objective is stochastic and is itself a
+  minimum over epochs), and *Setting the Annealing Temperature* (how to
+  derive `initial_temperature` from a measured uphill move, since `T`
+  carries the objective's units and the default of 1.0 is a placeholder).
+
+### Changed
+
+- The *Hyperparameter Optimization* page's SVM and kernel output blocks
+  were re-measured and replaced, and its Keras section now writes the
+  scaled arrays to new names instead of rebinding `X_train` / `X_test`.
+
 ## [0.16.0] — 2026-09-07
 
 ### Added
@@ -438,6 +489,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.17.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.17.0
 [0.16.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.16.0
 [0.15.1]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.1
 [0.15.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.0
