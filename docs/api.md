@@ -46,6 +46,16 @@
 
 ::: ikn_library.molecules.load_sider
 
+::: ikn_library.molecules.load_chembl_target
+
+::: ikn_library.molecules.ChemblDataset
+
+::: ikn_library.molecules.fetch_chembl_activities
+
+::: ikn_library.molecules.chembl_status
+
+::: ikn_library.molecules.pchembl_to_binary
+
 ::: ikn_library.molecules.load_tox21
 
 ::: ikn_library.molecules.load_bbbp

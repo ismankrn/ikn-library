@@ -56,6 +56,7 @@ nav:
   - Microarray Data: microarray.md
   - Ensemble Weights: ensemble.md
   - Undersampling: undersampling.md
+  - Bioactivity Data (ChEMBL): chembl.md
   - Molecule Data (SIDER): sider.md
   - Molecule Data (Tox21): tox21.md
   - Molecule Data (BBBP, ClinTox, HIV): moleculenet.md
