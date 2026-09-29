@@ -72,6 +72,9 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[Undersampling](undersampling.md)** — balancing imbalanced datasets
   by optimizing *which* majority samples to keep, with an exact-ratio
   constraint.
+- **[Bioactivity Data (ChEMBL)](chembl.md)** — a target identifier in,
+  a QSAR table out: SMILES plus pChEMBL values, with every cleaning step
+  counted rather than silent.
 - **[Molecule Data (SIDER)](sider.md)** — loading the SIDER drug
   side-effect dataset as SMILES plus per-side-effect binary labels.
 - **[Molecule Data (Tox21)](tox21.md)** — loading the Tox21 toxicity

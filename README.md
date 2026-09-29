@@ -274,6 +274,25 @@ Also available: `load_bbbp` (blood-brain barrier), `load_clintox`
 (clinical-trial toxicity), and `load_hiv` (41k compounds, 3.5% active —
 a prime undersampling case study).
 
+## Bioactivity data (ChEMBL)
+
+Build a QSAR dataset from a ChEMBL target identifier — downloaded once,
+cached, and cleaned with every step counted:
+
+```python
+from ikn_library.molecules import load_chembl_target
+
+data = load_chembl_target("CHEMBL279")   # VEGFR2, IC50
+smiles, y = data.smiles, data.y          # SMILES + pChEMBL values
+print(data.report())                     # what each filter removed, and why
+```
+
+Censored measurements (`>10000 nM`), non-nM units and records without a
+pChEMBL value are dropped by default, and repeated measurements of the
+same molecule are collapsed to their median — all switchable.
+`chembl_status()` reports the release the numbers came from, which a
+reproducible methods section needs.
+
 Turn SMILES into features in one call (`pip install ikn-library[chem]`):
 
 ```python

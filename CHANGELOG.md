@@ -7,6 +7,54 @@ the project uses [Semantic Versioning](https://semver.org/).
 Install a specific release with `pip install ikn-library==<version>`, or
 upgrade to the latest with `pip install --upgrade ikn-library`.
 
+## [0.18.0] — 2026-09-29
+
+### Added
+
+- **ChEMBL bioactivity loader.** `load_chembl_target("CHEMBL279")`
+  downloads every measured activity for a target from EBI's public REST
+  API and returns one row per molecule — a SMILES string and a pChEMBL
+  value — which feeds `featurize` and the rest of the library unchanged.
+  `fetch_chembl_activities` returns the raw table for anyone who would
+  rather clean it themselves, and `pchembl_to_binary` turns the
+  regression target into an active/inactive label.
+
+  The cleaning is the QSAR-standard set, but **counted rather than
+  silent**: `data.report()` lists records fetched, with SMILES, exact
+  relation, units, with pChEMBL, and unique molecules. On CHEMBL279 that
+  is 2,000 records to 1,236 molecules, and the 385 dropped at the
+  relation step are censored measurements — `>10000 nM` means the assay
+  stopped looking, not that the value is 10000. Every filter is an
+  argument, so keeping censored records or several species is one
+  keyword away.
+
+  Three properties of the live API are handled in the module rather than
+  left to the reader. It rate-limits sustained paging, so requests retry
+  with an exponential backoff and are spaced politely — a large download
+  is slow, not broken. The cache holds *unfiltered* records, so changing
+  `relation`, `units`, `organism` or `aggregate` never re-downloads:
+  measured at 271 s for the first call and 0.01 s for the second. And
+  `chembl_status()` reports the release the data came from, because
+  ChEMBL grows with every release and a record count is not reproducible
+  without one.
+
+  The documentation page runs the whole thing end to end — 1,236
+  molecules, Morgan fingerprints, a random forest at 0.513 MAE against a
+  0.804 mean-prediction baseline — and states what the data is not: at
+  the usual 6.0 threshold this target gives 953 active against 283
+  inactive, because ChEMBL records what people chose to measure and
+  publish.
+
+### Changed
+
+- The *Hyperparameter Optimization* page's SVM and kernel examples were
+  re-measured in the project environment and now carry the versions
+  behind their numbers. Which configuration wins a 150-evaluation search
+  depends on the last digits of the cross-validated scores, and those
+  move between scikit-learn releases — enough to reorder configurations
+  that are in fact tied, which is the tie the page argues carries no
+  information.
+
 ## [0.17.0] — 2026-09-15
 
 ### Added
@@ -489,6 +537,7 @@ Initial release.
 - GitHub Actions CI, and automated PyPI publishing on version tags via
   Trusted Publishing.
 
+[0.18.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.18.0
 [0.17.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.17.0
 [0.16.0]: https://github.com/ismankrn/ikn-library/releases/tag/v0.16.0
 [0.15.1]: https://github.com/ismankrn/ikn-library/releases/tag/v0.15.1
