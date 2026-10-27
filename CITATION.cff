@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: ikn-library
+abstract: >-
+  A Python library of nature-inspired metaheuristic algorithms with
+  applied modules for cheminformatics and bioinformatics: wrapper
+  feature selection, hyperparameter optimization, ensemble weight
+  optimization, evolutionary undersampling, and loaders for gene
+  expression, molecular and drug-target datasets. Every algorithm is
+  benchmarked under rotation and translation of the objective, and the
+  resulting behaviour is documented per algorithm.
+type: software
+authors:
+  - family-names: Kurniawan
+    given-names: Isman
+    orcid: "https://orcid.org/0000-0003-3485-3063"
+    affiliation: "School of Computing, Telkom University, Bandung, Indonesia"
+    email: ismankrn@telkomuniversity.ac.id
+version: 0.18.0
+date-released: "2026-09-29"
+license: MIT
+repository-code: "https://github.com/ismankrn/ikn-library"
+url: "https://ikn-library.readthedocs.io"
+keywords:
+  - metaheuristics
+  - optimization
+  - feature selection
+  - hyperparameter optimization
+  - cheminformatics
+  - bioinformatics
+  - QSAR
+  - benchmarking
+  - Python
