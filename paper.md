@@ -109,12 +109,29 @@ tests that lock in structural findings such as translation invariance
 where it holds. Documentation outputs are regenerated from execution
 rather than written by hand.
 
-# Note on AI assistance
+# AI usage disclosure
 
-Research design, methodological direction, the standards of evidence
-applied to the documentation, and validation of results are the
-author's. Code implementation was carried out with AI assistance, which
-is recorded explicitly in the public commit history.
+**Tools used.** Anthropic Claude, accessed through the Claude Code
+command-line interface. Two model versions were used over the
+development period: Claude Fable 5 (101 commits) and Claude Opus 5
+(37 commits). Each commit records the model that assisted it in a
+`Co-Authored-By` trailer, so the distribution is auditable from the
+public history.
+
+**Nature and scope of assistance.** AI assistance was used for code
+implementation and refactoring, test authoring, scripting of the
+benchmark harnesses, drafting of the documentation, and drafting of
+this paper. It was not used for the research questions, the choice of
+evaluation protocol, or the interpretation of results.
+
+**Confirmation of review.** The author reviewed, edited and validated
+all AI-assisted output, and made the core design decisions: the scope
+of the library, the four-variant evaluation protocol and the decision
+to apply it to every algorithm, the standard that every documented
+output be produced by execution, and the acceptance of findings
+unfavourable to algorithms included in the library. All reported
+numbers were produced by running the code and were verified against the
+documentation before release.
 
 # Acknowledgements
 
