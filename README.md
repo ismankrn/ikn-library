@@ -212,20 +212,28 @@ If this library supports your research, please cite the version you
 used — algorithm defaults and benchmark numbers change between
 releases, so the version is part of the citation.
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23721226.svg)](https://doi.org/10.5281/zenodo.23721226)
+
 ```bibtex
 @software{kurniawan_iknlibrary_2026,
-  author  = {Kurniawan, Isman},
-  title   = {{ikn-library}: nature-inspired metaheuristics with applied
-             modules for cheminformatics and bioinformatics},
-  version = {0.18.0},
-  year    = {2026},
-  license = {MIT},
-  url     = {https://github.com/ismankrn/ikn-library}
+  author    = {Kurniawan, Isman},
+  title     = {{ikn-library}: nature-inspired metaheuristics with applied
+               modules for cheminformatics and bioinformatics},
+  version   = {0.18.1},
+  year      = {2026},
+  publisher = {Zenodo},
+  license   = {MIT},
+  doi       = {10.5281/zenodo.23721226},
+  url       = {https://doi.org/10.5281/zenodo.23721226}
 }
 ```
 
-In APA form: Kurniawan, I. (2026). *ikn-library* (Version 0.18.0)
-[Computer software]. https://github.com/ismankrn/ikn-library
+In APA form: Kurniawan, I. (2026). *ikn-library* (Version 0.18.1)
+[Computer software]. Zenodo. https://doi.org/10.5281/zenodo.23721226
+
+The DOI above is the *concept* DOI: it always resolves to the most
+recent release. To cite one specific version, use that release's own
+DOI from its Zenodo record.
 
 Machine-readable metadata is in **[CITATION.cff](CITATION.cff)**, which
 GitHub renders through its "Cite this repository" button. A software

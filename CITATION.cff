@@ -16,9 +16,17 @@ authors:
     orcid: "https://orcid.org/0000-0003-3485-3063"
     affiliation: "School of Computing, Telkom University, Bandung, Indonesia"
     email: ismankrn@telkomuniversity.ac.id
-version: 0.18.0
-date-released: "2026-09-29"
+version: 0.18.1
+date-released: "2026-10-28"
 license: MIT
+doi: 10.5281/zenodo.23721226
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23721226
+    description: Concept DOI, always resolving to the latest release
+  - type: doi
+    value: 10.5281/zenodo.23721227
+    description: DOI of version v0.18.1
 repository-code: "https://github.com/ismankrn/ikn-library"
 url: "https://ikn-library.readthedocs.io"
 keywords:
