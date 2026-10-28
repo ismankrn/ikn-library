@@ -193,6 +193,25 @@ See
 **[ALGORITHMS.md](ALGORITHMS.md)** for the full list with descriptions,
 key parameters, and references.
 
+## Contributing
+
+Bug reports, questions and contributions are welcome. See
+**[CONTRIBUTING.md](CONTRIBUTING.md)** for how to report a problem, get
+help, and set up a development environment, including the conventions
+this project holds contributions to — notably that every documented
+output is produced by running the code, and that a new algorithm is
+benchmarked under rotation and translation, not only on the plain
+functions.
+
+Participation is governed by the
+**[Code of Conduct](CODE_OF_CONDUCT.md)**.
+
+## Citing
+
+If this library supports your research, please cite it. Citation
+metadata is in **[CITATION.cff](CITATION.cff)**; GitHub's "Cite this
+repository" button renders it in BibTeX and APA.
+
 ## Microarray data
 
 Load NCBI GEO microarray series into ML-ready tables — downloaded once,
