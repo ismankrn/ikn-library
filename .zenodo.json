@@ -1,0 +1,37 @@
+{
+  "title": "ikn-library: nature-inspired metaheuristics with applied modules for cheminformatics and bioinformatics",
+  "description": "<p>A Python library of nature-inspired metaheuristic algorithms together with the applied components needed to point them at real data: wrapper feature selection, hyperparameter optimization, ensemble weight optimization, evolutionary undersampling, and loaders for gene expression, molecular and drug-target datasets.</p><p>Every algorithm implements the same interface, and every algorithm is benchmarked under rotation and translation of the objective, with the resulting behaviour documented per algorithm.</p>",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Kurniawan, Isman",
+      "affiliation": "School of Computing, Telkom University, Bandung, Indonesia",
+      "orcid": "0000-0003-3485-3063"
+    }
+  ],
+  "keywords": [
+    "metaheuristics",
+    "optimization",
+    "feature selection",
+    "hyperparameter optimization",
+    "cheminformatics",
+    "bioinformatics",
+    "QSAR",
+    "benchmarking",
+    "Python"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://ikn-library.readthedocs.io",
+      "relation": "isDocumentedBy",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://pypi.org/project/ikn-library/",
+      "relation": "isIdenticalTo",
+      "scheme": "url"
+    }
+  ]
+}
