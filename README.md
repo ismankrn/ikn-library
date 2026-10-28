@@ -208,9 +208,29 @@ Participation is governed by the
 
 ## Citing
 
-If this library supports your research, please cite it. Citation
-metadata is in **[CITATION.cff](CITATION.cff)**; GitHub's "Cite this
-repository" button renders it in BibTeX and APA.
+If this library supports your research, please cite the version you
+used — algorithm defaults and benchmark numbers change between
+releases, so the version is part of the citation.
+
+```bibtex
+@software{kurniawan_iknlibrary_2026,
+  author  = {Kurniawan, Isman},
+  title   = {{ikn-library}: nature-inspired metaheuristics with applied
+             modules for cheminformatics and bioinformatics},
+  version = {0.18.0},
+  year    = {2026},
+  license = {MIT},
+  url     = {https://github.com/ismankrn/ikn-library}
+}
+```
+
+In APA form: Kurniawan, I. (2026). *ikn-library* (Version 0.18.0)
+[Computer software]. https://github.com/ismankrn/ikn-library
+
+Machine-readable metadata is in **[CITATION.cff](CITATION.cff)**, which
+GitHub renders through its "Cite this repository" button. A software
+paper and an archived release with a DOI are in preparation; when
+available, the paper becomes the preferred citation.
 
 ## Microarray data
 

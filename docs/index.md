@@ -95,6 +95,45 @@ The library follows a NiaPy-like workflow built from three pieces:
 - **[API Reference](api.md)** — full reference generated from the
   docstrings.
 
+## Citing
+
+If this library supports your research, please cite the version you
+used. Algorithm defaults and benchmark numbers change between releases,
+so the version is part of the citation rather than a formality.
+
+```bibtex
+@software{kurniawan_iknlibrary_2026,
+  author  = {Kurniawan, Isman},
+  title   = {{ikn-library}: nature-inspired metaheuristics with applied
+             modules for cheminformatics and bioinformatics},
+  version = {0.18.0},
+  year    = {2026},
+  license = {MIT},
+  url     = {https://github.com/ismankrn/ikn-library}
+}
+```
+
+In APA form:
+
+> Kurniawan, I. (2026). *ikn-library* (Version 0.18.0) [Computer
+> software]. https://github.com/ismankrn/ikn-library
+
+Check which version you are using with:
+
+```python
+import ikn_library
+print(ikn_library.__version__)
+```
+
+Machine-readable metadata lives in
+[`CITATION.cff`](https://github.com/ismankrn/ikn-library/blob/main/CITATION.cff),
+which GitHub renders through its "Cite this repository" button.
+
+!!! note "This will change"
+    A software paper and an archived release with a DOI are in
+    preparation. Once available, the paper becomes the preferred
+    citation. Citing the software as above is correct until then.
+
 ## Acknowledgments
 
 The `Problem` / `Task` / `Algorithm` workflow is inspired by the API
